@@ -37,7 +37,7 @@ Menu → (Single Player | Host | Entrar com código) → Raça → Classe → Bu
 | 🏹 Arqueiro | Arco (tiros, cone lento, salto), Lança e Animal (Urso, Tigre ou Lobo), Adagas (assassino) |
 | 🔮 Mago | Fogo, Gelo, Sombra e Ilusão: 3 magias cada; a barra amarela é a mana |
 | 🔨 Paladino | Martelo sagrado, cura e controle de horda |
-| 🥊 Pugilista | Socos e chutes rápidos, cura e apoio |
+| 🧘 Monge | Socos e chutes rápidos, cura e apoio |
 | 💀 Necromante | Invoca zumbi, esqueleto, escudeiro, cão e abutre |
 
 Mochila: 🧪 Poção (3), 💣 Bomba (2), ⚡ Tônico (2). Também dá para entregar itens a

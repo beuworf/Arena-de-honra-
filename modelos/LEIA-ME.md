@@ -8,7 +8,7 @@ O jogo usa personagens no formato **VRM 0.0**, o formato que o
 | Arquivo | Quando é usado |
 | --- | --- |
 | `heroi.vrm` | Modelo padrão de todas as classes. O jogo coloca por cima o visual de cada classe (cor da roupa, elmo, capuz, chapéu, capa, manto…). |
-| `guerreiro.vrm`, `arqueiro.vrm`, `mago.vrm`, `paladino.vrm`, `pugilista.vrm`, `necromante.vrm` | Opcionais. Se existir, substitui o padrão **só naquela classe**, sem acessórios extras, porque o visual já vem pronto do VRoid. |
+| `guerreiro.vrm`, `arqueiro.vrm`, `mago.vrm`, `paladino.vrm`, `monge.vrm`, `necromante.vrm` | Opcionais. Se existir, substitui o padrão **só naquela classe**, sem acessórios extras, porque o visual já vem pronto do VRoid. |
 
 O jogador também pode carregar o próprio `.vrm` em *Configurações → Seu modelo
 .vrm*. Esse modelo fica salvo só no aparelho dele e vale para todas as classes,
