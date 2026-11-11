@@ -39,6 +39,7 @@ Menu → (Single Player | Host | Entrar com código) → Raça → Classe → Bu
 | 🔨 Paladino | Martelo sagrado, cura e controle de horda |
 | 🧘 Monge | Socos e chutes rápidos, cura e apoio |
 | 💀 Necromante | Invoca zumbi, esqueleto, escudeiro, cão e abutre |
+| 😈 Corrompido | Dano em círculo, salto explosivo, raio dos olhos, fragmentos de alma e forma gigante |
 
 Mochila: 🧪 Poção (3), 💣 Bomba (2), ⚡ Tônico (2). Também dá para entregar itens a
 um aliado próximo.

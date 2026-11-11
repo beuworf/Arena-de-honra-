@@ -89,6 +89,14 @@ em **Configurações**.
   - **Adagas:** a esquiva gasta 30 de estamina (eram 40).
   - **Necromante:** jogando sozinho, as invocações se curam um pouco cada vez que causam dano ou empurram inimigos.
   - **Lança:** com o animal caído, os golpes de lança causam 80% a mais de dano.
+- **Classe nova: Corrompido** (😈, focada em dano; veja `docs/corrompido.png`). Todos os golpes acertam em círculo em volta dele.
+  - **Barra de poder:** começa vazia e não enche sozinha. Enche um pouco a cada acerto e bastante com os **fragmentos de alma**, que os inimigos eliminados deixam cair e que também curam.
+  - **○ Golpe rápido:** sequência de cortes em círculo; o terceiro é um giro maior.
+  - **△ Golpe forte:** salta sobre o inimigo mais próximo (sem poder ser atingido no ar) e explode, jogando longe quem está perto.
+  - **□ Habilidade (segurar):** raio pelos olhos, que gasta a barra enquanto estiver segurando.
+  - **✕ no ar com a barra cheia:** pancada no chão e **forma gigante** por 2 minutos: recebe metade do dano, ganha 25% de evasão e os golpes ficam maiores e mais fortes. Gigante, ele não recolhe fragmentos, mas eles ficam no chão sem sumir.
+  - **Evasão passiva:** cada acerto dá 8% de chance de desviar, até 40%; some se ficar 2,5 s sem acertar.
+  - **Com a esquiva (R1 / Shift) logo depois de uma habilidade:** ○ lança uma onda cortante para frente; △ causa dano no alvo e leva o personagem 4 m para trás dele; □ concentra o raio (mais forte, gasta mais rápido); na forma gigante, causa uma explosão enorme que encerra a transformação.
 - **Desistir da run:** no menu de pausa, encerra a partida e mostra o resumo com o recorde.
 - **Personagens VRoid (opcional, desligado por padrão):** em *Configurações → Boneco 3D (VRoid)* o jogador pode trocar o boneco por um modelo VRM, com animação própria de corpo humano e o visual de cada classe por cima. Nada é baixado enquanto a opção estiver desligada. Veja `modelos/LEIA-ME.md`.
 - **Mira dos projéteis:** facas, magias, martelo arremessado, rajada de flechas, soco à distância e orbe sombrio miram primeiro no inimigo sob o mouse. Com o mouse capturado, no analógico, no controle ou no toque, vale o centro do olhar (a mira no meio da tela); na câmera de cima, a frente do personagem. Sem ninguém na mira, vão no mais forte (boss, depois os grandes) e, se forem todos iguais, no mais perto. Um anel vermelho marca o inimigo na mira.
