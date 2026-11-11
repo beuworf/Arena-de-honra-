@@ -998,7 +998,7 @@ function avUpd(r,dt){const g=r.av,R=g.R;if(!R)return;const sp=dt>0?Math.hypot(r.
   const m=r.m,ph=(r.ph=(r.ph||0)+dt*14*Math.max(.35,m)),q=Math.sin(ph)*.8*m,as=Math.abs(sv);
   R.legL.rotation.x=a?-.5*as:q;R.legR.rotation.x=a?.38*as:-q;R.kL.rotation.x=a?.25*as:Math.max(0,q)*.9;R.kR.rotation.x=a?.55*as:Math.max(0,-q)*.9;if(r.y>.25){R.legL.rotation.x=R.legR.rotation.x=-.55;R.kL.rotation.x=R.kR.rotation.x=.9}
   let tw=0,ln=0;if(a){if(k=='L'||k=='S'){tw=d*.38*sv;ln=.1*as}else if(k=='H'||k=='G')ln=sv<0?.14*sv:.3*sv;else if(k=='T')ln=sv<0?.1*sv:.24*sv;else ln=.12*as}else if(r.dg)ln=.45;
-  r.tw=(r.tw||0)+(tw-(r.tw||0))*.45;r.ln=(r.ln||0)+(ln-(r.ln||0))*.35;g.rotation.y=r.f+(a&&k=='S'?eio(pr)*PI2:0);g.rotation.x=r.ln;R.body.rotation.y=r.tw*(g.w==7?2.6:1.4);R.body.rotation.z=g.w==7?-r.tw*.55:0;R.hd.rotation.y=-r.tw*.8;
+  r.tw=(r.tw||0)+(tw-(r.tw||0))*.45;r.ln=(r.ln||0)+(ln-(r.ln||0))*.35;g.rotation.y=r.f+(a&&k=='S'?eio(pr)*PI2:0);g.rotation.x=r.ln;R.body.rotation.y=r.tw*(g.w==7?2.6:1.4);r.sh7=(r.sh7||0)+((g.w==7&&!a?.14:0)-(r.sh7||0))*.15;R.body.rotation.z=g.w==7?-r.tw*.55+r.sh7:0;R.hd.rotation.z=g.w==7?-r.sh7:0;R.hd.rotation.y=-r.tw*.8;
   R.body.position.y=BY+(m>.1&&!a?Math.abs(Math.sin(ph))*.08:Math.sin(t*2.4)*.015)+g.dy-(a&&(k=='H'||k=='G')&&sv>0?.14*sv:0);
   R.rc=g.rc;armPose(R,{wi:g.w,att:!!a,sv,k,d,pr,n:r.ak?r.ak.n:0,blk:r.blk,m,ph,y:r.y,dg:r.dg},dt||.016);R.pSh.visible=!!r.shd}
 // invocações e animal dos outros jogadores (só visual; o dano chega pela rede)
@@ -1167,7 +1167,7 @@ function dyUpd(dt){for(let i=DY.length-1;i>=0;i--){const d=DY[i];d.t+=dt;const u
 // ---- Braços e armas por cinemática inversa: cada golpe define o caminho da mão e da lâmina;
 // ombro (com avanço da articulação), cotovelo e mão são resolvidos para segurar a arma de verdade.
 const IKD=new THREE.Vector3(0,-1,0),IQ=new THREE.Quaternion(),IQ2=new THREE.Quaternion(),IV=[0,1,2,3,4,5,6,7,8,9].map(()=>new THREE.Vector3());
-const WID={0:[.10,-.52,.20,-.45,-.15],1:[.02,-.50,.26,-.8,-.5],2:[.18,-.48,.22,-.6,.1],4:[.12,-.46,.06,-.12,-.15],5:[.16,-.48,.24,-.35,.2],6:[.14,-.40,.24,-1.25,0],7:[-.02,-.56,.20,.7,-.55],9:[.14,-.40,.24,-1.25,0]},WZG={1:-.26,4:.55,7:.3};
+const WID={0:[.10,-.52,.20,-.45,-.15],1:[.02,-.50,.26,-.8,-.5],2:[.18,-.48,.22,-.6,.1],4:[.12,-.46,.06,-.12,-.15],5:[.16,-.48,.24,-.35,.2],6:[.14,-.40,.24,-1.25,0],7:[-.43,-.12,.34,-2.78,-.84],9:[.14,-.40,.24,-1.25,0]},WZG={1:-.26,4:.55,7:.3};
 function armIK(ua,fa,bq,S,T,px,a){const l1=.34*a,l2=.38*a,d=IV[0].copy(T).sub(S);let len=d.length();if(len<1e-4){d.set(0,-1,0);len=.01}d.divideScalar(len);len=Math.min(Math.max(len,.14*a),(l1+l2)*.995);
   const c=(l1*l1-l2*l2+len*len)/(2*len),h=Math.sqrt(Math.max(0,l1*l1-c*c)),pl=IV[1].set(px,-.7,-.55);pl.addScaledVector(d,-pl.dot(d));if(pl.lengthSq()<1e-6)pl.set(px,0,-1);pl.normalize();
   const E=IV[2].copy(S).addScaledVector(d,c).addScaledVector(pl,h),H=IV[3].copy(S).addScaledVector(d,len);
@@ -1217,7 +1217,7 @@ function poseUpd(il,dt){const a=p.att>0,s=a?AN2.s:0,k=AN2.k,as=Math.abs(s);let t
     if(p.y<.1){legL.rotation.x=-.5*as;legR.rotation.x=.38*as;kL.rotation.x=.25*as;kR.rotation.x=.55*as}}
   else if(p.dg>0)ln=.45;else if(p.fl>0)ln=-.18;
   if(p.y>.25&&!a){legL.rotation.x=legR.rotation.x=-.55;kL.rotation.x=kR.rotation.x=.9}
-  PO.tw+=(tw-PO.tw)*.45;PO.ln+=(ln-PO.ln)*.35;const vr=!!(VRMS.v&&VRV);pg.rotation.y=p.f+(vr?PO.tw:0)+(a&&k=='S'&&!vr?eio(AN2.pr||0)*PI2:0);pg.rotation.x=PO.ln;body.rotation.y=vr?0:PO.tw*1.4;body.rotation.z=!vr&&wi==7?-PO.tw*.3:0;hd.rotation.y=vr?0:-PO.tw*.8;body.position.y+=RO.dy-cr;
+  PO.tw+=(tw-PO.tw)*.45;PO.ln+=(ln-PO.ln)*.35;const vr=!!(VRMS.v&&VRV);pg.rotation.y=p.f+(vr?PO.tw:0)+(a&&k=='S'&&!vr?eio(AN2.pr||0)*PI2:0);pg.rotation.x=PO.ln;body.rotation.y=vr?0:PO.tw*1.4;PO.sh=(PO.sh||0)+((wi==7&&!a&&!(p.rh>0)?.14:0)-(PO.sh||0))*.15;body.rotation.z=!vr&&wi==7?-PO.tw*.3+PO.sh:0;hd.rotation.z=!vr&&wi==7?-PO.sh:0;hd.rotation.y=vr?0:-PO.tw*.8;body.position.y+=RO.dy-cr;
   if(!a&&!p.blk&&p.dg<=0){if(il>.1&&p.y<.1){const q=Math.sin(t*14)*.35;sw.rotation.x=q;sw2.rotation.x=-q;uaR.rotation.x+=q*.6;uaL.rotation.x-=q*.6}else if(il<=.1)body.position.y+=Math.sin(t*2.4)*.015}
   if(!vr){LRIG.rc=race;armPose(LRIG,{wi,att:a,sv:AN2.s,k,d:AN2.d,pr:AN2.pr,n:p.n,blk:p.blk,m:p.y<.1?Math.min(1,il):0,ph:t*14,y:p.y,rh:p.rh>0,act:p.act>.75,dg:p.dg>0},dt||.016)}}
 // Rastro da arma: fita de 12 segmentos com brilho aditivo, sem textura
