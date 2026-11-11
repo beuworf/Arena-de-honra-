@@ -44,6 +44,10 @@ em **Configurações**.
 - **Números de dano:** cada golpe e cada magia mostra quanto tirou do inimigo, e golpes fortes aparecem em amarelo.
 - **Recorde:** o jogo guarda seu melhor número de abates e o nível mais alto, e mostra os dois na tela de derrota e no menu.
 - **Ajuda:** a barra de controles agora quebra linha em vez de sair da tela, e some depois de 15 s de partida. Ela continua aparecendo na tela de pausa.
+- **Gráficos estilo PS1:** os vértices "tremem" presos à grade de pixels e as cores usam dithering de 15 bits, tudo feito no próprio shader, sem custo extra. As texturas pixeladas (grama, terra, água animada, madeira, telhas, tijolo, pedra, tecido, pele) são geradas na hora, sem baixar nenhuma imagem.
+- **Modelos mais detalhados:** os inimigos ganharam mandíbula, presas, sobrancelha, nariz, cotovelos, mãos com garras, pés, cinto, tanga e espinhos nas costas. Como cada parte vira uma malha só, eles ficaram mais leves que antes. O aliado também tem modelo novo, com capa, e as casas ganharam alicerce e lintel.
+- **Cenário:** tem grama e flores divididas em blocos (só é desenhado o que aparece na tela), margem de areia no lago, sombra redonda embaixo dos personagens e variação de cor entre árvores e pedras.
+- **Configurações:** dá para ligar e desligar o "Visual PS1" e a "Grama e flores" (para celulares fracos).
 - **Projeto OhMyGame:** o repositório tem `ohmygame.json`, um documento de design (`docs/design.md`) e regras para o agente (`AGENTS.md`).
 
 ## Abrindo no OhMyGame
@@ -55,6 +59,8 @@ em **Configurações**.
    jogo é um único `index.html` e não precisa de instalação.
 4. Peça mudanças no chat. O agente lê o `AGENTS.md` e o `docs/design.md`
    antes de mexer no código, e pode jogar o jogo para conferir o resultado.
+
+![Antes e depois](docs/antes-depois.png)
 
 ## Estrutura
 
