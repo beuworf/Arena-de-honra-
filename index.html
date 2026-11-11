@@ -147,7 +147,6 @@ body.led .sel{outline:3px solid #ffd34d;outline-offset:3px}
 <div id="dn"></div>
 <div id="pause"><b>PAUSADO</b><small id="phelp"></small><div class="mi" id="pgo">▶ Continuar</div><div class="mi" id="prs">↺ Reiniciar fase (trocar classe)</div><div class="mi" id="pgu">🏳 Desistir da run</div><small>Esc ou P também continuam</small></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 (()=>{
 const $=i=>document.getElementById(i),rnd=(a,b)=>a+Math.random()*(b-a),PI2=Math.PI*2;
@@ -960,11 +959,11 @@ const NSF=['stun','kd','lf','slow','ice','fear','burn','bleed','psn','brk','vul'
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const nemit=(t,d)=>{if(NET.R)try{NET.R.emit(t,d).catch(()=>{})}catch(e){}},npres=o=>{if(NET.R)try{NET.R.presence(o).catch(()=>{})}catch(e){}};
 const meW=()=>NET.me.c>=2?NET.me.c+4:NET.me.c*3+NET.me.b,meP=()=>{const q=NET.R&&NET.R.peers().find(q=>q.isMe&&q.sameTab);return q?q.peer:''},isHost=peer=>!!(NET.R&&NET.R.peers().some(q=>q.peer==peer&&q.presence&&q.presence.h==1)),rpOf=peer=>NET.rpm[peer];
-const NETMODE=()=>window.claude&&window.claude.use?'claude':(window.Peer?'peer':'none');
+const NETMODE=()=>window.claude&&window.claude.use?'claude':'relay';
 let peerLoad=null;
 function loadPeerLib(){if(window.Peer)return Promise.resolve(1);if(peerLoad)return peerLoad;const U=['https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js','https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js','https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js'];
   peerLoad=(async()=>{for(const u of U){const ok=await new Promise(r=>{const sc=document.createElement('script');let d=0;const f=v=>{if(!d){d=1;r(v)}};sc.src=u;sc.onload=()=>f(!!window.Peer);sc.onerror=()=>f(false);setTimeout(()=>f(false),9000);document.head.appendChild(sc)});if(ok)return 1}peerLoad=null;return 0})();return peerLoad}
-async function ensureNet(){if(window.claude&&window.claude.use)return 'claude';if(!window.Peer)await loadPeerLib();return NETMODE()}
+async function ensureNet(){return NETMODE()}
 function peerRoom(host,code){return new Promise((resolve,reject)=>{
   const PC=window.ARENA_PEER||{debug:0,config:{iceServers:window.ARENA_ICE||[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
   const lis={ev:{},pe:[]},conns={};let myPres={},table={},me=host?'host':'',hc=null,left=false,P=null,done=false,tm=null,bt=0;
@@ -990,10 +989,42 @@ function peerRoom(host,code){return new Promise((resolve,reject)=>{
       hc.on('open',()=>ok());
       hc.on('data',m=>{if(!m)return;if(m.k=='pt'){const t=m.t||{};t[me]=myPres;table=t;notify()}else if(m.k=='em')fire(m.t,{peer:m.f,isMe:false,sameTab:false,topic:m.t,data:m.d})});
       hc.on('close',()=>{delete table.host;notify()});hc.on('error',()=>{})})}})}
-if(!(window.claude&&window.claude.use))ensureNet().then(md=>{if(md=='peer'){MENUF[1]='Cria um lobby com código de 4 dígitos. Envie o link do jogo e o código para seus amigos.';if(scr=='menu')menuUI();const jm_=/join=(\d{4})/.exec(location.hash);if(jm_){showScr('join');$('jc').value=jm_[1];netJoin(jm_[1])}}})
+if(!(window.claude&&window.claude.use))ensureNet().then(md=>{if(md=='relay'){MENUF[1]='Cria um lobby com código de 4 dígitos. Envie o link do jogo e o código para seus amigos.';if(scr=='menu')menuUI();const jm_=/join=(\d{4})/.exec(location.hash);if(jm_){showScr('join');$('jc').value=jm_[1];netJoin(jm_[1])}}})
+// ---- Sala por retransmissão (MQTT sobre WebSocket): funciona em qualquer rede, inclusive 4G/5G, sem conexão direta entre os aparelhos
+const BROKERS=()=>window.ARENA_BROKERS||['wss://broker.emqx.io:8084/mqtt','wss://mqtt.eclipseprojects.io/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+function mqttOpen(url,topic,onMsg,ms=6000){return new Promise((ok,no)=>{let ws,buf=new Uint8Array(0),done=0,ping=0;const te=new TextEncoder(),td=new TextDecoder();
+  const vl=n=>{const o=[];do{let b=n%128;n=Math.floor(n/128);if(n>0)b|=128;o.push(b)}while(n>0);return o},str=t=>{const b=te.encode(t);return [b.length>>8,b.length&255,...b]};
+  const pkt=(h,body)=>{const u=new Uint8Array(1+vl(body.length).length+body.length);u[0]=h;u.set(vl(body.length),1);u.set(body,1+vl(body.length).length);return u};
+  const fail=e=>{if(!done){done=1;clearTimeout(tm);try{ws.close()}catch(_){}no(e)}},tm=setTimeout(()=>fail('timeout'),ms);
+  try{ws=new WebSocket(url,'mqtt')}catch(e){return fail('ws')}ws.binaryType='arraybuffer';
+  const C={alive:true,onclose:null,pub:o=>{if(ws.readyState!=1)return;const pl=te.encode(JSON.stringify(o)),tp=str(topic),b=new Uint8Array(tp.length+pl.length);b.set(tp,0);b.set(pl,tp.length);ws.send(pkt(0x30,b))},close:()=>{C.alive=false;clearInterval(ping);try{ws.send(new Uint8Array([0xe0,0]))}catch(_){}try{ws.close()}catch(_){}}};
+  ws.onopen=()=>ws.send(pkt(0x10,new Uint8Array([...str('MQTT'),4,2,0,30,...str('arena'+Math.random().toString(36).slice(2,12))])));
+  ws.onerror=()=>fail('ws');ws.onclose=()=>{clearInterval(ping);if(!done)fail('closed');else if(C.alive){C.alive=false;C.onclose&&C.onclose()}};
+  ws.onmessage=ev=>{const d=new Uint8Array(ev.data),nb=new Uint8Array(buf.length+d.length);nb.set(buf,0);nb.set(d,buf.length);buf=nb;
+    for(;;){if(buf.length<2)return;let i=1,len=0,m=1,b;do{if(i>=buf.length)return;b=buf[i++];len+=(b&127)*m;m*=128}while(b&128);if(buf.length<i+len)return;const ty=buf[0]>>4,body=buf.subarray(i,i+len);buf=buf.slice(i+len);
+      if(ty==2){if(body[1]!==0)return fail('refused');ws.send(pkt(0x82,new Uint8Array([0,1,...str(topic),0])))}
+      else if(ty==9){if(!done){done=1;clearTimeout(tm);ping=setInterval(()=>{if(ws.readyState==1)ws.send(new Uint8Array([0xc0,0]))},20000);ok(C)}}
+      else if(ty==3){const tl=(body[0]<<8)|body[1];let m=null;try{m=JSON.parse(td.decode(body.subarray(2+tl)))}catch(_){}if(m)onMsg(m)}}}})}
+async function relayJoin(url,code){const me='p'+Math.random().toString(36).slice(2,10),tb={},seen={},lis={},pe=[];let my={},left=false,dirty=0;tb[me]=my;
+  const fire=(t,m)=>(lis[t]||[]).forEach(f=>{try{f(m)}catch(e){console.error(e)}}),note=()=>pe.forEach(f=>{try{f({})}catch(e){}});
+  const C=await mqttOpen(url,'arenahonra/v2/'+code,m=>{if(!m||m.f===me||left)return;seen[m.f]=performance.now();
+    if(m.k=='pr'){const nw=!tb[m.f];tb[m.f]=m.p||{};note();if(nw)C.pub({k:'pr',f:me,p:my})}else if(m.k=='em')fire(m.t,{peer:m.f,isMe:false,sameTab:false,topic:m.t,data:m.d});else if(m.k=='bye'){delete tb[m.f];delete seen[m.f];note()}});
+  const iv=setInterval(()=>{if(left)return;C.pub({k:'pr',f:me,p:my});const n=performance.now();for(const id in seen)if(n-seen[id]>3500){delete tb[id];delete seen[id];note()}},1000);
+  C.onclose=()=>{for(const id in tb)if(id!==me)delete tb[id];note()};
+  return{url,emit:async(t,d)=>{if(left)throw new Error('left');C.pub({k:'em',f:me,t,d})},on:(t,f)=>{(lis[t]=lis[t]||[]).push(f);return()=>{}},
+    presence:async pt=>{if(left)throw new Error('left');const n={...my};for(const k in pt){if(pt[k]===null)delete n[k];else n[k]=pt[k]}my=n;tb[me]=my;C.pub({k:'pr',f:me,p:my});note()},
+    peers:()=>Object.keys(tb).map(id=>({peer:id,isMe:id===me,sameTab:id===me,kind:'viewer',guest:false,presence:tb[id]})),onPeers:f=>{pe.push(f);return()=>{}},
+    leave:async()=>{left=true;clearInterval(iv);try{C.pub({k:'bye',f:me})}catch(e){}setTimeout(()=>C.close(),150)}}}
+async function relayHost(msg){let any=0;for(const url of BROKERS()){for(let i=0;i<4;i++){const code=String(Math.floor(Math.random()*10000)).padStart(4,'0');let R=null;try{R=await relayJoin(url,code)}catch(e){break}any=1;
+      await R.presence({h:1,ph:'l'});await sleep(1300);if(R.peers().some(q=>!q.isMe&&q.presence&&q.presence.h==1)){try{await R.leave()}catch(e){}continue}return{R,code}}}
+  return{err:any?'Não foi possível criar o lobby. Tente de novo.':'Sem conexão com os servidores de sala. Verifique a internet e tente de novo.'}}
+async function relayFind(code,msg){let any=0;for(const url of BROKERS()){let R=null;try{R=await relayJoin(url,code)}catch(e){continue}any=1;await R.presence({ph:'j'});let h=null;for(let i=0;i<12&&!h;i++){h=R.peers().find(q=>!q.isMe&&q.presence&&q.presence.h==1);if(!h)await sleep(250)}
+    if(h)return{R,h};try{await R.leave()}catch(e){}}
+  return{err:any?'Lobby não encontrado. Confira o código.':'Sem conexão com os servidores de sala. Verifique a internet e tente de novo.'}}
+addEventListener('pagehide',()=>{if(NET.R&&NET.R.url)try{NET.R.leave()}catch(e){}});
 let netET=0;function netErr(err){if(performance.now()-netET>2000){netET=performance.now();toast('Erro online: '+err.message)}}
 function netMsg(t){$('mf').textContent=t;toast(t)}
-async function netHost(){netMsg('Preparando a rede...');const md=await ensureNet();if(md=='peer'){netMsg('Criando lobby...');for(let i=0;i<8;i++){const code=String(Math.floor(Math.random()*10000)).padStart(4,'0');let R=null;try{R=await peerRoom(1,code)}catch(e){if(e==='idtaken')continue;return netMsg(e==='net'?'Sem conexão com o servidor de salas. Tente de novo.':'Não foi possível criar o lobby')}return netEnter(R,code,1)}return netMsg('Não foi possível criar o lobby')}
+async function netHost(){netMsg('Criando lobby...');const md=await ensureNet();if(md=='relay'){const r=await relayHost();if(r.err)return netMsg(r.err);return netEnter(r.R,r.code,1)}
   if(md!='claude')return netMsg('Online indisponível: não foi possível carregar a biblioteca de rede. Verifique a conexão com a internet e tente de novo.');netMsg('Criando lobby...');
   let room=null;try{room=await claude.use('room')}catch(e){}
   if(!room)return netMsg('Online indisponível: sua conta precisa ter acesso de colaborador a esta página.');
@@ -1003,10 +1034,9 @@ async function netHost(){netMsg('Preparando a rede...');const md=await ensureNet
     return netEnter(R,code,1)}
   NET.R=null;netMsg('Não foi possível criar o lobby')}
 async function netJoin(code){code=String(code||'').trim();if(!/^\d{4}$/.test(code)){$('jm').textContent='Digite os 4 dígitos do código.';return}
-  $('jm').textContent='Preparando a rede...';const md=await ensureNet();if(md=='peer'){$('jm').textContent='Procurando lobby...';let R=null;try{R=await peerRoom(0,code)}catch(e){$('jm').textContent=e==='notfound'?'Lobby não encontrado.':e==='net'?'Sem conexão com o servidor de salas.':'Não foi possível entrar.';return}
-    NET.R=R;let h=null;for(let i=0;i<24&&!h;i++){h=R.peers().find(q=>!q.isMe&&q.presence&&q.presence.h==1);if(!h)await sleep(250)}
+  $('jm').textContent='Procurando lobby...';const md=await ensureNet();if(md=='relay'){const r=await relayFind(code);if(r.err){$('jm').textContent=r.err;return}const R=r.R,h=r.h;NET.R=R;
     const fail=async m=>{NET.R=null;try{await R.leave()}catch(e){}$('jm').textContent=m};
-    if(!h)return fail('Lobby não encontrado.');if(h.presence.ph=='p')return fail('Essa partida já começou.');if(R.peers().filter(q=>q.presence&&(q.presence.ph=='l'||q.presence.h==1)).length>=6)return fail('Lobby cheio.');return netEnter(R,code,0)}
+    if(h.presence.ph=='p')return fail('Essa partida já começou.');if(R.peers().filter(q=>q.presence&&(q.presence.ph=='l'||q.presence.h==1)).length>=6)return fail('Lobby cheio.');return netEnter(R,code,0)}
   if(md!='claude'){$('jm').textContent='Online indisponível: não foi possível carregar a biblioteca de rede. Verifique a conexão com a internet e tente de novo.';return}
   $('jm').textContent='Procurando lobby...';let room=null;try{room=await claude.use('room')}catch(e){}
   if(!room){$('jm').textContent='Online indisponível: sua conta precisa ter acesso de colaborador a esta página.';return}
@@ -1018,7 +1048,7 @@ async function netJoin(code){code=String(code||'').trim();if(!/^\d{4}$/.test(cod
   netEnter(R,code,0)}
 function netEnter(R,code,host){Object.assign(NET,{R,on:1,h:host,c:!host,code,ph:'l',rp:[],rpm:{},em:{},hostT:0,atk:0,starting:0,gh:0,n:1,roster:[]});NET.me.rc=race;NET.me.rd=0;NET.me.nm=NET.me.nm||('Jogador'+(1+Math.floor(Math.random()*99)));$('lnm').value=NET.me.nm;
   R.on('snap',onSnap);R.on('dmg',onDmg);R.on('ehit',onEhit);R.on('ev',onEv);R.on('cmd',onCmd);R.onPeers(()=>{if(scr=='lobby')lobUI();hostCheck()});
-  npres({h:host?1:0,nm:NET.me.nm,rc:NET.me.rc,w:meW(),a:NET.me.a,rd:0,ph:'l'});showScr('lobby');lobUI();$('lm').textContent=host?'Você é o host. Compartilhe o código com seus amigos. Quando todos marcarem "Pronto", a partida começa.':'Conectado ao lobby. Escolha raça e classe e marque "Pronto".'}
+  npres({h:host?1:0,nm:NET.me.nm,rc:NET.me.rc,w:meW(),a:NET.me.a,rd:0,ph:'l'});showScr('lobby');lobUI();$('lm').textContent=host?'Você é o host. Compartilhe o código com seus amigos. Quando todos marcarem "Pronto", a partida começa.':'Conectado ao lobby. Escolha raça e classe e marque "Pronto".';if(R.url)try{$('lm').textContent+=' (servidor: '+new URL(R.url).hostname+')'}catch(e){}}
 async function netLeave(msg){const R=NET.R;NET.R=null;NET.on=0;NET.h=0;NET.c=0;NET.ph='';NET.gh=0;rpClear();try{if(R)await R.leave()}catch(e){}restart();cls=-1;$('cls').style.display='none';$('tm').style.display='none';showScr('menu');if(msg)toast(msg)}
 function lobUI(){if(!NET.R)return;const ps=NET.R.peers().filter(q=>q.presence&&(q.presence.ph=='l'||q.presence.ph=='p')),ord=ps.map(q=>q.peer).sort();$('lc').textContent=NET.code;
   $('lp').innerHTML=ps.sort((a,b)=>a.peer<b.peer?-1:1).map(q=>{const r=q.presence,c='#'+PCOL[ord.indexOf(q.peer)%6].toString(16).padStart(6,'0');return '<div class="lr"><span class="dot" style="background:'+c+'"></span>'+(r.h?'👑 ':'')+'<b>'+esc(r.nm||'Jogador')+(q.isMe?' (você)':'')+'</b> '+(RACES[r.rc]?RACES[r.rc].e+' '+RACES[r.rc].n:'')+' · '+esc(W[r.w]?W[r.w].n:'?')+' · '+(r.rd?'✅ pronto':'⏳')+'</div>'}).join('');
@@ -1030,7 +1060,7 @@ function lobUI(){if(!NET.R)return;const ps=NET.R.peers().filter(q=>q.presence&&(
   h+='<div class="row">'+bt('rd',1,m.rd?'✅ Pronto (toque para cancelar)':'Pronto',m.rd)+bt('cp',1,'📋 Copiar convite',0)+bt('lv',1,'Sair',0)+'</div>';$('lsel').innerHTML=h}
 $('lob').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-nr],[data-nc],[data-nb],[data-na],[data-rd],[data-lv],[data-cp]');if(!t||!NET.R)return;const m=NET.me,d=t.dataset;
   if(d.lv!==undefined){netLeave();return}
-  if(d.cp!==undefined){const tx=NETMODE()=='peer'?location.href.split('#')[0]+'#join='+NET.code:'Código do lobby: '+NET.code;try{navigator.clipboard.writeText(tx).then(()=>toast('Convite copiado!'),()=>toast(tx))}catch(e){toast(tx)}return}
+  if(d.cp!==undefined){const tx=NETMODE()=='relay'?location.href.split('#')[0]+'#join='+NET.code:'Código do lobby: '+NET.code;try{navigator.clipboard.writeText(tx).then(()=>toast('Convite copiado!'),()=>toast(tx))}catch(e){toast(tx)}return}
   if(d.rd!==undefined)m.rd=m.rd?0:1;else{if(d.nr!==undefined)m.rc=+d.nr;if(d.nc!==undefined){m.c=+d.nc;m.b=0}if(d.nb!==undefined)m.b=+d.nb;if(d.na!==undefined)m.a=+d.na;m.rd=0}
   npres({rc:m.rc,w:meW(),a:m.a,rd:m.rd});lobUI()});
 $('lnm').addEventListener('input',()=>{NET.me.nm=$('lnm').value.slice(0,10);npres({nm:NET.me.nm})});
