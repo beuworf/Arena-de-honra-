@@ -73,6 +73,12 @@ em **Configurações**.
   - as invocações do Necromante e o animal do Arqueiro;
   - as faíscas e os números de dano quando outro jogador acerta um inimigo, e a queda dos inimigos ao morrer;
   - a altura dos inimigos arremessados e os dois ataques do chefe (aviso, onda e arremesso), que acertam e atordoam qualquer jogador.
+- **Ajustes de kit (rodada 3):**
+  - **Adagas:** a esquiva gasta 40 de estamina (a barra amarela) e demora mais para recarregar.
+  - **Dois Machados:** cada inimigo eliminado devolve 6 de vida.
+  - **Mago de Fogo:** explodir um inimigo queimado causa dano em área nos vizinhos.
+  - **Mago de Gelo:** acertar o projétil num inimigo lento ou enfraquecido congela na hora; a nevasca congela os enfraquecidos; o estilhaçar pega lentos, enfraquecidos e congelados, com dano maior nos congelados.
+  - **Mago de Ilusão:** invoca 3 clones de verdade (fogo, gelo e sombra), que andam, escolhem alvos e usam magias sozinhos por 14 s. Os inimigos os atacam e eles somem com um golpe.
 - **Desistir da run:** no menu de pausa, encerra a partida e mostra o resumo com o recorde.
 - **Personagens VRoid (opcional, desligado por padrão):** em *Configurações → Boneco 3D (VRoid)* o jogador pode trocar o boneco por um modelo VRM, com animação própria de corpo humano e o visual de cada classe por cima. Nada é baixado enquanto a opção estiver desligada. Veja `modelos/LEIA-ME.md`.
 - **Mira dos projéteis:** facas, magias, martelo arremessado, rajada de flechas, soco à distância e orbe sombrio miram primeiro no inimigo sob o mouse. Com o mouse capturado, no analógico, no controle ou no toque, vale o centro do olhar (a mira no meio da tela); na câmera de cima, a frente do personagem. Sem ninguém na mira, vão no mais forte (boss, depois os grandes) e, se forem todos iguais, no mais perto. Um anel vermelho marca o inimigo na mira.
