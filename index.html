@@ -1142,7 +1142,8 @@ function vrmUse(v,own){if(VRMS.v&&VRMS.v!==v)pg.remove(VRMS.v.scene);pg.add(v.sc
 async function vrmLoad(buf){const v=await vrmParse(buf);if(VRMS.cv&&VRMS.cv!==v)try{pg.remove(VRMS.cv.scene);THREE.VRMUtils.deepDispose(VRMS.cv.scene)}catch(e){}VRMS.cv=v;vrmUse(v,0)}
 // Um modelo por classe: modelos/<classe>.vrm (se existir) substitui o padrão só nela; senão modelos/heroi.vrm com o visual da classe
 const CLSF=['guerreiro','arqueiro','mago','paladino','pugilista','necromante'];VRMS.cache={};VRMS.miss={};
-async function vrmGet(n){if(VRMS.cache[n])return VRMS.cache[n];if(VRMS.miss[n])return null;try{const r=await fetch('modelos/'+n+'.vrm');if(!r.ok)throw 0;return VRMS.cache[n]=await vrmParse(await r.arrayBuffer())}catch(e){VRMS.miss[n]=1;return null}}
+const VRMALT={heroi:'https://cdn.jsdelivr.net/gh/pixiv/three-vrm@v0.6.5/packages/three-vrm/examples/models/three-vrm-girl.vrm'};
+async function vrmGet(n){if(VRMS.cache[n])return VRMS.cache[n];if(VRMS.miss[n])return null;try{let r=null;try{r=await fetch('modelos/'+n+'.vrm')}catch(e){}if((!r||!r.ok)&&VRMALT[n])r=await fetch(VRMALT[n]);if(!r||!r.ok)throw 0;return VRMS.cache[n]=await vrmParse(await r.arrayBuffer())}catch(e){VRMS.miss[n]=1;return null}}
 async function vrmClass(){if(VRMS.cv){vrmUse(VRMS.cv,0);return}const c=cls>=0?cls:0,own=await vrmGet(CLSF[c]);if(own){vrmUse(own,1);return}const d=await vrmGet('heroi');if(d)vrmUse(d,0);else{vst('sem modelo .vrm');vrmShow()}}
 // ---- Visual por classe: cor da roupa + equipamentos presos aos ossos (frente = +z dentro do suporte)
 const OUT=(()=>{const PI=Math.PI,C=(a,b,h,n=10,o=false)=>new THREE.CylinderGeometry(a,b,h,n,1,o),Sp=(r,a=PI)=>new THREE.SphereGeometry(r,10,7,0,PI*2,0,a),B=(x,y,z)=>new THREE.BoxGeometry(x,y,z),Co=(r,h,n=8)=>new THREE.ConeGeometry(r,h,n),T=(r,tb,a=PI*2)=>new THREE.TorusGeometry(r,tb,4,16,a),
