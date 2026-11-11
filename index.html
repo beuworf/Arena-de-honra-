@@ -109,14 +109,23 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;image-renderi
 #rot{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#0a121c;font-size:20px;text-align:center;padding:20px}
 #rot b{font-size:56px;display:inline-block;animation:rr 1.6s ease-in-out infinite}@keyframes rr{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
 @media (pointer:coarse) and (orientation:portrait){#rot{display:flex}}
+@media (pointer:coarse){
+#bH{--x:79px;--y:calc(46vh + 35px)}#bL{--x:13px;--y:calc(46vh - 31px)}#bJ{--x:79px;--y:calc(46vh - 97px)}#bB{--x:145px;--y:calc(46vh - 31px)}
+#bK,#bD{top:calc(env(safe-area-inset-top,0px) + 8px);width:92px;height:40px;border-radius:12px 12px 20px 20px;font-size:17px}
+#bW,#bC{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);width:76px;height:34px;border-radius:17px;font-size:11px;font-weight:700;line-height:1;background:rgba(40,50,70,.75)}
+#bW small,#bC small{display:block;font-size:10px;font-weight:400;opacity:.85}
+#bW{left:calc(50% - 84px)}#bC{left:calc(50% + 8px);right:auto}
+#hud{left:calc(env(safe-area-inset-left,0px) + 116px);width:min(170px,24vw)}#info{font-size:11px}#tm{right:calc(env(safe-area-inset-right,0px) + 116px)}
+#els{bottom:calc(env(safe-area-inset-bottom,0px) + 50px)}
+#cjoy{right:calc(env(safe-area-inset-right,0px) + 200px);bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}}
 </style>
 </head>
 <body>
 <div id="lv"></div><div id="bb"><i id="bbi"></i></div>
 <div id="hud"><div class="bar"><i id="hp"></i></div><div class="bar sm" id="sb"><i id="st"></i></div><div class="bar sm" id="ab"><i id="ah"></i></div><div class="bar sm" id="eb"><i id="ae"></i></div><div id="mn"></div><div id="info">Abates: <b id="k">0</b> &nbsp; <span id="fps"></span> <span id="hand"></span></div></div>
-<div id="help">WASD mover, J golpe rápido, K golpe forte, L bloqueio, Espaço pular, Shift esquivar, 1-4 elemento do Mago, C reinicia a fase (troca classe e build), E cone, Q mochila (setas escolhem, Espaço mão, J usa; segure J usa item, K entrega). Aceita controle de PlayStation. Câmera: clique na tela e mova o mouse, ou analógico direito</div>
+<div id="help">WASD mover, J golpe rápido, K golpe forte, L bloqueio, Espaço pular, Shift esquivar, 1-4 elemento do Mago, C reinicia a fase (troca classe e build), Q mochila (setas escolhem, Espaço mão, J usa; segure J usa item, K entrega). Aceita controle de PlayStation. Câmera: clique na tela e mova o mouse, ou analógico direito</div>
 <div id="joy"></div><div id="base"></div><div id="knob"></div>
-<button class="pb" id="bH">△</button><button class="pb" id="bL">○</button><button class="pb" id="bJ">✕</button><button class="pb" id="bB">□</button><button class="pb" id="bD">R1</button><button class="pb" id="bK">L1</button><button class="pb" id="bW">Arma</button><button class="pb" id="bR">R2</button><button class="pb" id="bC">Reiniciar</button>
+<button class="pb" id="bH">△</button><button class="pb" id="bL">○</button><button class="pb" id="bJ">✕</button><button class="pb" id="bB">□</button><button class="pb" id="bD">R1</button><button class="pb" id="bK">L1</button><button class="pb" id="bW">SELECT<small>Arma</small></button><button class="pb" id="bC">START<small>Pausa</small></button>
 <div id="cls"><div id="ct"></div><div id="cc"></div><div id="bk" class="bk">◀ Voltar</div></div>
 <div id="els"><button data-e="0">🔥</button><button data-e="1">❄️</button><button data-e="2">🌑</button><button data-e="3">🌀</button></div>
 <div id="menu"><div id="mt">ARENA DE HONRA</div><div id="mb"></div><div id="mf"></div><div id="mrec"></div></div>
@@ -127,7 +136,7 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;image-renderi
 <div id="toast"></div><div id="bag"><div id="slots"></div></div>
 <div id="over"><div>Você caiu<small id="rec"></small><small>Toque ou clique para recomeçar</small></div></div>
 <div id="dn"></div>
-<div id="pause"><b>PAUSADO</b><small id="phelp"></small><div class="mi" id="pgo">▶ Continuar</div><small>Esc ou P também continuam</small></div>
+<div id="pause"><b>PAUSADO</b><small id="phelp"></small><div class="mi" id="pgo">▶ Continuar</div><div class="mi" id="prs">↺ Reiniciar fase (trocar classe)</div><small>Esc ou P também continuam</small></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -460,7 +469,7 @@ joy.addEventListener('pointermove',e=>{if(e.pointerId!=jid)return;
 const end=e=>{if(e.pointerId!=jid)return;jid=null;J.x=J.z=0;base.style.display=knob.style.display='none'};
 joy.addEventListener('pointerup',end);joy.addEventListener('pointercancel',end);
 const bt=(id,dn,up)=>{const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);if(!bagIn(el.id))dn()});if(up){el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}};
-bt('bL',()=>{p.bl=.25;tO=1},()=>tO=0);bt('bH',()=>{p.bh=.25;tT=1},()=>tT=0);bt('bB',()=>{tb=1;p.bs=.25},()=>tb=0);bt('bJ',jump);bt('bD',dodge);bt('bK',bagT);bt('bW',swap);bt('bR',()=>p.br=.25);bt('bC',askRestart);
+bt('bL',()=>{p.bl=.25;tO=1},()=>tO=0);bt('bH',()=>{p.bh=.25;tT=1},()=>tT=0);bt('bB',()=>{tb=1;p.bs=.25},()=>tb=0);bt('bJ',jump);bt('bD',dodge);bt('bK',bagT);bt('bW',swap);bt('bC',()=>setPause(!PAUSED));
 
 
 // ---- Controle (Gamepad API: layout padrão PlayStation)
@@ -734,7 +743,7 @@ function setRace(i){race=i;RC={...RBASE,...RACES[i].m};SK.color.setHex(RACES[i].
 setRace(0);
 // ---- Som e configurações
 let FXV=1,CAMV=1,SHV=matchMedia('(pointer:coarse)').matches?0:1,OLV=1,GRV=1,PS1V=0,RES=320,VOL=.6,MUTE=false,listen=null,AC=null;const KB={},GM2={},lastS={},RESO=[240,320,480,720],GN={0:'✕',1:'○',2:'□',3:'△',4:'L1',5:'R1',6:'L2',7:'R2'};
-const ACT=[['up','Mover ↑','KeyW',null],['left','Mover ←','KeyA',null],['down','Mover ↓','KeyS',null],['right','Mover →','KeyD',null],['circle','○ Golpe','KeyJ',1],['triangle','△ Habilidade','KeyK',3],['square','□ Habilidade','KeyL',2],['cross','✕ Pular','Space',0],['dash','R1 Esquiva','ShiftLeft',5],['l1','L1 (aliado/mochila)','KeyQ',4],['r2','R2 / Extra','KeyE',7],['rest','Reiniciar fase','KeyC',null]];
+const ACT=[['up','Mover ↑','KeyW',null],['left','Mover ←','KeyA',null],['down','Mover ↓','KeyS',null],['right','Mover →','KeyD',null],['circle','○ Golpe','KeyJ',1],['triangle','△ Habilidade','KeyK',3],['square','□ Habilidade','KeyL',2],['cross','✕ Pular','Space',0],['dash','R1 Esquiva','ShiftLeft',5],['l1','L1 (aliado/mochila)','KeyQ',4],['rest','Reiniciar fase','KeyC',null]];
 function loadSet(){try{const o=JSON.parse(localStorage.getItem('arena_set')||'{}');if(o.res)RES=o.res;if(o.vol!==undefined)VOL=o.vol;MUTE=!!o.mute;if(o.p1!==undefined)PS1V=o.p1;if(o.cm!==undefined)CAMV=o.cm;if(o.fx!==undefined)FXV=o.fx;if(o.sh!==undefined)SHV=o.sh;if(o.ol!==undefined)OLV=o.ol;if(o.gr!==undefined)GRV=o.gr;Object.assign(KB,o.kb||{});Object.assign(GM2,o.gm||{})}catch(e){}ACT.forEach(a=>{if(!KB[a[0]])KB[a[0]]=a[2]})}
 function saveSet(){try{localStorage.setItem('arena_set',JSON.stringify({fx:FXV,cm:CAMV,sh:SHV,ol:OLV,gr:GRV,p1:PS1V,res:RES,vol:VOL,mute:MUTE,kb:KB,gm:GM2}))}catch(e){}}
 loadSet();PSU.uPs.value=PS1V;GRS.forEach(m=>m.visible=!!GRV);
@@ -969,7 +978,7 @@ function pad(){G.x=G.z=G.b=G.o=G.t=G.rx=G.ry=0;
   if(cls<0){if(dl)csel=Math.max(0,csel-1);if(dr)csel=Math.min(stg==3?7:stg?2:5,csel+1);if(dl||dr)pickUI();if(x)pickSel(csel);else if(o&&stg)back();return}
   if(bag){if(dl)cur=(cur+IT.length-1)%IT.length;if(dr)cur=(cur+1)%IT.length;if(dl||dr)bagUI();if(l1||r1||t3||sq||o||x)bagIn(x?'bJ':o?'bL':'?');return}
   if(cls==2){const u=ed(12),d3=ed(13);if(u)setEl(0);if(dr)setEl(1);if(d3)setEl(2);if(dl)setEl(3)}
-  if(ed(8))askRestart();if(ed(9))swap();if(ed(7))p.br=.25;if(sq)p.bs=.25;if(l1)bagT();if(o)p.bl=.25;if(t3)p.bh=.25;if(x)jump();if(r1)dodge()}
+  if(ed(8))askRestart();if(ed(9))swap();if(sq)p.bs=.25;if(l1)bagT();if(o)p.bl=.25;if(t3)p.bh=.25;if(x)jump();if(r1)dodge()}
 // ---- Recorde, pausa e números de dano
 const REC=(()=>{try{return JSON.parse(localStorage.getItem('arena_rec')||'{}')}catch(e){return{}}})();
 function recSave(){const nk=kills>(REC.k|0),nl=LV>(REC.lv|0);if(nk)REC.k=kills;if(nl)REC.lv=LV;try{localStorage.setItem('arena_rec',JSON.stringify(REC))}catch(e){}
@@ -978,7 +987,7 @@ function recShow(){let r={};try{r=JSON.parse(localStorage.getItem('arena_rec')||
 let PAUSED=false;
 function setPause(v){if(v&&(NET.on||dead||cls<0||scr!='play')){if(NET.on&&v)toast('Sem pausa no multiplayer');return}
   PAUSED=v;$('phelp').textContent=$('help').textContent;$('pause').style.display=v?'flex':'none';if(!v)last=performance.now()}
-$('pgo').addEventListener('pointerdown',e=>{e.stopPropagation();setPause(false)});
+$('pgo').addEventListener('pointerdown',e=>{e.stopPropagation();setPause(false)});$('prs').addEventListener('pointerdown',e=>{e.stopPropagation();setPause(false);openC()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&!PAUSED)setPause(true)});
 function helpFade(){const h=$('help');h.classList.remove('off');clearTimeout(helpFade.t);helpFade.t=setTimeout(()=>h.classList.add('off'),15000)}
 const DN=[],DV=new THREE.Vector3();

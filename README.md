@@ -28,13 +28,12 @@ python3 -m http.server 8000
 | Pular | Espaço | ✕ |
 | Esquivar | Shift | R1 |
 | Mochila | Q | L1 |
-| Extra / cone | E | R2 |
 | Elemento do Mago | 1–4 | Direcional |
-| Reiniciar a fase (troca classe e build) | C | Share |
+| Reiniciar a fase (troca classe e build) | C, ou no menu de pausa | Share |
 | **Pausar** | **Esc / P** | — |
 | **Girar a câmera** | Clique na tela e mova o mouse | Analógico direito |
 
-No celular o jogo roda deitado (tela cheia), com analógico de movimento à esquerda, analógico da câmera (📷) à direita e botões na tela; também dá para arrastar a tela para girar a câmera. As teclas podem ser trocadas
+No celular os botões seguem o padrão do PPSSPP: L1 e R1 nos cantos de cima, △○✕□ em losango à direita, SELECT (Arma, só no Mago) e START (Pausa) embaixo no meio; Reiniciar fica no menu de pausa. O jogo roda deitado (tela cheia), com analógico de movimento à esquerda, analógico da câmera (📷) à direita e botões na tela; também dá para arrastar a tela para girar a câmera. As teclas podem ser trocadas
 em **Configurações**.
 
 ## O que mudou em relação ao original
