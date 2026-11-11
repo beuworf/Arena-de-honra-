@@ -83,6 +83,12 @@ em **Configurações**.
   - **Mago de Fogo:** explodir um inimigo queimado causa dano em área nos vizinhos. A bola de fogo é um projétil maior, atravessa até 3 inimigos e cada acerto causa dano em área e queima os vizinhos.
   - **Mago de Gelo:** acertar o projétil num inimigo lento ou enfraquecido congela na hora; a nevasca congela os enfraquecidos; o estilhaçar pega lentos, enfraquecidos e congelados, com dano maior nos congelados.
   - **Mago de Ilusão:** invoca 3 clones de verdade (fogo, gelo e sombra), que andam, escolhem alvos e usam magias sozinhos por 14 s. Os inimigos os atacam e eles somem com um golpe. No online funciona igual para quem hospeda e para quem entra: todos veem os clones (como cópias do personagem do dono), e os inimigos os atacam e derrubam.
+- **Ajustes de kit (rodada 4):**
+  - **Mago de Ilusão:** os clones têm recarga própria de 20 s, separada das outras magias.
+  - **Chefe:** no solo, recupera 4% da vida ao devorar um inimigo (no online continua 7%).
+  - **Adagas:** a esquiva gasta 30 de estamina (eram 40).
+  - **Necromante:** jogando sozinho, as invocações se curam um pouco cada vez que causam dano ou empurram inimigos.
+  - **Lança:** com o animal caído, os golpes de lança causam 80% a mais de dano.
 - **Desistir da run:** no menu de pausa, encerra a partida e mostra o resumo com o recorde.
 - **Personagens VRoid (opcional, desligado por padrão):** em *Configurações → Boneco 3D (VRoid)* o jogador pode trocar o boneco por um modelo VRM, com animação própria de corpo humano e o visual de cada classe por cima. Nada é baixado enquanto a opção estiver desligada. Veja `modelos/LEIA-ME.md`.
 - **Mira dos projéteis:** facas, magias, martelo arremessado, rajada de flechas, soco à distância e orbe sombrio miram primeiro no inimigo sob o mouse. Com o mouse capturado, no analógico, no controle ou no toque, vale o centro do olhar (a mira no meio da tela); na câmera de cima, a frente do personagem. Sem ninguém na mira, vão no mais forte (boss, depois os grandes) e, se forem todos iguais, no mais perto. Um anel vermelho marca o inimigo na mira.
