@@ -32,8 +32,9 @@ python3 -m http.server 8000
 | Elemento do Mago | 1–4 | Direcional |
 | Reiniciar a fase (troca classe e build) | C | Share |
 | **Pausar** | **Esc / P** | — |
+| **Girar a câmera** | Clique na tela e mova o mouse | Analógico direito |
 
-No celular aparecem joystick e botões na tela. As teclas podem ser trocadas
+No celular o jogo roda deitado (tela cheia), com analógico de movimento à esquerda, analógico da câmera (📷) à direita e botões na tela; também dá para arrastar a tela para girar a câmera. As teclas podem ser trocadas
 em **Configurações**.
 
 ## O que mudou em relação ao original
