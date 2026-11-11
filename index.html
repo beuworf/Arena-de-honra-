@@ -126,6 +126,7 @@ body.led .sel{outline:3px solid #ffd34d;outline-offset:3px}
 #mvg::after{content:'mover';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;opacity:.7}
 #ltb{position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:32;display:none;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;max-width:94vw;background:rgba(10,18,28,.92);padding:6px 8px;border-radius:12px;font-size:13px}
 #ltb.bot{top:auto;bottom:6px}#ltb .btn{padding:5px 9px;min-width:0}
+#xh{position:fixed;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border:2px solid rgba(255,255,255,.85);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.5);display:none;pointer-events:none;z-index:3}
 </style>
 </head>
 <body>
@@ -140,7 +141,7 @@ body.led .sel{outline:3px solid #ffd34d;outline-offset:3px}
 <div id="set"><div id="mt2">Configurações</div><div id="sc"></div><div class="bk" id="sbk" style="display:block">◀ Voltar</div></div>
 <div id="lob"><div id="lh">Lobby · código <b id="lc">----</b></div><input id="lnm" maxlength="10" placeholder="Seu nome" autocomplete="off"><div id="lp"></div><div id="lsel"></div><div id="lm"></div></div>
 <div id="jn"><div id="mt3">Entrar com código</div><input id="jc" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off"><div class="row"><span class="btn" id="jgo">Entrar</span><span class="btn" id="jbk">Voltar</span></div><div id="jm"></div></div>
-<div id="tm"></div><div id="mvg"></div><div id="led"></div><div id="ltb"></div><div id="cjoy" class="cjoy"><i id="cknob"></i></div><div id="rot"><b>📱</b>Gire o celular para a horizontal<small style="font-size:13px;opacity:.8">O jogo funciona deitado</small></div>
+<div id="tm"></div><div id="xh"></div><div id="mvg"></div><div id="led"></div><div id="ltb"></div><div id="cjoy" class="cjoy"><i id="cknob"></i></div><div id="rot"><b>📱</b>Gire o celular para a horizontal<small style="font-size:13px;opacity:.8">O jogo funciona deitado</small></div>
 <div id="toast"></div><div id="bag"><div id="slots"></div></div>
 <div id="over"><div>Você caiu<small id="rec"></small><small>Toque ou clique para recomeçar</small></div></div>
 <div id="dn"></div>
@@ -533,6 +534,15 @@ addEventListener('keydown',e=>{if(e.repeat)return;
 const PR=[],CD={lp:0,cone:0,sh:0,kn:0,dh:0},AG=new THREE.BoxGeometry(.08,.08,.7),AM=new THREE.MeshBasicMaterial({color:0xfff2b0});let pst=100,hB=0;
 const nearest=(r,x=p.x,z=p.z)=>{let q=null,b=r;for(const e of E){const d=Math.hypot(e.x-x,e.z-z);if(d<b){b=d;q=e}}return q};
 const aim=q=>q?Math.atan2(q.x-p.x,q.z-p.z):p.f;
+// Alvo dos projéteis: 1º o inimigo sob o mouse (ou sob a mira, com o mouse capturado), 2º o mais forte (boss > grande), 3º o mais perto
+const MP={x:0,y:0,on:0},RC2=new THREE.Raycaster(),NV=new THREE.Vector2(),TV3=new THREE.Vector3(),TIER=e=>e.boss?3:e.k=='b'?2:1;
+let LIN='mouse';addEventListener('mousemove',e=>{MP.x=e.clientX;MP.y=e.clientY;MP.on=1;LIN='mouse'});addEventListener('pointerdown',e=>{if(e.pointerType=='touch')LIN='touch'},true);document.addEventListener('mouseleave',()=>MP.on=0);
+function lookCenter(){return !!document.pointerLockElement||LIN!='mouse'||!MP.on||matchMedia('(pointer:coarse)').matches}
+function mouseFoe(r){const ctr=lookCenter();
+  if(ctr&&!CAMV){let q=null,bd=r;const fx=Math.sin(p.f),fz=Math.cos(p.f);for(const e of E){if(e.hp<=0)continue;const dx=e.x-p.x,dz=e.z-p.z,d=Math.hypot(dx,dz)||.01;if(d<bd&&(dx*fx+dz*fz)/d>.9){bd=d;q=e}}return q}
+  NV.set(ctr?0:MP.x/innerWidth*2-1,ctr?0:-(MP.y/innerHeight)*2+1);RC2.setFromCamera(NV,C);const ry=RC2.ray;let q=null,bd=1e9;
+  for(const e of E){if(e.hp<=0||Math.hypot(e.x-p.x,e.z-p.z)>r+4)continue;const s=e.sz||1;TV3.set(e.x,(e.y||0)+.9*s,e.z);if(ry.distanceToPoint(TV3)<.8*s+.3){const d=TV3.distanceTo(ry.origin);if(d<bd){bd=d;q=e}}}return q}
+function ptarget(r){const m=mouseFoe(r);if(m)return m;let q=null,bt=0,bd=r;for(const e of E){if(e.hp<=0)continue;const d=Math.hypot(e.x-p.x,e.z-p.z);if(d>=r)continue;const t=TIER(e);if(t>bt||(t==bt&&d<bd)){bt=t;bd=d;q=e}}return q}
 function shot(a,o){sfx('shot');const m=new THREE.Mesh(o.g||AG,o.m||AM);m.position.set(o.ox!==undefined?o.ox:p.x,1.2,o.oz!==undefined?o.oz:p.z);m.rotation.y=a;S.add(m);PR.push({...o,m,vx:Math.sin(a)*(o.sp||30),vz:Math.cos(a)*(o.sp||30),t:o.t||.7})}
 function projUpd(dt){for(let i=PR.length-1;i>=0;i--){const a=PR[i],m=a.m;a.t-=dt;if(a.tg&&a.tg.hp<=0)a.tg=null;if(a.tg){const tx=a.tg.x-m.position.x,tz=a.tg.z-m.position.z,td=Math.hypot(tx,tz)||1;a.vx=tx/td*(a.sp||30);a.vz=tz/td*(a.sp||30)}if(a.hm)m.rotation.x+=14*dt;m.position.x+=a.vx*dt;m.position.z+=a.vz*dt;
   const h=a.tg?(Math.hypot(a.tg.x-m.position.x,a.tg.z-m.position.z)<1.3?a.tg:null):E.find(e=>e.hp>0&&Math.hypot(e.x-m.position.x,e.z-m.position.z)<.9);
@@ -550,14 +560,14 @@ function arch(){
   if(wi==3){
     if(p.bs>0)atk('L');
     else if(p.bh>0&&CD.lp<=0)leap();
-    else if(p.br>0&&CD.cone<=0){const a=aim(nearest(14));p.f=a;for(let i=-2;i<=2;i++)shot(a+i*.22,{dmg:.6,slow:3});CD.cone=3.5;p.br=0;shake=.2}
+    else if(p.br>0&&CD.cone<=0){const a=aim(ptarget(14));p.f=a;for(let i=-2;i<=2;i++)shot(a+i*.22,{dmg:.6,slow:3});CD.cone=3.5;p.br=0;shake=.2}
     else if(p.bl>0&&CD.sh<=0)volley()
   }else if(wi==4){
     if(p.bs>0)atk('L');else if(p.bh>0)atk('H');
     else if(p.bl>0){p.bl=0;if(an.alive&&an.mode==0)command();else if(pst>=25){pst-=25;p.big=1;atk('L')}else toast('Sem estamina')}
   }else{
     if(p.bs>0){if(CD.dh<=0)stab();else p.bs=0}
-    else if(p.bh>0){p.bh=0;if(p.kn&&p.kn.hp>0&&p.knT>0)blink();else if(CD.kn<=0){const q=nearest(16);if(q){const a=aim(q);p.f=a;shot(a,{dmg:.5,kn:1});CD.kn=1}else toast('Sem alvo')}}
+    else if(p.bh>0){p.bh=0;if(p.kn&&p.kn.hp>0&&p.knT>0)blink();else if(CD.kn<=0){const q=ptarget(16);if(q){const a=aim(q);p.f=a;shot(a,{dmg:.5,kn:1});CD.kn=1}else toast('Sem alvo')}}
     else if(p.bl>0)atk('L')}}
 const an={x:-2,z:3,hp:110,max:110,en:100,mode:0,alive:true,type:0,t:0,bcd:0,dash:0,tx:0,tz:0,g:new THREE.Group()};
 const AM2=L(0x4a3a30),AN=[['Urso',0x4a3a30,1.5,'b'],['Tigre',0xd98a2e,1.05,'t'],['Lobo',0x7d838c,.95,'w']];
@@ -597,10 +607,10 @@ function ring(x,z,r,c){const m=new THREE.Mesh(RG,new THREE.MeshBasicMaterial({co
 function area(x,z,r,n,f,c){for(const e of E)if(Math.hypot(e.x-x,e.z-z)<r){dmg(e,n);f(e)}ring(x,z,r,c);shake=Math.max(shake,.2)}
 const SP=[[[12,.5],[22,3],[20,2.5]],[[12,.5],[20,3],[22,3]],[[16,3],[24,5],[22,3]],[[28,6],[20,6],[16,3]]];
 const SPELL=[
- [()=>{const a=aim(nearest(22));p.f=a;shot(a,{dmg:1.2,burn:5,g:SG,m:MF,sp:22})},
-  ()=>{const q=nearest(14);area(q?q.x:p.x+Math.sin(p.f)*5,q?q.z:p.z+Math.cos(p.f)*5,4.2,.8,e=>e.burn=5,0xff6a2a)},
+ [()=>{const a=aim(ptarget(22));p.f=a;shot(a,{dmg:1.2,burn:5,g:SG,m:MF,sp:22})},
+  ()=>{const q=ptarget(14);area(q?q.x:p.x+Math.sin(p.f)*5,q?q.z:p.z+Math.cos(p.f)*5,4.2,.8,e=>e.burn=5,0xff6a2a)},
   ()=>{let n=0;for(const e of E)if(e.burn>0&&Math.hypot(e.x-p.x,e.z-p.z)<22){dmg(e,3);e.burn=0;e.kx=(e.x-p.x)*.3;e.kz=(e.z-p.z)*.3;ring(e.x,e.z,2.2,0xffb84a);n++}if(!n)return false;shake=.4;hs=.05}],
- [()=>{const a=aim(nearest(22));p.f=a;shot(a,{dmg:.8,slow:3,weak:5,m:MI})},
+ [()=>{const a=aim(ptarget(22));p.f=a;shot(a,{dmg:.8,slow:3,weak:5,m:MI})},
   ()=>area(p.x,p.z,6,.5,e=>e.slow=4,0x8fd3ff),
   ()=>{let n=0;for(const e of E)if(e.weak>0&&Math.hypot(e.x-p.x,e.z-p.z)<18){dmg(e,1);e.ice=3;e.weak=0;ring(e.x,e.z,1.5,0xbfeaff);n++}if(!n)return false}],
  [()=>{const q=nearest(16);if(!q)return false;MD.e=q;MD.t=4;q.fl=.15;ring(q.x,q.z,1.8,0x7a4ac0)},
@@ -653,7 +663,7 @@ function holyUpd(dt){alS.visible=al.shT>0;if(al.shT>0)al.shT-=dt;
     if(h.tk<=0){h.tk=1;if(Math.hypot(p.x-h.x,p.z-h.z)<h.r)p.hp=Math.min(100,p.hp+1);if(Math.hypot(al.x-h.x,al.z-h.z)<h.r)al.hp=Math.min(al.max,al.hp+al.max*.01)}
     if(h.t<=0){S.remove(h.m);h.m.material.dispose();HG.splice(i,1)}}}
 function strongest(r){let q=null,b=-1;for(const e of E)if(e.hp>b&&Math.hypot(e.x-p.x,e.z-p.z)<r){b=e.hp;q=e}return q}
-function hamThrow(air){const q=air?strongest(26):nearest(26);if(!q)return toast('Sem alvo');const a=aim(q);p.f=a;shot(a,{dmg:1.5,hm:1,tg:q,g:HMG,m:HMM,sp:24,t:1.6});CD.mh=2.5;shake=.15}
+function hamThrow(air){const q=ptarget(26);if(!q)return toast('Sem alvo');const a=aim(q);p.f=a;shot(a,{dmg:1.5,hm:1,tg:q,g:HMG,m:HMM,sp:24,t:1.6});CD.mh=2.5;shake=.15}
 function raise(){CD.rh=5;p.rh=.45;p.hp=Math.min(100,p.hp+12);if(Math.hypot(al.x-p.x,al.z-p.z)<14)al.hp=Math.min(al.max,al.hp+al.max*.12);ring(p.x,p.z,8,0xffe27a);toast('Mãos erguidas!')}
 function pull(){if(NET.on)return netPull();const d=Math.hypot(al.x-p.x,al.z-p.z);if(d<6)return toast('Aliado já está perto');al.x=p.x-Math.sin(p.f)*2.2;al.z=p.z-Math.cos(p.f)*2.2;al.shT=10;CD.pl=6;ring(al.x,al.z,3,0x8fd3ff);toast('Aliado trazido! Escudo +'+Math.round(d))}
 function hamSlam(){p.bl=0;const c={d:.45,h:9,r:4.6,m:2,b:6,a:1,lf:1.6};p.c=c;p.dur=p.att=c.d;p.ht=c.h;p.hit=0;p.k='H';p.vy=-20;p.pl=1;sl.scale.setScalar(1.6);sl.material.opacity=.8}
@@ -663,7 +673,7 @@ function pala(){const air=p.y>.2;
   else if(p.bh>0){p.bh=0;if(air){if(CD.pl<=0)pull()}else if(CD.rh<=0)raise()}}
 // ---- Arco em combo (3+3+3) e Pugilista
 const AQ=[];let ob=0,orbT=0;
-function volley(){const q=nearest(22);if(!q)return toast('Sem alvo');p.bl=0;const n=p.act>0?(p.ac%3)+1:1;p.ac=n;p.act=1.1;p.f=aim(q);CD.sh=.28;for(let i=0;i<3;i++)AQ.push({t:i*.07,q,last:n==3&&i==2})}
+function volley(){const q=ptarget(22);if(!q)return toast('Sem alvo');p.bl=0;const n=p.act>0?(p.ac%3)+1:1;p.ac=n;p.act=1.1;p.f=aim(q);CD.sh=.28;for(let i=0;i<3;i++)AQ.push({t:i*.07,q,last:n==3&&i==2})}
 function aqUpd(dt){for(let i=AQ.length-1;i>=0;i--){const a=AQ[i];a.t-=dt;if(a.t<=0){AQ.splice(i,1);if(a.q.hp>0)shot(aim(a.q),{dmg:a.last?.9:.55,tg:a.q,sp:34,t:.8,psn:a.last&&Math.random()<.4?1:0})}}}
 const glv=[faL,faR].map(f=>add(new THREE.SphereGeometry(.13,6,5),L(0xc03030),0,-.4,0,f)),band=add(new THREE.TorusGeometry(.22,.03,4,8),L(0xc03030),0,.1,0,hd);band.rotation.x=Math.PI/2;
 const OBm=new THREE.Mesh(new THREE.SphereGeometry(.55,8,6),new THREE.MeshBasicMaterial({color:0x66ff88,transparent:true,opacity:.6}));OBm.visible=false;S.add(OBm);
@@ -676,7 +686,7 @@ function pugil(){const air=p.y>.2;
   if(air){
     if(p.bh>0&&CD.pk<=0){p.bh=0;const q=nearest(14);if(!q)return toast('Sem alvo');const a=aim(q),d=Math.hypot(q.x-p.x,q.z-p.z);p.f=p.dir=a;p.dg=.25;p.dv=Math.min(34,d/.25);p.inv=.3;CD.pk=1;dmgE(q,2.2*W[wi].dm,14,p.x,p.z);p.hp=Math.min(100,p.hp+1.5);shake=.3;hs=.06}
     else if(p.bs>0&&CD.pr<=0){p.bs=0;CD.pr=3;boom(p.x,p.z,5,1,22);ring(p.x,p.z,5,0xffffff);shake=.3}
-    else if(p.bl>0&&CD.pb<=0){p.bl=0;CD.pb=2;const q=nearest(30),a=aim(q);p.f=a;shot(a,{dmg:3,sp:26,t:1.3,g:RBG,m:RBM})}
+    else if(p.bl>0&&CD.pb<=0){p.bl=0;CD.pb=2;const q=ptarget(30),a=aim(q);p.f=a;shot(a,{dmg:3,sp:26,t:1.3,g:RBG,m:RBM})}
     return}
   if(p.bh>0)atk('H');else if(p.bl>0)atk('L')}
 // ---- Necromante: invocações
@@ -712,7 +722,7 @@ function tmUpd(dt){for(let i=TM.length-1;i>=0;i--){const m=TM[i];m.t-=dt;m.cd-=d
   if(m.k=='d'){if(m.t>5||!tgt){if(Math.hypot(p.x-m.x,p.z-m.z)>2)mvTo(m,p.x,p.z,10,dt)}else{const d=Math.hypot(tgt.x-m.x,tgt.z-m.z);if(d>1.3)mvTo(m,tgt.x,tgt.z,11,dt);else if(m.cd<=0){m.cd=.5;dmgE(tgt,.9,3,m.x,m.z)}}}
   else{y=m.t>6.5||!tgt?3:1.8;if(m.t>6.5||!tgt){mvTo(m,p.x,p.z,12,dt)}else{const d=Math.hypot(tgt.x-m.x,tgt.z-m.z);mvTo(m,tgt.x,tgt.z,12,dt);if(d<1.5&&m.cd<=0){m.cd=1;dmgE(tgt,1.4,5,m.x,m.z)}}y+=Math.sin(t*5)*.2}
   m.g.position.set(m.x,y,m.z);m.g.rotation.y=m.f;if(m.t<=0){S.remove(m.g);TM.splice(i,1)}}}
-function darkOrb(){const q=nearest(30);if(!q)return toast('Sem alvo');CD.dk=5;p.f=aim(q);shot(p.f,{dmg:1,tg:q,sp:18,t:2.2,dk:1,g:DKG,m:DKM})}
+function darkOrb(){const q=ptarget(30);if(!q)return toast('Sem alvo');CD.dk=5;p.f=aim(q);shot(p.f,{dmg:1,tg:q,sp:18,t:2.2,dk:1,g:DKG,m:DKM})}
 function darkBoom(x,z){for(const e of E)if(Math.hypot(e.x-x,e.z-z)<3.5){e.hp-=2*(1+RC.mag);e.fear=2.5;e.wind=0;e.fl=.12}ring(x,z,3.5,0x6a2aa0);shake=.35}
 function absorb(dt){let tot=0;for(const m of MN)if(m.alive&&m.hp>m.max*.15){const d=Math.min(12*dt,m.hp-m.max*.15);m.hp-=d;tot+=d}if(tot>0)p.hp=Math.min(100,p.hp+tot*.9)}
 function nHold(dt){if(wi!=9||dead||cls<0||NET.gh)return;const H={z:!!(K.KeyJ||G.o||tO),m:!!(K.KeyK||G.t||tT),s:!!(K.KeyL||G.b||tb)};
@@ -980,7 +990,7 @@ function pad(){G.x=G.z=G.b=G.o=G.t=G.rx=G.ry=0;
   let gl=[];try{gl=navigator.getGamepads?navigator.getGamepads():[]}catch(e){}const g=[...gl].find(x=>x&&x.connected);if(!g)return;
   const b=i=>{const j=GM2[i]!==undefined?GM2[i]:i;return !!(g.buttons[j]&&g.buttons[j].pressed)},dz=v=>Math.abs(v)<.15?0:v,ed=i=>{const n=b(i),r=n&&!pv[i];pv[i]=n;return r};
   G.x=dz(g.axes[0]||0)+(!bag&&cls!=2&&b(15)?1:0)-(!bag&&cls!=2&&b(14)?1:0);G.z=dz(g.axes[1]||0)+(cls!=2&&b(13)?1:0)-(cls!=2&&b(12)?1:0);
-  G.rx=dz(g.axes[2]||0);G.ry=dz(g.axes[3]||0);G.b=b(2)||b(6);G.o=b(1);G.t=b(3);
+  G.rx=dz(g.axes[2]||0);G.ry=dz(g.axes[3]||0);if(G.rx||G.ry||dz(g.axes[0]||0)||dz(g.axes[1]||0)||g.buttons.some(x=>x&&x.pressed))LIN='pad';G.b=b(2)||b(6);G.o=b(1);G.t=b(3);
   const o=ed(1),t3=ed(3),x=ed(0),l1=ed(4),r1=ed(5),sq=ed(2),dl=ed(14),dr=ed(15);
   if(listen&&listen[0]=='g'){for(let i=0;i<17;i++)if(g.buttons[i]&&g.buttons[i].pressed){const a=ACT.find(z=>z[0]==listen[1]),ci=a[3],old=GM2[ci]!==undefined?GM2[ci]:ci;for(const z of ACT)if(z[3]!==null&&(GM2[z[3]]!==undefined?GM2[z[3]]:z[3])==i)GM2[z[3]]=old;GM2[ci]=i;listen=null;saveSet();setUI();break}return}
   if(scr!='play'){const du=ed(12),dd2=ed(13);if(scr=='menu'){if(du)msel=(msel+4)%5;if(dd2)msel=(msel+1)%5;if(du||dd2)menuUI();if(x)menuPick(msel)}else if(o){if(scr=='lobby')netLeave();else{listen=null;saveSet();showScr('menu')}}return}
@@ -1038,6 +1048,8 @@ const TRN=12,TRC=new THREE.Color(),TV1=new THREE.Vector3(),TV2=new THREE.Vector3
 function mkTrail(){const g=new THREE.BufferGeometry(),P=new Float32Array(TRN*6),Cl=new Float32Array(TRN*6),I=[];for(let i=0;i<TRN-1;i++){const a=i*2;I.push(a,a+1,a+2,a+1,a+3,a+2)}g.setIndex(I);g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('color',new THREE.BufferAttribute(Cl,3));
   const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.frustumCulled=false;m.visible=false;S.add(m);return{m,P,Cl,n:0}}
 const TRA=[mkTrail(),mkTrail()];let trA=0;
+const TGM=new THREE.Mesh(new THREE.RingGeometry(.7,.95,16),new THREE.MeshBasicMaterial({color:0xff4040,transparent:true,opacity:.85,depthWrite:false}));TGM.rotation.x=-Math.PI/2;TGM.visible=false;S.add(TGM);
+function tgUpd(){$('xh').style.display=CAMV&&scr=='play'&&cls>=0&&!dead&&lookCenter()?'block':'none';const q=cls>=0&&!dead&&!PAUSED?mouseFoe(30):null;TGM.visible=!!q;if(q){const s=q.sz||1;TGM.position.set(q.x,.07,q.z);TGM.scale.setScalar(s*(1+.08*Math.sin(t*10)))}}
 function trailUpd(dt){const on=FXV&&p.att>0&&!dead&&[0,1,2,4,5,7].includes(wi),L0={0:1.6,1:2.3,2:1.3,4:2.55,5:.85,7:2.1}[wi]||1.5;if(p.att>trA+.01)TRA.forEach(T=>T.n=0);trA=p.att;
   TRC.setHex({0:0xa8d8ff,1:0xc8e8ff,2:0xffa860,4:0xb8ffc0,5:0xd8a8ff,7:0xffe27a}[wi]||0xffffff).multiplyScalar(p.c&&p.c.m>=2?1:.7);if(on&&dt>0)pg.updateMatrixWorld(true);
   [sw,sw2].forEach((g,j)=>{const T=TRA[j];if(!on||(j&&wi!=2&&wi!=5)){T.n=0;T.m.visible=false;return}if(dt<=0)return;
@@ -1132,9 +1144,9 @@ function loopBody(n){
   if(NET.on)try{netPost(rdt)}catch(err){netErr(err)}
   const k=1-Math.exp(-8*rdt);const fp=NET.gh&&NET.sp?NET.sp:p;cx+=(fp.x-cx)*k;cz+=(fp.z-cz)*k;
   shake=Math.max(0,shake-rdt*2);const sx=rnd(-1,1)*shake*.4,sz=rnd(-1,1)*shake*.4;
-  if(CAMV)camUpd(rdt,fp,sx,sz);else{C.position.set(cx+sx,13,cz+10+sz);C.lookAt(cx+sx,0,cz-1)}occUpd();shUpd(rdt);if(document.pointerLockElement&&(dead||cls<0||PAUSED||scr!='play'||bag)){camRel=1;document.exitPointerLock()}trailUpd(dt);partUpd(dt);dyUpd(dt);TWA.offset.set(t*.03,Math.sin(t*.6)*.04);
+  if(CAMV)camUpd(rdt,fp,sx,sz);else{C.position.set(cx+sx,13,cz+10+sz);C.lookAt(cx+sx,0,cz-1)}occUpd();shUpd(rdt);if(document.pointerLockElement&&(dead||cls<0||PAUSED||scr!='play'||bag)){camRel=1;document.exitPointerLock()}trailUpd(dt);partUpd(dt);tgUpd();dyUpd(dt);TWA.offset.set(t*.03,Math.sin(t*.6)*.04);
   dnUpd(rdt);renderFrame()}
-if(location.hash=='#dbg')window.__dbg={NET,E,p,hurt,get LV(){return LV},get kills(){return kills},get dead(){return dead},al,spawn,get ph(){return NET.ph}};
+if(location.hash=='#dbg')window.__dbg={ptarget,MP,NET,E,p,hurt,get LV(){return LV},get kills(){return kills},get dead(){return dead},al,spawn,get ph(){return NET.ph}};
 {const ws=(m,g,keep)=>{m.geometry.dispose();m.geometry=g;m.material=WPM;if(!keep)m.position.set(0,0,0)};
   ws(b0,WG.sword);ws(b1,WG.long);ws(sp3,WG.spear);ws(dg1,WG.dagger);ws(dg2,WG.dagger);ws(stf,WG.staff);ws(hmH,WG.hammer);ws(bw,WG.bow,1);ws(sh2,WG.shield,1);hmB.geometry=new THREE.BufferGeometry();
   for(const c of sw.children)if(c.isMesh&&c.geometry.parameters&&c.geometry.parameters.width==.4&&c.geometry.parameters.depth==.1)c.visible=false}
