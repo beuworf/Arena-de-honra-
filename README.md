@@ -31,6 +31,7 @@ python3 -m http.server 8000
 | Elemento do Mago | 1–4 | Direcional |
 | Reiniciar a fase (troca classe e build) | C, ou no menu de pausa | Share |
 | **Pausar** | **Esc / P** | — |
+| Cone de flechas (só Arco) | E | R2 |
 | **Girar a câmera** | Clique na tela e mova o mouse | Analógico direito |
 
 No celular os botões seguem o padrão do PPSSPP: L1 e R1 nos cantos de cima, △○✕□ em losango à direita, SELECT (Arma, só no Mago) e START (Pausa) embaixo no meio; Reiniciar fica no menu de pausa. Em *Configurações → Botões na tela → Editar layout* dá para arrastar cada botão e analógico para onde quiser, mudar o tamanho de cada um e de todos de uma vez, ajustar a transparência e escolher se o analógico de movimento é flutuante (aparece onde você toca) ou fixo. As posições ficam salvas em % da tela, então funcionam em celulares e tablets de tamanhos diferentes. O jogo roda deitado (tela cheia), com analógico de movimento à esquerda, analógico da câmera (📷) à direita e botões na tela; também dá para arrastar a tela para girar a câmera, e o analógico da câmera pode ser desligado nas configurações. As teclas podem ser trocadas
@@ -63,7 +64,9 @@ em **Configurações**.
   - **Troll:** pele azul, alto, nariz comprido, presas grandes, orelhas caídas e cabelo laranja selvagem.
   - **Minotauro:** chifres, focinho com argola, orelhas de touro, grande e forte.
   - **Goblin:** pequeno, verde, orelhas enormes, nariz pontudo, dentes afiados e olhos amarelos.
-- **Personagens VRoid (opcional, desligado por padrão):** em *Configurações → Personagem → VRoid (3D)* o jogador pode trocar o boneco por um modelo VRM, com animação própria de corpo humano e o visual de cada classe por cima. Nada é baixado enquanto a opção estiver desligada. Veja `modelos/LEIA-ME.md`.
+- **Proporções por raça (estilo WoW Classic):** todas usam o mesmo esqueleto, mas com tronco, ombros, braços, pernas, cabeça e postura próprios (veja `docs/racas-corpo.png`). O anão é baixo e largo; o gnomo, minúsculo e cabeçudo; o meio-orc, largo, de mãos grandes e ombros caídos; o troll, alto, magro, de braços longos e curvado; o minotauro, enorme; e o goblin, o menor de todos. As armas e o escudo acompanham o tamanho de cada um.
+- **Desistir da run:** no menu de pausa, encerra a partida e mostra o resumo com o recorde.
+- **Personagens VRoid (opcional, desligado por padrão):** em *Configurações → Boneco 3D (VRoid)* o jogador pode trocar o boneco por um modelo VRM, com animação própria de corpo humano e o visual de cada classe por cima. Nada é baixado enquanto a opção estiver desligada. Veja `modelos/LEIA-ME.md`.
 - **Mira dos projéteis:** facas, magias, martelo arremessado, rajada de flechas, soco à distância e orbe sombrio miram primeiro no inimigo sob o mouse. Com o mouse capturado, no analógico, no controle ou no toque, vale o centro do olhar (a mira no meio da tela); na câmera de cima, a frente do personagem. Sem ninguém na mira, vão no mais forte (boss, depois os grandes) e, se forem todos iguais, no mais perto. Um anel vermelho marca o inimigo na mira.
 - **Celular:** botões no padrão do PPSSPP e editor de layout (posição, tamanho e transparência de cada botão), analógico de câmera, tela cheia na horizontal e aviso para girar o aparelho.
 - **Opções para deixar leve:** Sombras, Contorno, Efeitos de golpe, Grama e flores e Visual PS1 podem ser desligados. No celular as sombras já começam desligadas.
