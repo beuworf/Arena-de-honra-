@@ -13,6 +13,7 @@ Este projeto é o **Arena de Honra**, um action RPG de horda feito em um único
   facilitam comparar com o original em `arena-de-honra-meior`.
 - Bibliotecas: three.js **r128** (API antiga, sem módulos ES) e PeerJS 1.5.4,
   ambos por CDN. Não troque de versão sem testar tudo.
+- Personagens jogáveis: modelos VRM 0.0 em `modelos/` (ver `modelos/LEIA-ME.md`), carregados com three-vrm **0.6.5** (a última compatível com three r128). O modelo segue o esqueleto antigo do jogo: os golpes continuam animando `sw`/`sw2` e `vrmUpd` faz o corpo VRM acompanhar. Inimigos continuam com modelos simples.
 - Configurações ficam em `localStorage['arena_set']` e o recorde em
   `localStorage['arena_rec']`.
 

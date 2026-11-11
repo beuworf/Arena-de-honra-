@@ -54,6 +54,7 @@ em **Configurações**.
 - **Animações dos inimigos:** o passo segue a velocidade real (parado, eles respiram) e os braços balançam ao contrário das pernas. Eles se inclinam ao correr, para trás ao preparar o golpe, e avançam o corpo ao bater. Ao apanhar, são empurrados para trás. Tontos, eles cambaleiam; arremessados, se debatem. Ao morrer, piscam, caem de costas, escurecem e afundam no chão.
 - **Câmera no ombro (estilo ação em 3ª pessoa):** a câmera fica atrás do ombro do personagem e o movimento é relativo a ela. Ela segue sozinha quando você corre, desvia das casas e esconde as árvores que ficam na frente. A visão de cima continua disponível nas configurações.
 - **Visual inspirado em "3D pixel art":** contorno escuro de 1 pixel, sombras reais em pixel com o sol acompanhando o jogador, sol quente com sombra azulada, céu em degradê, rua de paralelepípedo e casas com janelas e floreiras.
+- **Personagens VRoid (passo 2):** o jogador agora é um modelo VRoid em formato VRM, carregado sob demanda (biblioteca three-vrm de 83 KB). Ele tem animação própria de corpo humano: corrida com joelhos, quadril e tronco; respiração; postura de luta; pulo; esquiva; bloqueio. Os braços seguem o golpe a partir do ombro, a arma fica na mão com os dedos fechados, o cabelo balança com a física da VRM e o personagem pisca. Cada classe tem o próprio visual (cor da roupa e equipamentos), e dá para usar um modelo próprio por classe ou carregar o seu em *Configurações*. Veja `modelos/LEIA-ME.md`. O modelo antigo continua disponível em *Configurações → Personagem → Clássico*.
 - **Mira dos projéteis:** facas, magias, martelo arremessado, rajada de flechas, soco à distância e orbe sombrio miram primeiro no inimigo sob o mouse. Com o mouse capturado, no analógico, no controle ou no toque, vale o centro do olhar (a mira no meio da tela); na câmera de cima, a frente do personagem. Sem ninguém na mira, vão no mais forte (boss, depois os grandes) e, se forem todos iguais, no mais perto. Um anel vermelho marca o inimigo na mira.
 - **Celular:** botões no padrão do PPSSPP e editor de layout (posição, tamanho e transparência de cada botão), analógico de câmera, tela cheia na horizontal e aviso para girar o aparelho.
 - **Opções para deixar leve:** Sombras, Contorno, Efeitos de golpe, Grama e flores e Visual PS1 podem ser desligados. No celular as sombras já começam desligadas.
@@ -78,6 +79,7 @@ index.html             o jogo inteiro (HTML + CSS + JS, three.js r128 e PeerJS v
 manifest.webmanifest   dados do app instalável
 icon.svg               ícone
 ohmygame.json          tipo do projeto para o OhMyGame
+modelos/               personagens VRoid (.vrm) e instruções
 docs/design.md         documento de design do jogo
 AGENTS.md              regras para agentes de código (OhMyGame, Claude Code, Codex…)
 ```
