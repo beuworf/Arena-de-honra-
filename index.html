@@ -2,13 +2,17 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arena de Honra">
 <title>Arena de Honra</title>
 <meta name="description" content="Action RPG de horda em 3D low-poly no navegador, com 6 classes, 8 raças e multiplayer online P2P.">
 <meta name="theme-color" content="#0a121c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
 <style>
 :root{--ink:#fff;--glass:rgba(10,18,28,.55);--hp:#e5534b;--hp-bg:rgba(0,0,0,.45);color-scheme:dark;box-sizing:border-box}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--glass:rgba(10,18,28,.6)}}
@@ -89,6 +93,12 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;image-renderi
 #mt3{font-size:24px;font-weight:800}
 #lnm,#jc{font-size:18px;text-align:center;padding:6px 10px;border-radius:10px;border:2px solid rgba(255,211,77,.7);background:rgba(255,255,255,.08);color:#fff;max-width:70vw}
 #jc{font-size:34px;letter-spacing:8px;width:6ch}
+#fsb{position:absolute;left:calc(env(safe-area-inset-left,0px) + 12px);top:calc(env(safe-area-inset-top,0px) + 10px);display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:var(--glass);border:1.5px solid rgba(255,255,255,.35);color:#fff;font-size:20px;font-weight:700;cursor:pointer;z-index:3}
+#fsb span{font-size:13px}
+#fsh{display:none;position:absolute;inset:0;z-index:4;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px calc(env(safe-area-inset-right,0px) + 18px) 18px calc(env(safe-area-inset-left,0px) + 18px);background:rgba(6,12,20,.94);color:#fff;font-size:15px;line-height:1.4;text-align:left}
+#fsh p,#fsh ol{max-width:520px;margin:0}
+#lnm{font-size:16px}
+
 #lp{display:flex;flex-direction:column;gap:4px;width:min(520px,92vw)}
 .lr{padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
@@ -140,7 +150,7 @@ body.led .sel{outline:3px solid #ffd34d;outline-offset:3px}
 <button class="pb" id="bH">△</button><button class="pb" id="bL">○</button><button class="pb" id="bJ">✕</button><button class="pb" id="bB">□</button><button class="pb" id="bD">R1</button><button class="pb" id="bK">L1</button><button class="pb" id="bR">R2<small>Cone</small></button><button class="pb" id="bW">SELECT<small>Arma</small></button><button class="pb" id="bC">START<small>Pausa</small></button>
 <div id="cls"><div id="ct"></div><div id="sxr" class="row" style="margin-bottom:10px"></div><div id="cc"></div><div id="bk" class="bk">◀ Voltar</div></div>
 <div id="els"><button data-e="0">🔥</button><button data-e="1">❄️</button><button data-e="2">🌑</button><button data-e="3">🌀</button></div>
-<div id="menu"><div id="mt">ARENA DE HONRA</div><div id="mb"></div><div id="mf"></div><div id="mrec"></div></div>
+<div id="menu"><div id="fsb" title="Tela cheia">⛶<span>Tela cheia</span></div><div id="fsh"><b>Tela cheia no iPhone</b><p>O Safari do iPhone não deixa sites entrarem em tela cheia sozinhos. Para jogar sem as barras do navegador:</p><ol><li>Toque em <b>Compartilhar</b> (o quadrado com a seta ↑) na barra do Safari.</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li><li>Abra o jogo pelo ícone <b>Arena de Honra</b> que vai aparecer.</li></ol><div class="mi" id="fshx" style="padding:8px 22px">Entendi</div></div><div id="mt">ARENA DE HONRA</div><div id="mb"></div><div id="mf"></div><div id="mrec"></div></div>
 <div id="set"><div id="mt2">Configurações</div><div id="sc"></div><div class="bk" id="sbk" style="display:block">◀ Voltar</div></div>
 <div id="lob"><div id="lh">Lobby · código <b id="lc">----</b></div><input id="lnm" maxlength="10" placeholder="Seu nome" autocomplete="off"><div id="lp"></div><div id="lsel"></div><div id="lm"></div></div>
 <div id="jn"><div id="mt3">Entrar com código</div><input id="jc" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off"><div class="row"><span class="btn" id="jgo">Entrar</span><span class="btn" id="jbk">Voltar</span></div><div id="jm"></div></div>
@@ -1024,14 +1034,20 @@ function mqttOpen(url,topic,onMsg,ms=6000){return new Promise((ok,no)=>{let ws,b
       else if(ty==3){const tl=(body[0]<<8)|body[1];let m=null;try{m=JSON.parse(td.decode(body.subarray(2+tl)))}catch(_){}if(m)onMsg(m)}}}})}
 async function relayJoin(url,code){const me='p'+Math.random().toString(36).slice(2,10),tb={},seen={},lis={},pe=[];let my={},left=false,dirty=0;tb[me]=my;
   const fire=(t,m)=>(lis[t]||[]).forEach(f=>{try{f(m)}catch(e){console.error(e)}}),note=()=>pe.forEach(f=>{try{f({})}catch(e){}});
-  const C=await mqttOpen(url,'arenahonra/v2/'+code,m=>{if(!m||m.f===me||left)return;seen[m.f]=performance.now();
-    if(m.k=='pr'){const nw=!tb[m.f];tb[m.f]=m.p||{};note();if(nw)C.pub({k:'pr',f:me,p:my})}else if(m.k=='em')fire(m.t,{peer:m.f,isMe:false,sameTab:false,topic:m.t,data:m.d});else if(m.k=='bye'){delete tb[m.f];delete seen[m.f];note()}});
-  const iv=setInterval(()=>{if(left)return;C.pub({k:'pr',f:me,p:my});const n=performance.now();for(const id in seen)if(n-seen[id]>3500){delete tb[id];delete seen[id];note()}},1000);
-  C.onclose=()=>{for(const id in tb)if(id!==me)delete tb[id];note()};
-  return{url,emit:async(t,d)=>{if(left)throw new Error('left');C.pub({k:'em',f:me,t,d})},on:(t,f)=>{(lis[t]=lis[t]||[]).push(f);return()=>{}},
-    presence:async pt=>{if(left)throw new Error('left');const n={...my};for(const k in pt){if(pt[k]===null)delete n[k];else n[k]=pt[k]}my=n;tb[me]=my;C.pub({k:'pr',f:me,p:my});note()},
+  // cada mensagem leva a hora de quem enviou (s): quem recebe usa isso para interpolar sem trancos (nClk/nbAt)
+  let C=null;const pub=o=>{o.s=Math.round(performance.now());if(C)C.pub(o)},topic='arenahonra/v2/'+code,
+    onM=m=>{if(!m||m.f===me||left)return;const ar=performance.now();seen[m.f]=ar;
+    if(m.k=='pr'){const nw=!tb[m.f],pr=m.p||{};Object.defineProperty(pr,'_t',{value:m.s==null?ar:m.s});Object.defineProperty(pr,'_r',{value:ar});tb[m.f]=pr;note();if(nw)pub({k:'pr',f:me,p:my})}
+    else if(m.k=='em')fire(m.t,{peer:m.f,isMe:false,sameTab:false,topic:m.t,data:m.d,st:m.s==null?ar:m.s,ar});else if(m.k=='bye'){delete tb[m.f];delete seen[m.f];note()}};
+  C=await mqttOpen(url,topic,onM);let rc=0;
+  // se a conexão com o servidor cair no meio da partida, tenta reconectar sozinho antes de dar a sala como perdida
+  const onCl=async()=>{if(left||rc)return;rc=1;for(let i=0;i<6&&!left;i++){await sleep(300+500*i);try{C=await mqttOpen(url,topic,onM,4000);C.onclose=onCl;rc=0;pub({k:'pr',f:me,p:my});return}catch(e){}}
+    rc=0;for(const id in tb)if(id!==me)delete tb[id];note()};C.onclose=onCl;
+  const iv=setInterval(()=>{if(left)return;pub({k:'pr',f:me,p:my});const n=performance.now();if(rc)for(const id in seen)seen[id]=Math.max(seen[id],n-2500);for(const id in seen)if(n-seen[id]>3500){delete tb[id];delete seen[id];note()}},1000);
+  return{url,emit:async(t,d)=>{if(left)throw new Error('left');pub({k:'em',f:me,t,d})},on:(t,f)=>{(lis[t]=lis[t]||[]).push(f);return()=>{}},
+    presence:async pt=>{if(left)throw new Error('left');const n={...my};for(const k in pt){if(pt[k]===null)delete n[k];else n[k]=pt[k]}my=n;tb[me]=my;pub({k:'pr',f:me,p:my});note()},
     peers:()=>Object.keys(tb).map(id=>({peer:id,isMe:id===me,sameTab:id===me,kind:'viewer',guest:false,presence:tb[id]})),onPeers:f=>{pe.push(f);return()=>{}},
-    leave:async()=>{left=true;clearInterval(iv);try{C.pub({k:'bye',f:me})}catch(e){}setTimeout(()=>C.close(),150)}}}
+    leave:async()=>{left=true;clearInterval(iv);try{pub({k:'bye',f:me})}catch(e){}setTimeout(()=>C.close(),150)}}}
 async function relayHost(msg){let any=0;for(const url of BROKERS()){for(let i=0;i<4;i++){const code=String(Math.floor(Math.random()*10000)).padStart(4,'0');let R=null;try{R=await relayJoin(url,code)}catch(e){break}any=1;
       await R.presence({h:1,ph:'l'});await sleep(1300);if(R.peers().some(q=>!q.isMe&&q.presence&&q.presence.h==1)){try{await R.leave()}catch(e){}continue}return{R,code}}}
   return{err:any?'Não foi possível criar o lobby. Tente de novo.':'Sem conexão com os servidores de sala. Verifique a internet e tente de novo.'}}
@@ -1098,7 +1114,7 @@ $('jc').addEventListener('keydown',e=>{if(e.key=='Enter')netJoin($('jc').value)}
 function hostCheck(){if(!NET.h||NET.ph!='l'||NET.starting||!NET.R)return;const ps=NET.R.peers().filter(q=>q.presence&&q.presence.ph=='l');
   if(ps.length&&ps.every(q=>q.presence.rd==1)){NET.starting=1;$('lm').textContent='Todos prontos! Começando...';
     setTimeout(()=>{NET.starting=0;if(!NET.R||NET.ph!='l')return;const p2=NET.R.peers().filter(q=>q.presence&&q.presence.ph=='l'&&q.presence.rd==1);if(!p2.length)return;const ro=p2.map(q=>q.peer).sort();nemit('cmd',{t:'start',r:ro});npres({ro});netStart(ro)},2000)}}
-function netStart(ro){if(NET.ph=='p')return;NET.ph='p';NET.stT=performance.now();NET.roster=ro;NET.idx=Math.max(0,ro.indexOf(meP()));NET.n=ro.length;NET.starting=0;
+function netStart(ro){if(NET.ph=='p')return;NET.ph='p';NET.hck={};NET.stT=performance.now();NET.roster=ro;NET.idx=Math.max(0,ro.indexOf(meP()));NET.n=ro.length;NET.starting=0;
   restart();sex=NET.me.sx?1:0;NET.st={};NET.mid=meP();setRace(NET.me.rc);const w=meW();if(w==4){an.type=NET.me.a;an.max=[110,70,60][an.type];an.hp=an.max;AM2.color.setHex(AN[an.type][1]);AM2.map=an.type==1?TSTR:TFUR;anLook(an.type)}
   start(w);p.x=(NET.idx-(NET.n-1)/2)*2.6;p.z=0;cx=p.x;cz=0;NET.gh=0;NET.em={};NET.lk='';$('lob').style.display='none';$('tm').style.display='block';scr='play';
   npres({ph:'p',d:0,hp:100,x:p.x,z:p.z,y:0,f:0,w,rc:NET.me.rc,at:0,sh:0,mk:0,zm:0,rd:0})}
@@ -1121,15 +1137,15 @@ function mkAv(peer,pr){const ci=Math.max(0,NET.roster.indexOf(peer)),w=pr.w||0,r
   const R={};for(const [k,v] of Object.entries({body,hd,uaL,faL,uaR,faR,legL,kL,legR,kR,sw,sw2,sh2,sl,pSh,hoL:uaL.ho,hoR:uaR.ho}))R[k]=M.get(v);R.sl.visible=false;R.pSh.visible=false;R.body.visible=R.legL.visible=R.legR.visible=true;
   g.rotation.order='YXZ';g.R=R;g.rc=rc+8*sex;g.w=w;Object.assign(g,ro);flat(add(new THREE.CircleGeometry(.8,16),new THREE.MeshBasicMaterial({color:PCOL[ci%6],transparent:true,opacity:.45,depthWrite:false}),0,.06,0,g));S.add(g);
   wi=sv.wi;cls=sv.cls;sex=sv.sex;setRace(sv.race);RC=sv.RC;p.ax=sv.ax;gear();if(vs)pg.add(vs);return g}
-function avUpd(r,dt){const g=r.av,R=g.R;if(!R)return;const sp=dt>0?Math.hypot(r.x-(r.px??r.x),r.z-(r.pz??r.z))/dt:0;r.px=r.x;r.pz=r.z;r.m=(r.m||0)+(Math.min(1,sp/4)-(r.m||0))*Math.min(1,dt*10);
-  const rb=RXB[g.rc]||[1,1];g.position.set(r.x,r.y,r.z);r.gs=(r.gs||1)+((r.gi?2.3:1)-(r.gs||1))*Math.min(1,dt*5);g.scale.set(rb[0]*r.gs,rb[1]*(r.dg?.65:1)*(r.alive?1:.25)*r.gs,rb[0]*r.gs);
+function avUpd(r,dt){const g=r.av,R=g.R;if(!R)return;const Vx=r.vx??r.x,Vy=r.vy??r.y,Vz=r.vz??r.z,Vf=r.vf??r.f;const sp=dt>0?Math.hypot(Vx-(r.px??Vx),Vz-(r.pz??Vz))/dt:0;r.px=Vx;r.pz=Vz;r.m=(r.m||0)+(Math.min(1,sp/4)-(r.m||0))*Math.min(1,dt*10);
+  const rb=RXB[g.rc]||[1,1];g.position.set(Vx,Vy,Vz);r.gs=(r.gs||1)+((r.gi?2.3:1)-(r.gs||1))*Math.min(1,dt*5);g.scale.set(rb[0]*r.gs,rb[1]*(r.dg?.65:1)*(r.alive?1:.25)*r.gs,rb[0]*r.gs);
   let a=0,sv=0,k='',d=1,pr=0;if(r.ak&&r.atT>0){r.atT-=dt;pr=1-Math.max(0,r.atT)/r.ak.dur;sv=swingS(pr,Math.min(.8,Math.max(.1,r.ak.ht)));k=r.ak.k;d=r.ak.n?1:-1;a=1}
   const m=r.m,ph=(r.ph=(r.ph||0)+dt*14*Math.max(.35,m)),q=Math.sin(ph)*.8*m,as=Math.abs(sv);
-  R.legL.rotation.x=a?-.5*as:q;R.legR.rotation.x=a?.38*as:-q;R.kL.rotation.x=a?.25*as:Math.max(0,q)*.9;R.kR.rotation.x=a?.55*as:Math.max(0,-q)*.9;if(r.y>.25){R.legL.rotation.x=R.legR.rotation.x=-.55;R.kL.rotation.x=R.kR.rotation.x=.9}
+  R.legL.rotation.x=a?-.5*as:q;R.legR.rotation.x=a?.38*as:-q;R.kL.rotation.x=a?.25*as:Math.max(0,q)*.9;R.kR.rotation.x=a?.55*as:Math.max(0,-q)*.9;if(Vy>.25){R.legL.rotation.x=R.legR.rotation.x=-.55;R.kL.rotation.x=R.kR.rotation.x=.9}
   let tw=0,ln=0;if(a){if(k=='L'||k=='S'){tw=d*.38*sv;ln=.1*as}else if(k=='H'||k=='G')ln=sv<0?.14*sv:.3*sv;else if(k=='T')ln=sv<0?.1*sv:.24*sv;else ln=.12*as}else if(r.dg)ln=.45;
-  r.tw=(r.tw||0)+(tw-(r.tw||0))*.45;r.ln=(r.ln||0)+(ln-(r.ln||0))*.35;g.rotation.y=r.f+(a&&k=='S'?eio(pr)*PI2:0);g.rotation.x=r.ln;R.body.rotation.y=r.tw*(g.w==7?2.6:1.4);r.sh7=(r.sh7||0)+((g.w==7&&!a?.06:0)-(r.sh7||0))*.15;R.body.rotation.z=g.w==7?-r.tw*.55+r.sh7:0;R.hd.rotation.z=g.w==7?-r.sh7:0;R.hd.rotation.y=-r.tw*.8;
+  r.tw=(r.tw||0)+(tw-(r.tw||0))*.45;r.ln=(r.ln||0)+(ln-(r.ln||0))*.35;g.rotation.y=Vf+(a&&k=='S'?eio(pr)*PI2:0);g.rotation.x=r.ln;R.body.rotation.y=r.tw*(g.w==7?2.6:1.4);r.sh7=(r.sh7||0)+((g.w==7&&!a?.06:0)-(r.sh7||0))*.15;R.body.rotation.z=g.w==7?-r.tw*.55+r.sh7:0;R.hd.rotation.z=g.w==7?-r.sh7:0;R.hd.rotation.y=-r.tw*.8;
   R.body.position.y=BY+(m>.1&&!a?Math.abs(Math.sin(ph))*.08:Math.sin(t*2.4)*.015)+g.dy-(a&&(k=='H'||k=='G')&&sv>0?.14*sv:0);
-  R.rc=g.rc;armPose(R,{wi:g.w,att:!!a,sv,k,d,pr,n:r.ak?r.ak.n:0,blk:r.blk,m,ph,y:r.y,dg:r.dg},dt||.016);R.pSh.visible=!!r.shd}
+  R.rc=g.rc;armPose(R,{wi:g.w,att:!!a,sv,k,d,pr,n:r.ak?r.ak.n:0,blk:r.blk,m,ph,y:Vy,dg:r.dg},dt||.016);R.pSh.visible=!!r.shd}
 // invocações e animal dos outros jogadores (só visual; o dano chega pela rede)
 function rpMinions(r,pr,dt){r.mns=r.mns||{};const seen={};const list=(pr.mn||'').split(';').filter(Boolean);list.forEach((s2,i)=>{const [k,x,z]=s2.split(','),cl=k[0]=='c',key=cl?k:k+i;seen[key]=1;let o=r.mns[key];
     if(!o){let g;if(cl){g=r.av.clone(true);const mk=new THREE.Mesh(BLG,new THREE.MeshBasicMaterial({color:ELC[+k[1]]||0xffffff,transparent:true,opacity:.7,depthWrite:false}));mk.rotation.x=-Math.PI/2;mk.position.y=.09;mk.scale.setScalar(1.3);g.add(mk);S.add(g);ring(+x,+z,1.2,ELC[+k[1]])}else if(k=='z'||k=='m'||k=='s')g=mkMin(k);else g=k=='v'?mkVult():mkDog();o=r.mns[key]={g,x:+x,z:+z,k};if(cl)Object.assign(o,{cl:1,el:+k[1],hp:1,mn:1,fl:0})}
@@ -1143,6 +1159,14 @@ function rpDrop(r){S.remove(r.av);for(const k in r.mns||{})S.remove(r.mns[k].g);
 // projéteis dos outros jogadores (só visual)
 const RPV=[];function rpvUpd(dt){for(let i=RPV.length-1;i>=0;i--){const a=RPV[i];a.t-=dt;a.m.position.x+=a.vx*dt;a.m.position.z+=a.vz*dt;if(a.hm)a.m.rotation.x+=14*dt;if(a.t<=0){S.remove(a.m);RPV.splice(i,1)}}}
 // -- laço online por quadro
+// ---- Rede: buffer de interpolação. Os outros jogadores e os inimigos são desenhados um pouco no passado (~0,1 s + a variação
+// medida da conexão), entre duas posições recebidas. Pacotes que chegam atrasados ou juntos deixam de causar travadas e teleportes.
+function nClk(c,st,ar){ar=ar||performance.now();st=st==null?ar:st;const d=ar-st;if(c.off==null||d<c.off||d-c.off>1500)c.off=d;else c.off+=(d-c.off)*.002;
+  const j=d-c.off;c.jit=c.jit==null?j:c.jit+(j-c.jit)*.08;const D=Math.min(550,95+1.7*c.jit);c.D=c.D==null?D:c.D+(D-c.D)*.05;return st}
+function nRt(c){return c.off==null?0:performance.now()-c.off-c.D}
+function nbPush(o,st,v){const hb=o.hb||(o.hb=[]),l=hb[hb.length-1];if(l&&st<=l[0])return;if(l&&Math.hypot(v[0]-l[1],v[1]-l[2])>9)hb.length=0;hb.push([st,...v]);if(hb.length>24)hb.shift()}
+function nbAt(o,rt,an){const hb=o.hb;if(!hb||!hb.length)return null;let i=0;while(i<hb.length&&hb[i][0]<=rt)i++;if(i==0)return hb[0];if(i==hb.length){const b=hb[i-1],a=hb[i-2];if(!a||b[0]-a[0]>260)return b;const k=Math.min(rt-b[0],120)/Math.max(1,b[0]-a[0]),r=[rt];for(let j=1;j<b.length;j++){let dv=b[j]-a[j];if(j==an)dv=Math.atan2(Math.sin(dv),Math.cos(dv));r.push(b[j]+dv*k)}return r}
+  const a=hb[i-1],b=hb[i],k=(rt-a[0])/Math.max(1,b[0]-a[0]),r=[rt];for(let j=1;j<a.length;j++){let dv=b[j]-a[j];if(j==an)dv=Math.atan2(Math.sin(dv),Math.cos(dv));r.push(a[j]+dv*k)}if(i>2)hb.splice(0,i-2);return r}
 function netTick(dt){const R=NET.R;if(!R)return;const ps=R.peers();
   const hp_=ps.find(q=>!q.isMe&&q.presence&&q.presence.h==1);
   if(NET.c){if(hp_){NET.hostT=0;const hr=hp_.presence;if(NET.ph=='l'&&hr.ph=='p'&&NET.me.rd&&hr.ro&&hr.ro.includes(meP()))netStart(hr.ro);else if(NET.ph=='p'&&hr.ph=='l'&&performance.now()-(NET.stT||0)>3500)netToLobby('Voltando ao lobby')}else{NET.hostT+=dt;if(NET.hostT>3.5)return netLeave('O host saiu da partida')}}
@@ -1150,7 +1174,9 @@ function netTick(dt){const R=NET.R;if(!R)return;const ps=R.peers();
   if(NET.ph!='p')return;
   const seen={};for(const q of ps){if(q.isMe||!q.presence||q.presence.ph!='p')continue;const pr=q.presence;seen[q.peer]=1;let r=NET.rpm[q.peer];
     if(!r){r=NET.rpm[q.peer]={peer:q.peer,remote:1,x:pr.x||0,z:pr.z||0,tx:pr.x||0,tz:pr.z||0,y:0,f:0,hp:100,alive:true,sh:0,at:pr.at||0,sw:0,nm:pr.nm,av:mkAv(q.peer,pr)};NET.rp.push(r)}
-    r.tx=pr.x||0;r.tz=pr.z||0;const k=Math.min(1,12*dt);r.x+=(r.tx-r.x)*k;r.z+=(r.tz-r.z)*k;r.y=pr.y||0;r.f=pr.f||0;r.hp=pr.hp==null?100:pr.hp;r.alive=!pr.d;r.sh=pr.sh?1:0;r.mk=pr.mk?1:0;r.zmb=pr.zm?1:0;r.nm=pr.nm;
+    r.tx=pr.x||0;r.tz=pr.z||0;const k=Math.min(1,12*dt);r.x+=(r.tx-r.x)*k;r.z+=(r.tz-r.z)*k;r.y=pr.y||0;r.f=pr.f||0;
+    // jogo usa a posição mais nova (r.x/r.z); o boneco é desenhado com a interpolada (r.vx...), sem trancos
+    if(pr!==r.lp){r.lp=pr;nbPush(r,nClk(r,pr._t,pr._r),[r.tx,r.tz,r.y,r.f])}{const sm=nbAt(r,nRt(r),4);if(sm){r.vx=sm[1];r.vz=sm[2];r.vy=sm[3];r.vf=sm[4]}}r.hp=pr.hp==null?100:pr.hp;r.alive=!pr.d;r.sh=pr.sh?1:0;r.mk=pr.mk?1:0;r.zmb=pr.zm?1:0;r.nm=pr.nm;
     if(pr.at!==r.at){r.at=pr.at;const sa=(pr.ak||'L,1,.3,.4').split(',');r.ak={k:sa[0],n:+sa[1],dur:Math.max(.1,+sa[2]||.3),ht:+sa[3]||.4};r.atT=r.ak.dur}r.blk=pr.b;r.dg=pr.g;r.gi=pr.gi;r.shd=0;rpMinions(r,pr,dt);avUpd(r,dt)}
   for(const r of NET.rp.slice())if(!seen[r.peer]){rpDrop(r);NET.rp.splice(NET.rp.indexOf(r),1);delete NET.rpm[r.peer]}
   // aliado principal = jogador vivo mais próximo
@@ -1176,14 +1202,14 @@ function netSnap(){nemit('snap',{lv:LV,lt:Math.round(LT),bg:bigOn,bs:bossOn,kc:k
 function onDmg(m){if(!NET.h||m.isMe||NET.ph!='p'||!m.data||!m.data.d)return;for(const a of m.data.d){const e=E.find(o=>o.id==a[0]);if(!e)continue;if(a[1]>.05){hitFx(e,0,0,1);dmgNum(e,a[1])}if(a[1]>0){e.dot=m.peer;stAdd(m.peer,e,a[1]);if(e.hq!==undefined)e.hq-=a[1]}e.hp-=a[1];e.fl=.12;if(a[2])for(const f in a[2])if(NSF.includes(f))e[f]=Math.max(e[f]>0?e[f]:0,a[2][f]);if(a[3]){e.kx=a[3][0];e.kz=a[3][1]}}}
 function netHit(r,e,mul){nemit('ehit',{to:r.peer,id:e.id,dm:e.dm*mul,x:+e.x.toFixed(1),z:+e.z.toFixed(1),k:e.k})}
 // -- cliente: snapshots, ataques recebidos, eventos
-function onSnap(m){if(!NET.c||NET.ph!='p'||m.isMe||!isHost(m.peer))return;const d=m.data;if(!d||!d.E)return;
+function onSnap(m){if(!NET.c||NET.ph!='p'||m.isMe||!isHost(m.peer))return;const d=m.data;if(!d||!d.E)return;const sst=nClk(NET.hck||(NET.hck={}),m.st,m.ar);
   if(d.lv!==LV)netLvl(d.lv);LT=d.lt;if(d.bg&&!bigOn)toast('Inimigos GRANDES chegaram!');if(d.bs&&!bossOn)toast('BOSS!');bigOn=d.bg;bossOn=d.bs;kills=d.kc;
   const seen={};for(const a of d.E){const id=a[0];let e=NET.em[id];if(!e){e=mkE(a[1],a[2]/10,a[3]/10);e.id=id;e.tx=e.x;e.tz=e.z;e.b={};E.push(e);NET.em[id]=e}
-    e.tx=a[2]/10;e.tz=a[3]/10;{const h0=e.hp,nw=!e.seen;e.seen=1;e.hp=e.hs=a[4]/10;const dr=h0-e.hp;if(performance.now()-(e.sentT||0)>700)e.sent=0;if(!nw&&dr>.01){const ex=dr-(e.sent||0);e.sent=Math.max(0,(e.sent||0)-dr);if(ex>.05){hitFx(e,0,0,1);dmgNum(e,ex)}}}e.ty=(a[9]||0)/10;e.mx=a[5]/10;const fs=a[6];NSF.forEach((f,i)=>{if(fs&(1<<i)){if(!(e[f]>.3))e[f]=.4;e.b[f]=e[f]}else{e[f]=0;e.b[f]=0}});
+    e.tx=a[2]/10;e.tz=a[3]/10;nbPush(e,sst,[e.tx,e.tz]);{const h0=e.hp,nw=!e.seen;e.seen=1;e.hp=e.hs=a[4]/10;const dr=h0-e.hp;if(performance.now()-(e.sentT||0)>700)e.sent=0;if(!nw&&dr>.01){const ex=dr-(e.sent||0);e.sent=Math.max(0,(e.sent||0)-dr);if(ex>.05){hitFx(e,0,0,1);dmgNum(e,ex)}}}e.ty=(a[9]||0)/10;e.mx=a[5]/10;const fs=a[6];NSF.forEach((f,i)=>{if(fs&(1<<i)){if(!(e[f]>.3))e[f]=.4;e.b[f]=e[f]}else{e[f]=0;e.b[f]=0}});
     e.chw=fs&(1<<13)?.3:0;e.ch=fs&(1<<14)?.3:0;if(fs&(1<<15))e.fl=.1;e.wind=a[7]>0?(e.boss?.7:e.rng?.5:.4)*(1-a[7]/100):0;if(a[8]&&!(e.sw>0))e.sw=.25;seen[id]=1}
   for(const id in NET.em)if(!seen[id]){const e=NET.em[id];delete NET.em[id];const i=E.indexOf(e);if(i>=0)E.splice(i,1);if(NET.lvClr){S.remove(e.g);e.m.dispose()}else{dieAnim(e);puff(e.x,1,e.z,e.boss?40:14,e.cl,5,7,.9,.2*(e.sz||1));rewardKill(e)}}}
 function rewardKill(ee){if(wi==10)soul(ee);if(ee.axe){p.ax=0;gear();p.hp=Math.min(100,p.hp+5);toast('Machado recuperado')}if(NET.gh)return;p.hp=Math.min(100,p.hp+(ee.boss?30:ee.k=='b'?8:3));if(wi==1&&Math.random()<.2)p.hp=Math.min(100,p.hp+4);if(wi==2){p.hp=Math.min(100,p.hp+6);ring(p.x,p.z,1.3,0xc0392b)}dropLoot(ee);hud()}
-function cliEnemies(dt){for(const e of E){const k=Math.min(1,10*dt);e.x+=(e.tx-e.x)*k;e.z+=(e.tz-e.z)*k;
+function cliEnemies(dt){const ert=NET.hck?nRt(NET.hck):0;for(const e of E){const sm=e.hb&&nbAt(e,ert);if(sm){e.x=sm[1];e.z=sm[2]}else{const k=Math.min(1,10*dt);e.x+=(e.tx-e.x)*k;e.z+=(e.tz-e.z)*k}
     for(const f of NSF){if(e[f]>0)e[f]-=dt;if(e.b&&e.b[f]>e[f])e.b[f]=Math.max(0,e[f])}
     e.fl-=dt;e.y+=((e.ty>.05?e.ty:(e.lf>0?2.2:0))-e.y)*Math.min(1,10*dt);let tp=p,bd=Math.hypot(e.x-p.x,e.z-p.z);for(const r of NET.rp){const dd=Math.hypot(e.x-r.x,e.z-r.z);if(dd<bd){bd=dd;tp=r}}
     e.g.position.set(e.x,e.y,e.z);e.g.rotation.y=Math.atan2(tp.x-e.x,tp.z-e.z);
@@ -1433,7 +1459,21 @@ document.addEventListener('pointerlockchange',()=>{if(!document.pointerLockEleme
   cj.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),R=40*csc,m=Math.min(d,R);if(d>0){dx*=m/d;dy*=m/d}CS.x=Math.abs(dx)<6*csc?0:dx/R;CS.y=Math.abs(dy)<6*csc?0:dy/R;ck.style.left=28+dx/csc+'px';ck.style.top=28+dy/csc+'px'});
   const en=e=>{if(e.pointerId!==id)return;id=null;CS.x=CS.y=0;ck.style.left=ck.style.top='28px'};cj.addEventListener('pointerup',en);cj.addEventListener('pointercancel',en)}
 // No celular: tela cheia e trava na horizontal no primeiro toque (onde o navegador permitir)
-addEventListener('pointerdown',e=>{if(e.pointerType!='touch'||document.fullscreenElement)return;const d=document.documentElement;try{const q=d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):null;if(q&&q.then)q.then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(_){}}).catch(()=>{})}catch(_){}},true);
+// ---- Tela cheia: automática no toque (Android/iPad), botão no menu e instruções para o iPhone, que só permite pela Tela de Início
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement,fsApp=()=>navigator.standalone||matchMedia('(display-mode: fullscreen),(display-mode: standalone)').matches,
+  fsCan=()=>{const d=document.documentElement;return !!(d.requestFullscreen||d.webkitRequestFullscreen)};
+function fsGo(){const d=document.documentElement;try{const q=d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen?d.webkitRequestFullscreen():null;
+  const lk=()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(_){}};if(q&&q.then)q.then(lk).catch(()=>{});else lk()}catch(_){}}
+function fsUI(){const b=$('fsb');if(!b)return;b.style.display=fsApp()||fsEl()?'none':'flex'}
+addEventListener('pointerdown',e=>{if(e.pointerType!='touch'||fsEl()||fsApp()||!fsCan())return;fsGo()},true);
+$('fsb').addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();if(fsCan())fsGo();else $('fsh').style.display='flex'});
+$('fshx').addEventListener('pointerdown',e=>{e.stopPropagation();$('fsh').style.display='none'});
+document.addEventListener('fullscreenchange',fsUI);document.addEventListener('webkitfullscreenchange',fsUI);fsUI();
+// ---- iPhone: o Safari ignora user-scalable=no; bloqueia o zoom de toque duplo e de pinça (os botões do jogo usam pointerdown, então nada se perde)
+{let lt=0;const ed=e=>/INPUT|TEXTAREA|SELECT/.test(e.target.tagName);
+ document.addEventListener('touchend',e=>{const n=performance.now();if(n-lt<450&&!ed(e))e.preventDefault();lt=n},{passive:false});
+ document.addEventListener('touchmove',e=>{if(e.touches.length>1||(e.scale!==undefined&&e.scale!==1))e.preventDefault()},{passive:false});
+ ['gesturestart','gesturechange','gestureend','dblclick'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}))}
 // Sombras: o sol acompanha o jogador; sombra em pixels duros combina com a resolução baixa
 R.shadowMap.type=THREE.BasicShadowMap;sun.shadow.mapSize.set(512,512);{const c=sun.shadow.camera;c.left=c.bottom=-24;c.right=c.top=24;c.near=1;c.far=80}sun.shadow.bias=-.002;sun.shadow.normalBias=.04;S.add(sun.target);
 let shT=0;function shCast(){S.traverse(o=>{if(!o.isMesh||o===SKYD||o===PIM)return;const tr=o.material&&o.material.transparent,fl=o.geometry&&/Plane|Circle|Ring/.test(o.geometry.type);o.receiveShadow=!tr;o.castShadow=!tr&&!fl&&!GRS.includes(o)&&!o.isInstancedMesh})}
