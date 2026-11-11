@@ -25,6 +25,7 @@ Este projeto é o **Arena de Honra**, um action RPG de horda feito em um único
 - O multiplayer é host-autoritativo (`NET.h` host, `NET.c` cliente,
   `NET.gh` fantasma após morrer). Mudanças em dano, inimigos ou drops precisam
   ser replicadas pelas mensagens `nemit`/`onEv`, ou rodar só no host.
+- Rede: a presença de cada jogador (`netPost`) leva posição, golpe atual (`ak`: tipo, lado, duração e acerto), bloqueio, esquiva, invocações (`mn`) e animal (`an`). Os eventos `ev` levam os projéteis (`sh`), os anéis de efeito (`rg`) e os ataques do chefe (`bt`/`bs`). Os avatares remotos são cópias do personagem local montadas com a raça e a classe do outro jogador (`mkAv`) e animadas por `avUpd`. No single player não existe aliado; `al` só é usado no multiplayer, como o jogador real mais próximo.
 - Não use pausa, câmera lenta ou qualquer coisa que pare o tempo quando
   `NET.on` for verdadeiro.
 - Abrir com `#dbg` no fim da URL expõe `window.__dbg` (jogador, inimigos,
