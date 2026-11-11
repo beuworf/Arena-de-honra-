@@ -76,7 +76,7 @@ em **Configurações**.
 - **Ajustes de kit (rodada 3):**
   - **Adagas:** a esquiva gasta 40 de estamina (a barra amarela) e demora mais para recarregar.
   - **Dois Machados:** cada inimigo eliminado devolve 6 de vida.
-  - **Mago de Fogo:** explodir um inimigo queimado causa dano em área nos vizinhos.
+  - **Mago de Fogo:** explodir um inimigo queimado causa dano em área nos vizinhos. A bola de fogo é um projétil maior, atravessa até 3 inimigos e cada acerto causa dano em área e queima os vizinhos.
   - **Mago de Gelo:** acertar o projétil num inimigo lento ou enfraquecido congela na hora; a nevasca congela os enfraquecidos; o estilhaçar pega lentos, enfraquecidos e congelados, com dano maior nos congelados.
   - **Mago de Ilusão:** invoca 3 clones de verdade (fogo, gelo e sombra), que andam, escolhem alvos e usam magias sozinhos por 14 s. Os inimigos os atacam e eles somem com um golpe. No online funciona igual para quem hospeda e para quem entra: todos veem os clones (como cópias do personagem do dono), e os inimigos os atacam e derrubam.
 - **Desistir da run:** no menu de pausa, encerra a partida e mostra o resumo com o recorde.

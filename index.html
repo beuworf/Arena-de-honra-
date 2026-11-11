@@ -578,11 +578,13 @@ function mouseFoe(r){const ctr=lookCenter();
   NV.set(ctr?0:MP.x/innerWidth*2-1,ctr?0:-(MP.y/innerHeight)*2+1);RC2.setFromCamera(NV,C);const ry=RC2.ray;let q=null,bd=1e9;
   for(const e of E){if(e.hp<=0||Math.hypot(e.x-p.x,e.z-p.z)>r+4)continue;const s=e.sz||1;TV3.set(e.x,(e.y||0)+.9*s,e.z);if(ry.distanceToPoint(TV3)<.8*s+.3){const d=TV3.distanceTo(ry.origin);if(d<bd){bd=d;q=e}}}return q}
 function ptarget(r){const m=mouseFoe(r);if(m)return m;let q=null,bt=0,bd=r;for(const e of E){if(e.hp<=0)continue;const d=Math.hypot(e.x-p.x,e.z-p.z);if(d>=r)continue;const t=TIER(e);if(t>bt||(t==bt&&d<bd)){bt=t;bd=d;q=e}}return q}
-function shot(a,o){if(NET.on&&NET.ph=='p'){const G=[AG,SG,HMG,RBG,DKG],Mt=[AM,MF,MI,HMM,RBM,DKM];nemit('ev',{t:'sh',x:+(o.ox!==undefined?o.ox:p.x).toFixed(1),z:+(o.oz!==undefined?o.oz:p.z).toFixed(1),a:+a.toFixed(2),s:o.sp||30,l:+(o.t||.7).toFixed(2),g:Math.max(0,G.indexOf(o.g||AG)),m:Math.max(0,Mt.indexOf(o.m||AM)),h:o.hm?1:0})}sfx('shot');const m=new THREE.Mesh(o.g||AG,o.m||AM);m.position.set(o.ox!==undefined?o.ox:p.x,1.2,o.oz!==undefined?o.oz:p.z);m.rotation.y=a;S.add(m);PR.push({...o,m,vx:Math.sin(a)*(o.sp||30),vz:Math.cos(a)*(o.sp||30),t:o.t||.7})}
+function shot(a,o){if(NET.on&&NET.ph=='p'){const G=[AG,SG,HMG,RBG,DKG],Mt=[AM,MF,MI,HMM,RBM,DKM];nemit('ev',{t:'sh',x:+(o.ox!==undefined?o.ox:p.x).toFixed(1),z:+(o.oz!==undefined?o.oz:p.z).toFixed(1),a:+a.toFixed(2),s:o.sp||30,l:+(o.t||.7).toFixed(2),g:Math.max(0,G.indexOf(o.g||AG)),m:Math.max(0,Mt.indexOf(o.m||AM)),h:o.hm?1:0,c:o.sc||1})}sfx('shot');const m=new THREE.Mesh(o.g||AG,o.m||AM);m.position.set(o.ox!==undefined?o.ox:p.x,1.2,o.oz!==undefined?o.oz:p.z);m.rotation.y=a;if(o.sc)m.scale.setScalar(o.sc);S.add(m);PR.push({...o,m,vx:Math.sin(a)*(o.sp||30),vz:Math.cos(a)*(o.sp||30),t:o.t||.7})}
 function projUpd(dt){for(let i=PR.length-1;i>=0;i--){const a=PR[i],m=a.m;a.t-=dt;if(a.tg&&a.tg.hp<=0)a.tg=null;if(a.tg){const tx=a.tg.x-m.position.x,tz=a.tg.z-m.position.z,td=Math.hypot(tx,tz)||1;a.vx=tx/td*(a.sp||30);a.vz=tz/td*(a.sp||30)}if(a.hm)m.rotation.x+=14*dt;m.position.x+=a.vx*dt;m.position.z+=a.vz*dt;
-  const h=a.tg?(Math.hypot(a.tg.x-m.position.x,a.tg.z-m.position.z)<1.3?a.tg:null):E.find(e=>e.hp>0&&Math.hypot(e.x-m.position.x,e.z-m.position.z)<.9);
-  if(h){const mgc=!!a.g&&a.g!==RBG;h.hp-=a.dmg*(h.lf>0?1.5:1)*(1+RC.shot)*(1+(mgc?RC.mag:RC.phy))+RC.mg0;h.fl=.1;if(a.weak&&a.slow&&(h.slow>0||h.weak>0)&&!h.boss){h.ice=3;ring(h.x,h.z,1.5,0xbfeaff)}if(a.slow)h.slow=a.slow;if(a.burn)h.burn=a.burn;if(a.weak)h.weak=a.weak;if(a.kn){h.bleed=6;p.kn=h;p.knT=5}if(a.hm)holy(h.x,h.z);if(a.psn)h.psn=5;if(a.bn)h.burn=Math.max(h.burn>0?h.burn:0,3);if(a.dk)darkBoom(h.x,h.z)}
-  if(h||a.t<=0){S.remove(m);PR.splice(i,1)}}}
+  const h=a.tg?(Math.hypot(a.tg.x-m.position.x,a.tg.z-m.position.z)<1.3?a.tg:null):E.find(e=>e.hp>0&&!(a.hl&&a.hl.includes(e))&&Math.hypot(e.x-m.position.x,e.z-m.position.z)<(a.hr||.9));
+  if(h){const mgc=!!a.g&&a.g!==RBG;h.hp-=a.dmg*(h.lf>0?1.5:1)*(1+RC.shot)*(1+(mgc?RC.mag:RC.phy))+RC.mg0;h.fl=.1;if(a.weak&&a.slow&&(h.slow>0||h.weak>0)&&!h.boss){h.ice=3;ring(h.x,h.z,1.5,0xbfeaff)}if(a.slow)h.slow=a.slow;if(a.burn)h.burn=a.burn;if(a.weak)h.weak=a.weak;if(a.kn){h.bleed=6;p.kn=h;p.knT=5}if(a.hm)holy(h.x,h.z);if(a.psn)h.psn=5;if(a.bn)h.burn=Math.max(h.burn>0?h.burn:0,3);if(a.dk)darkBoom(h.x,h.z);
+    if(a.aoe){for(const o of E)if(o!==h&&o.hp>0&&Math.hypot(o.x-h.x,o.z-h.z)<a.aoe){dmg(o,a.dmg*.5);if(a.burn)o.burn=Math.max(o.burn>0?o.burn:0,a.burn*.6)}ring(h.x,h.z,a.aoe,0xff6a2a);puff(h.x,1,h.z,8,0xff7a2a,5,4,.45,.15);shake=Math.max(shake,.2)}
+    if(a.pc>1){a.pc--;(a.hl=a.hl||[]).push(h)}else a.pc=0}
+  if((h&&!(a.pc>0))||a.t<=0){S.remove(m);PR.splice(i,1)}}}
 function boom(x,z,r,m,kb){for(const e of E){const dx=e.x-x,dz=e.z-z,d=Math.hypot(dx,dz)||.01;if(d<r){e.hp-=m;e.kx=dx/d*kb;e.kz=dz/d*kb;e.fl=.12}}shake=Math.max(shake,.2)}
 function leap(){const q=nearest(14);p.dir=q?Math.atan2(p.x-q.x,p.z-q.z):p.f+Math.PI;if(q)p.f=aim(q);p.dg=.25;p.dv=34;p.inv=.35;p.vy=6;CD.lp=2.5;p.bh=0}
 function stab(){const q=nearest(14),a=aim(q),D=q?Math.min(Math.hypot(q.x-p.x,q.z-p.z),9):6,sx=Math.sin(a),cz=Math.cos(a);
@@ -642,7 +644,7 @@ function ring(x,z,r,c){if(NET.on&&NET.ph=='p'&&!NET.rx){const n=performance.now(
 function area(x,z,r,n,f,c){for(const e of E)if(Math.hypot(e.x-x,e.z-z)<r){dmg(e,n);f(e)}ring(x,z,r,c);shake=Math.max(shake,.2)}
 const SP=[[[12,.5],[22,3],[20,2.5]],[[12,.5],[20,3],[22,3]],[[16,3],[24,5],[22,3]],[[28,6],[20,6],[16,3]]];
 const SPELL=[
- [()=>{const a=aim(ptarget(22));p.f=a;shot(a,{dmg:1.2,burn:5,g:SG,m:MF,sp:22})},
+ [()=>{const a=aim(ptarget(22));p.f=a;shot(a,{dmg:1.2,burn:5,g:SG,m:MF,sp:22,sc:2.2,hr:1.5,aoe:2.6,pc:3,t:1})},
   ()=>{const q=ptarget(14);area(q?q.x:p.x+Math.sin(p.f)*5,q?q.z:p.z+Math.cos(p.f)*5,4.2,.8,e=>e.burn=5,0xff6a2a)},
   ()=>{let n=0;for(const e of E)if(e.burn>0&&Math.hypot(e.x-p.x,e.z-p.z)<22){dmg(e,3);e.burn=0;e.kx=(e.x-p.x)*.3;e.kz=(e.z-p.z)*.3;ring(e.x,e.z,3.2,0xffb84a);puff(e.x,1,e.z,10,0xff7a2a,6,5,.5,.16);for(const o of E)if(o!==e&&o.hp>0&&!(o.burn>0)&&Math.hypot(o.x-e.x,o.z-e.z)<3.2){dmg(o,1.5);o.kx=(o.x-e.x)*1.5;o.kz=(o.z-e.z)*1.5}n++}if(!n)return false;shake=.4;hs=.05}],
  [()=>{const a=aim(ptarget(22));p.f=a;shot(a,{dmg:1.05,slow:3,weak:5,m:MI})},
@@ -1061,7 +1063,7 @@ function cliEnemies(dt){for(const e of E){const k=Math.min(1,10*dt);e.x+=(e.tx-e
 function onEhit(m){const d=m.data;if(!d||d.to!==meP()||NET.gh||m.isMe||!isHost(m.peer))return;let e=NET.em[d.id];if(!e)e={x:d.x,z:d.z,dm:d.dm,hp:99,mx:99,fl:0,stun:0,kx:0,kz:0,wind:0,cd:0,vul:0,k:d.k};
   const dx=p.x-d.x,dz=p.z-d.z,dd=Math.hypot(dx,dz)||1,sv=e.dm;e.dm=d.dm;if(p.inv<=0&&p.y<1.2&&!(p.sh>0))foe(e,dx,dz,dd);e.dm=sv}
 function onEv(m){const d=m.data;if(!d||m.isMe)return;
-  if(d.t=='sh'){if(NET.ph!='p')return;const G=[AG,SG,HMG,RBG,DKG],Mt=[AM,MF,MI,HMM,RBM,DKM],mm=new THREE.Mesh(G[d.g]||AG,Mt[d.m]||AM);mm.position.set(+d.x,1.2,+d.z);mm.rotation.y=+d.a;S.add(mm);RPV.push({m:mm,vx:Math.sin(d.a)*d.s,vz:Math.cos(d.a)*d.s,t:+d.l||.7,hm:d.h});return}
+  if(d.t=='sh'){if(NET.ph!='p')return;const G=[AG,SG,HMG,RBG,DKG],Mt=[AM,MF,MI,HMM,RBM,DKM],mm=new THREE.Mesh(G[d.g]||AG,Mt[d.m]||AM);mm.position.set(+d.x,1.2,+d.z);mm.rotation.y=+d.a;if(d.c>1)mm.scale.setScalar(+d.c);S.add(mm);RPV.push({m:mm,vx:Math.sin(d.a)*d.s,vz:Math.cos(d.a)*d.s,t:+d.l||.7,hm:d.h});return}
   if(d.t=='rg'){if(NET.ph!='p')return;NET.rx=1;ring(+d.x,+d.z,+d.r,d.c);NET.rx=0;return}
   if((d.t=='bt'||d.t=='bs')&&NET.c&&isHost(m.peer)&&NET.ph=='p'){if(d.t=='bt')BX.push({k:'t',tx:+d.tx,tz:+d.tz,t:0,T:+d.T||1.05,w:bMesh(BFG,0xff2020,.22),r:bMesh(BWG,0xff3030,.8)});else BX.push({k:'s',t:0,warn:1,r:0,hit:0,x:+d.x,z:+d.z,w:bMesh(BWG,0xff3030,.5)});return}
   if(d.t=='fe'){if(!NET.c||!isHost(m.peer))return;const a=d.a,ar=d.r==1,mm=new THREE.Mesh(ar?EPG:EPO,ar?EPA:EPM),v=ar?20:13;mm.position.set(d.x,1.2,d.z);mm.rotation.y=a;S.add(mm);EP.push({m:mm,vx:Math.sin(a)*v,vz:Math.cos(a)*v,t:2.4,vis:1})}
