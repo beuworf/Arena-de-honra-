@@ -118,6 +118,14 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;image-renderi
 #hud{left:calc(env(safe-area-inset-left,0px) + 116px);width:min(170px,24vw)}#info{font-size:11px}#tm{right:calc(env(safe-area-inset-right,0px) + 116px)}
 #els{bottom:calc(env(safe-area-inset-bottom,0px) + 50px)}
 #cjoy{right:calc(env(safe-area-inset-right,0px) + 200px);bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}}
+#mvg{display:none;position:fixed;left:calc(16vw - 50px);top:calc(70vh - 50px);width:96px;height:96px;border-radius:50%;border:2px dashed rgba(255,255,255,.6);background:rgba(255,255,255,.1);pointer-events:none}
+@media (pointer:coarse){body.mfix #mvg{display:block}#joy.fix{top:0;bottom:auto;width:50%;height:100%}}
+#led{position:fixed;inset:0;z-index:30;display:none;background:rgba(10,18,28,.4);background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:5vw 5vh}
+body.led .pb,body.led #cjoy,body.led #mvg{display:block!important;z-index:31;pointer-events:auto}body.led #els{display:flex!important;z-index:31}
+body.led .sel{outline:3px solid #ffd34d;outline-offset:3px}
+#mvg::after{content:'mover';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;opacity:.7}
+#ltb{position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:32;display:none;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;max-width:94vw;background:rgba(10,18,28,.92);padding:6px 8px;border-radius:12px;font-size:13px}
+#ltb.bot{top:auto;bottom:6px}#ltb .btn{padding:5px 9px;min-width:0}
 </style>
 </head>
 <body>
@@ -132,7 +140,7 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;image-renderi
 <div id="set"><div id="mt2">Configurações</div><div id="sc"></div><div class="bk" id="sbk" style="display:block">◀ Voltar</div></div>
 <div id="lob"><div id="lh">Lobby · código <b id="lc">----</b></div><input id="lnm" maxlength="10" placeholder="Seu nome" autocomplete="off"><div id="lp"></div><div id="lsel"></div><div id="lm"></div></div>
 <div id="jn"><div id="mt3">Entrar com código</div><input id="jc" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off"><div class="row"><span class="btn" id="jgo">Entrar</span><span class="btn" id="jbk">Voltar</span></div><div id="jm"></div></div>
-<div id="tm"></div><div id="cjoy" class="cjoy"><i id="cknob"></i></div><div id="rot"><b>📱</b>Gire o celular para a horizontal<small style="font-size:13px;opacity:.8">O jogo funciona deitado</small></div>
+<div id="tm"></div><div id="mvg"></div><div id="led"></div><div id="ltb"></div><div id="cjoy" class="cjoy"><i id="cknob"></i></div><div id="rot"><b>📱</b>Gire o celular para a horizontal<small style="font-size:13px;opacity:.8">O jogo funciona deitado</small></div>
 <div id="toast"></div><div id="bag"><div id="slots"></div></div>
 <div id="over"><div>Você caiu<small id="rec"></small><small>Toque ou clique para recomeçar</small></div></div>
 <div id="dn"></div>
@@ -461,11 +469,11 @@ $('over').addEventListener('pointerdown',reset);
 
 // ---- Entrada: toque (joystick + botões)
 const joy=$('joy'),base=$('base'),knob=$('knob');let jid=null,ox=0,oy=0;
-joy.addEventListener('pointerdown',e=>{jid=e.pointerId;joy.setPointerCapture(jid);ox=e.clientX;oy=e.clientY;
-  base.style.cssText=`display:block;left:${ox-50}px;top:${oy-50}px`;knob.style.cssText=`display:block;left:${ox-22}px;top:${oy-22}px`});
+joy.addEventListener('pointerdown',e=>{jid=e.pointerId;try{joy.setPointerCapture(jid)}catch(_){}if(LAY.mf){const r=$('mvg').getBoundingClientRect();ox=r.left+r.width/2;oy=r.top+r.height/2}else{ox=e.clientX;oy=e.clientY}const R=JR(),k=R*.44;
+  base.style.cssText=`display:block;left:${ox-R}px;top:${oy-R}px;width:${2*R}px;height:${2*R}px;opacity:${LAY.o}`;knob.style.cssText=`display:block;left:${ox-k}px;top:${oy-k}px;width:${2*k}px;height:${2*k}px;opacity:${LAY.o}`});
 joy.addEventListener('pointermove',e=>{if(e.pointerId!=jid)return;
-  let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),m=Math.min(d,50);
-  if(d>0){dx*=m/d;dy*=m/d}J.x=dx/50;J.z=dy/50;knob.style.left=ox+dx-22+'px';knob.style.top=oy+dy-22+'px'});
+  let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),R=JR(),k=R*.44,m=Math.min(d,R);
+  if(d>0){dx*=m/d;dy*=m/d}J.x=dx/R;J.z=dy/R;knob.style.left=ox+dx-k+'px';knob.style.top=oy+dy-k+'px'});
 const end=e=>{if(e.pointerId!=jid)return;jid=null;J.x=J.z=0;base.style.display=knob.style.display='none'};
 joy.addEventListener('pointerup',end);joy.addEventListener('pointercancel',end);
 const bt=(id,dn,up)=>{const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);if(!bagIn(el.id))dn()});if(up){el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}};
@@ -759,6 +767,7 @@ const kn=c=>String(c).replace('Key','').replace('Digit','').replace('Arrow','').
 function setUI(){const lk=a=>listen&&listen[0]=='k'&&listen[1]==a,lg=a=>listen&&listen[0]=='g'&&listen[1]==a;
   let h='<div class="row"><b>Resolução</b>'+RESO.map(r=>'<span class="btn'+(r==RES?' on':'')+'" data-res="'+r+'">'+r+'p</span>').join('')+'</div>';
   const tg=(n,k,v,a,b,d)=>'<div class="row"><b>'+n+'</b><span class="btn'+(v?' on':'')+'" data-'+k+'="1">'+(v?a:b)+'</span>'+(d?'<span style="font-size:12px;opacity:.8">'+d+'</span>':'')+'</div>';
+  h+=(matchMedia('(pointer:coarse)').matches?'<div class="row"><b>Botões na tela</b><span class="btn" data-led="1">✎ Editar layout</span><span style="font-size:12px;opacity:.8">posição, tamanho e transparência</span></div>':'');
   h+=tg('Câmera','cm',CAMV,'No ombro','De cima','')+tg('Sombras','sh',SHV,'Ligado','Desligado','sombras reais no chão')+tg('Contorno','ol',OLV,'Ligado','Desligado','linha escura em volta das formas')+tg('Efeitos de golpe','fx',FXV,'Ligado','Desligado','rastro da arma e partículas');
   h+='<div class="row"><b>Visual PS1</b><span class="btn'+(PS1V?' on':'')+'" data-ps="1">'+(PS1V?'Ligado':'Desligado')+'</span><span style="font-size:12px;opacity:.8">tremor dos vértices e dithering</span></div>';
   h+='<div class="row"><b>Grama e flores</b><span class="btn'+(GRV?' on':'')+'" data-gr="1">'+(GRV?'Ligado':'Desligado')+'</span><span style="font-size:12px;opacity:.8">desligue se o celular travar</span></div>';
@@ -766,9 +775,9 @@ function setUI(){const lk=a=>listen&&listen[0]=='k'&&listen[1]==a,lg=a=>listen&&
   h+='<div class="row"><b>Controles</b><span style="font-size:12px;opacity:.8">toque num botão e pressione a nova tecla</span></div>';
   h+=ACT.map(a=>'<div class="row"><b>'+a[1]+'</b><span class="btn'+(lk(a[0])?' on':'')+'" data-kb="'+a[0]+'">'+(lk(a[0])?'pressione...':kn(KB[a[0]]))+'</span>'+(a[3]!==null?'<span class="btn'+(lg(a[0])?' on':'')+'" data-gp="'+a[0]+'">'+(lg(a[0])?'aperte...':'Controle: '+gname(a[3]))+'</span>':'')+'</div>').join('');
   h+='<div class="row"><span class="btn" data-reset="1">Restaurar padrão</span></div>';$('sc').innerHTML=h}
-$('set').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-cm],[data-sh],[data-ol],[data-gr],[data-ps],[data-res],[data-vol],[data-mute],[data-kb],[data-gp],[data-reset],#sbk');if(!t)return;
+$('set').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-led],[data-cm],[data-sh],[data-ol],[data-gr],[data-ps],[data-res],[data-vol],[data-mute],[data-kb],[data-gp],[data-reset],#sbk');if(!t)return;
   if(t.id=='sbk'){listen=null;saveSet();showScr('menu');return}
-  if(t.dataset.cm){CAMV=CAMV?0:1;camApply()}else if(t.dataset.sh){SHV=SHV?0:1;shApply()}else if(t.dataset.ol){OLV=OLV?0:1}else if(t.dataset.fx){FXV=FXV?0:1}else if(t.dataset.gr){GRV=GRV?0:1;GRS.forEach(m=>m.visible=!!GRV)}else if(t.dataset.ps){PS1V=PS1V?0:1;PSU.uPs.value=PS1V}else if(t.dataset.res){RES=+t.dataset.res;rs()}else if(t.dataset.vol){VOL=Math.max(0,Math.min(1,Math.round((VOL+.1*+t.dataset.vol)*10)/10));sfx('pick')}else if(t.dataset.mute)MUTE=!MUTE;
+  if(t.dataset.led){ledOpen();return}if(t.dataset.cm){CAMV=CAMV?0:1;camApply()}else if(t.dataset.sh){SHV=SHV?0:1;shApply()}else if(t.dataset.ol){OLV=OLV?0:1}else if(t.dataset.fx){FXV=FXV?0:1}else if(t.dataset.gr){GRV=GRV?0:1;GRS.forEach(m=>m.visible=!!GRV)}else if(t.dataset.ps){PS1V=PS1V?0:1;PSU.uPs.value=PS1V}else if(t.dataset.res){RES=+t.dataset.res;rs()}else if(t.dataset.vol){VOL=Math.max(0,Math.min(1,Math.round((VOL+.1*+t.dataset.vol)*10)/10));sfx('pick')}else if(t.dataset.mute)MUTE=!MUTE;
   else if(t.dataset.kb)listen=['k',t.dataset.kb];else if(t.dataset.gp)listen=['g',t.dataset.gp];
   else if(t.dataset.reset){ACT.forEach(a=>KB[a[0]]=a[2]);for(const k in GM2)delete GM2[k];VOL=.6;MUTE=false;RES=320;PS1V=0;PSU.uPs.value=0;GRV=1;GRS.forEach(m=>m.visible=true);CAMV=OLV=FXV=1;SHV=matchMedia('(pointer:coarse)').matches?0:1;camApply();shApply();rs()}
   saveSet();setUI()});
@@ -1066,8 +1075,8 @@ R.domElement.addEventListener('pointerdown',e=>{if(!CAMV||scr!='play'||cls<0||de
 addEventListener('pointermove',e=>{if(!CAMV)return;if(document.pointerLockElement===R.domElement){CY-=e.movementX*.0032;CP=clP(CP+e.movementY*.0026);camIdle=0}else if(e.pointerId===CT.id){CY-=(e.clientX-CT.x)*.008;CP=clP(CP+(e.clientY-CT.y)*.006);CT.x=e.clientX;CT.y=e.clientY;camIdle=0}});
 {const ce=e=>{if(e.pointerId===CT.id)CT.id=null};addEventListener('pointerup',ce);addEventListener('pointercancel',ce)}
 document.addEventListener('pointerlockchange',()=>{if(!document.pointerLockElement&&!camRel&&!bag&&!dead&&cls>=0&&scr=='play'&&!PAUSED&&!NET.on)setPause(true);camRel=0});
-{const cj=$('cjoy'),ck=$('cknob');let id=null,ox=0,oy=0;cj.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();id=e.pointerId;try{cj.setPointerCapture(id)}catch(_){}const r=cj.getBoundingClientRect();ox=r.left+r.width/2;oy=r.top+r.height/2});
-  cj.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),m=Math.min(d,40);if(d>0){dx*=m/d;dy*=m/d}CS.x=Math.abs(dx)<6?0:dx/40;CS.y=Math.abs(dy)<6?0:dy/40;ck.style.left=28+dx+'px';ck.style.top=28+dy+'px'});
+{const cj=$('cjoy'),ck=$('cknob');let id=null,ox=0,oy=0,csc=1;cj.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();id=e.pointerId;try{cj.setPointerCapture(id)}catch(_){}const r=cj.getBoundingClientRect();ox=r.left+r.width/2;oy=r.top+r.height/2;csc=r.width/100||1});
+  cj.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),R=40*csc,m=Math.min(d,R);if(d>0){dx*=m/d;dy*=m/d}CS.x=Math.abs(dx)<6*csc?0:dx/R;CS.y=Math.abs(dy)<6*csc?0:dy/R;ck.style.left=28+dx/csc+'px';ck.style.top=28+dy/csc+'px'});
   const en=e=>{if(e.pointerId!==id)return;id=null;CS.x=CS.y=0;ck.style.left=ck.style.top='28px'};cj.addEventListener('pointerup',en);cj.addEventListener('pointercancel',en)}
 // No celular: tela cheia e trava na horizontal no primeiro toque (onde o navegador permitir)
 addEventListener('pointerdown',e=>{if(e.pointerType!='touch'||document.fullscreenElement)return;const d=document.documentElement;try{const q=d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):null;if(q&&q.then)q.then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(_){}}).catch(()=>{})}catch(_){}},true);
@@ -1083,6 +1092,29 @@ const POST=(()=>{const rt=new THREE.WebGLRenderTarget(4,4,{minFilter:THREE.Neare
     fragmentShader:'uniform sampler2D tD,tZ;uniform vec2 rs;uniform float cn,cf;varying vec2 vU;float lz(vec2 u){float z=texture2D(tZ,u).x*2.-1.;return 2.*cn*cf/(cf+cn-z*(cf-cn));}void main(){vec4 c=texture2D(tD,vU);float z=lz(vU);vec2 px=1./rs;float m=min(min(lz(vU+vec2(px.x,0.)),lz(vU-vec2(px.x,0.))),min(lz(vU+vec2(0.,px.y)),lz(vU-vec2(0.,px.y))));float e=step(.06*z+.12,z-m)*(1.-smoothstep(22.,60.,m));gl_FragColor=vec4(mix(c.rgb,c.rgb*.16,e),1.);}'});
   const sc=new THREE.Scene(),q=new THREE.Mesh(new THREE.PlaneGeometry(2,2),mat);q.frustumCulled=false;sc.add(q);return{rt,mat,sc,cam:new THREE.OrthographicCamera(-1,1,1,-1,0,1)}})();
 function renderFrame(){if(OLV){POST.mat.uniforms.cn.value=C.near;POST.mat.uniforms.cf.value=C.far;R.setRenderTarget(POST.rt);R.render(S,C);R.setRenderTarget(null);R.render(POST.sc,POST.cam)}else R.render(S,C)}
+// ---- Layout dos botões de toque: cada um pode ser arrastado e redimensionado (salvo em % da tela)
+const LCT=[['bH','△'],['bL','○'],['bJ','✕'],['bB','□'],['bK','L1'],['bD','R1'],['bW','SELECT'],['bC','START'],['cjoy','Analógico da câmera'],['mvg','Analógico de movimento'],['els','Elementos do Mago']],LAYD=()=>({c:{},g:1,o:1,mf:0});
+let LAY=(()=>{try{const o=JSON.parse(localStorage.getItem('arena_lay')||'null');return o&&o.c?o:LAYD()}catch(e){return LAYD()}})(),LSEL=null,LDR=null;
+const lsave=()=>{try{localStorage.setItem('arena_lay',JSON.stringify(LAY))}catch(e){}},JR=()=>48*((LAY.c.mvg&&LAY.c.mvg.s)||1)*LAY.g;
+function layApply(){for(const [id] of LCT){const el=$(id),c=LAY.c[id]||{},sc=(c.s||1)*LAY.g;
+    if(c.x!==undefined){el.style.left=c.x*100+'%';el.style.top=c.y*100+'%';el.style.right=el.style.bottom='auto';el.style.transform='translate(-50%,-50%) scale('+sc+')'}
+    else{el.style.left=el.style.top=el.style.right=el.style.bottom='';el.style.transform=(id=='els'?'translateX(-50%) ':'')+'scale('+sc+')'}el.style.opacity=LAY.o}
+  $('joy').classList.toggle('fix',!!LAY.mf);document.body.classList.toggle('mfix',!!LAY.mf)}
+function ledOpen(){document.body.classList.add('led');$('led').style.display='block';$('ltb').style.display='flex';$('set').style.display='none';LSEL=null;ledUI()}
+function ledClose(){document.body.classList.remove('led');$('led').style.display=$('ltb').style.display='none';LCT.forEach(([id])=>$(id).classList.remove('sel'));lsave();layApply();showScr('set')}
+function ledUI(){const c=LSEL&&(LAY.c[LSEL]||{}),pc=v=>Math.round(v*100)+'%';
+  $('ltb').innerHTML='<b>'+(LSEL?LCT.find(x=>x[0]==LSEL)[1]:'Arraste um botão')+'</b>'+(LSEL?'<span class="btn" data-l="s-">−</span>'+pc(c.s||1)+'<span class="btn" data-l="s+">+</span>':'')
+    +' · Todos <span class="btn" data-l="g-">−</span>'+pc(LAY.g)+'<span class="btn" data-l="g+">+</span> · Opacidade <span class="btn" data-l="o-">−</span>'+pc(LAY.o)+'<span class="btn" data-l="o+">+</span>'
+    +'<span class="btn" data-l="mf">Movimento: '+(LAY.mf?'fixo':'flutuante')+'</span><span class="btn" data-l="bar">⇅ barra</span><span class="btn" data-l="def">Padrão</span><span class="btn on" data-l="ok">✓ Salvar</span>';
+  LCT.forEach(([id])=>$(id).classList.toggle('sel',id==LSEL))}
+$('ltb').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-l]');if(!t)return;e.preventDefault();const a=t.dataset.l,cl=(v,x,y)=>Math.round(Math.max(x,Math.min(y,v))*100)/100;
+  if((a=='s+'||a=='s-')&&LSEL){const c=LAY.c[LSEL]=LAY.c[LSEL]||{};c.s=cl((c.s||1)+(a=='s+'?.1:-.1),.5,2.2)}else if(a=='g+'||a=='g-')LAY.g=cl(LAY.g+(a=='g+'?.1:-.1),.5,2);else if(a=='o+'||a=='o-')LAY.o=cl(LAY.o+(a=='o+'?.1:-.1),.2,1);
+  else if(a=='mf')LAY.mf=LAY.mf?0:1;else if(a=='bar')$('ltb').classList.toggle('bot');else if(a=='def'){LAY=LAYD();LSEL=null}else if(a=='ok'){ledClose();return}layApply();ledUI()});
+addEventListener('pointerdown',e=>{if(!document.body.classList.contains('led')||e.target.closest('#ltb'))return;e.preventDefault();e.stopImmediatePropagation();
+  const el=e.target.closest(LCT.map(c=>'#'+c[0]).join(','));if(!el)return;LSEL=el.id;const r=el.getBoundingClientRect();LDR={id:el.id,dx:e.clientX-(r.left+r.width/2),dy:e.clientY-(r.top+r.height/2),pid:e.pointerId};ledUI()},true);
+addEventListener('pointermove',e=>{if(!LDR||e.pointerId!==LDR.pid)return;e.stopImmediatePropagation();const c=LAY.c[LDR.id]=LAY.c[LDR.id]||{};c.x=Math.max(.02,Math.min(.98,(e.clientX-LDR.dx)/innerWidth));c.y=Math.max(.04,Math.min(.96,(e.clientY-LDR.dy)/innerHeight));layApply()},true);
+{const up=e=>{if(LDR&&e.pointerId===LDR.pid)LDR=null};addEventListener('pointerup',up,true);addEventListener('pointercancel',up,true)}
+layApply();
 // ---- Loop
 const rs=()=>{const h=Math.min(RES,innerHeight),w=Math.round(h*innerWidth/innerHeight);R.setSize(w,h,false);PSU.uSnap.value.set(w/2,h/2);POST.rt.setSize(w,h);POST.mat.uniforms.rs.value.set(w,h);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()};
 addEventListener('resize',rs);rs();
