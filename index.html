@@ -145,7 +145,7 @@ body.led .sel{outline:3px solid #ffd34d;outline-offset:3px}
 <body>
 <div id="lv"></div><div id="bb"><i id="bbi"></i></div>
 <div id="hud"><div class="bar"><i id="hp"></i></div><div class="bar sm" id="sb"><i id="st"></i></div><div class="bar sm" id="ab"><i id="ah"></i></div><div class="bar sm" id="eb"><i id="ae"></i></div><div id="mn"></div><div id="info">Abates: <b id="k">0</b> &nbsp; <span id="fps"></span> <span id="hand"></span></div></div>
-<div id="help">WASD mover, J golpe rápido, K golpe forte, L bloqueio, Espaço pular, Shift esquivar, 1-4 elemento do Mago, C reinicia a fase (troca classe e build), E cone do arco, Q mochila (setas escolhem, Espaço mão, J usa; segure J usa item, K entrega). Aceita controle de PlayStation. Câmera: clique na tela e mova o mouse, ou analógico direito</div>
+<div id="help">WASD mover, J golpe rápido, K golpe forte, L bloqueio, Espaço pular, Shift esquivar, 1-4 elemento do Mago, C reinicia a fase (troca classe e build), E cone do arco, Q mochila (setas escolhem, Espaço mão, J usa; segure J usa item, K entrega). Mouse: botão esquerdo e direito mudam com a classe (projéteis primeiro; no corpo a corpo, o esquerdo faz o combo mais longo). Aceita controle de PlayStation. Câmera: clique na tela e mova o mouse, ou analógico direito</div>
 <div id="joy"></div><div id="base"></div><div id="knob"></div>
 <button class="pb" id="bH">△</button><button class="pb" id="bL">○</button><button class="pb" id="bJ">✕</button><button class="pb" id="bB">□</button><button class="pb" id="bD">R1</button><button class="pb" id="bK">L1</button><button class="pb" id="bR">R2<small>Cone</small></button><button class="pb" id="bW">SELECT<small>Arma</small></button><button class="pb" id="bC">START<small>Pausa</small></button>
 <div id="cls"><div id="ct"></div><div id="sxr" class="row" style="margin-bottom:10px"></div><div id="cc"></div><div id="bk" class="bk">◀ Voltar</div></div>
@@ -511,7 +511,15 @@ addEventListener('keydown',e=>{if(e.target&&e.target.tagName=='INPUT')return;K[e
   if(e.code=='ShiftLeft')dodge();
   if(e.code=='Space')e.preventDefault()});
 addEventListener('keyup',e=>K[e.code]=0);
-R.domElement.addEventListener('pointerdown',e=>{if(e.pointerType=='mouse'&&e.button==0)p.bl=.25});
+// ---- Mouse: cada botão aperta um botão virtual (○ △ □ ou E do arco), como no toque, então segurar também funciona.
+// Classes à distância: projéteis primeiro (com dois projéteis, um em cada botão). Corpo a corpo: esquerdo = combo mais longo, direito = golpe forte ou projétil.
+const MB={0:'ot',1:'ot',2:'ot',3:'oe',4:'st',5:'ot',6:'st',7:'os',8:'ot',9:'ot',10:'os',11:'os'},MBK=['',''];
+const MBT=['combo · golpe forte','combo · golpe forte','combo · arremessar machado','rajada de flechas · cone de flechas','combo da lança · golpe forte','combo · arremessar adaga','magia principal · magia de área','combo · arremessar martelo','combo · golpe forte','zumbi · esqueleto','combo em círculo · raio dos olhos (segure)','raio em cadeia (segure: canaliza) · totem'];
+function mbMap(){return wi==11&&p.wf?'ot':MB[wi]||'ot'}
+function mbDown(b){const k=mbMap()[b];mbUp(b);MBK[b]=k;if(k=='o'){p.bl=.25;tO=1}else if(k=='t'){p.bh=.25;tT=1}else if(k=='s'){p.bs=.25;tb=1}else if(k=='e')p.br=.25}
+function mbUp(b){const k=MBK[b];if(k=='o')tO=0;else if(k=='t')tT=0;else if(k=='s')tb=0;MBK[b]=''}
+R.domElement.addEventListener('mousedown',e=>{if(scr!='play'||cls<0||PAUSED||bag)return;if(e.button==0)mbDown(0);else if(e.button==2)mbDown(1)});
+addEventListener('mouseup',e=>{if(e.button==0)mbUp(0);else if(e.button==2)mbUp(1)});
 $('over').addEventListener('pointerdown',reset);
 
 // ---- Entrada: toque (joystick + botões)
@@ -733,7 +741,7 @@ const BLD=[[['🛡️','Espada e Escudo','Defesa alta e parry'],['🗡️','Espa
 const ANL=[['🐻','Urso','Mais vida e deixa inimigos incapacitados por mais tempo'],['🐯','Tigre','O combo causa sangramento'],['🐺','Lobo','Regenera ao usar a mordida']];
 function pickUI(){sxUI();const a=stg==3?RACES.map(r=>[r.e,r.n,r.d]):stg==2?ANL:stg?BLD[selC]:CLS;$('ct').textContent=stg==3?'Escolha sua raça':stg==2?'Escolha o animal':stg?'Escolha o tipo: '+CLS[selC][1]:'Escolha sua classe';
   $('cc').innerHTML=a.map((x,i)=>'<div class="cb'+(i==csel?' on':'')+'" '+(stg==3?'data-r':stg==2?'data-a':stg?'data-b':'data-c')+'="'+i+'">'+x[0]+'<b>'+x[1]+'</b><small>'+x[2]+'</small></div>').join('');$('bk').style.display='block'}
-function start(w){Object.assign(p,{gs:1,gi:0,ev:0,evT:0,lzOn:0,lzc:0,clp:0,cbT:0,gsl:0});totClear();if(w==11)setTimeout(()=>{if(wi==11)toast('□ totem · △ cura · ○ raio (de novo: prende, segure: canaliza) · pule + ✕: lobo')},1600);if(w==10){pst=0;setTimeout(()=>{if(wi==10)toast('Elimine inimigos e recolha os fragmentos de alma')},1600)}W[8].dm=NET.on?.75:1.2;if(race==6&&!NET.on)RC.heal=Math.max(RC.heal,1.08);if(w==8&&!NET.on)setTimeout(()=>toast('Monge solo: +60% de dano'),1500);helpFade();CY=p.f+Math.PI;CP=.3;wi=w;RC.as=RC.nr&&(w==0||w==1||w==4)?.06:0;cls=w>=6?w-4:Math.floor(w/3);stg=0;p.ax=0;pj.visible=false;gear();$('cls').style.display='none';toast(W[wi].n);if(typeof vrmClass=='function'&&VRMS.boot)vrmClass()}
+function start(w){if(matchMedia('(pointer:fine)').matches)setTimeout(()=>{if(wi==w&&MBT[w]){const m=MBT[w].split(' · ');toast('🖱️ Esquerdo: '+m[0]+' · Direito: '+m[1])}},3300);Object.assign(p,{gs:1,gi:0,ev:0,evT:0,lzOn:0,lzc:0,clp:0,cbT:0,gsl:0});totClear();if(w==11)setTimeout(()=>{if(wi==11)toast('□ totem · △ cura · ○ raio (de novo: prende, segure: canaliza) · pule + ✕: lobo')},1600);if(w==10){pst=0;setTimeout(()=>{if(wi==10)toast('Elimine inimigos e recolha os fragmentos de alma')},1600)}W[8].dm=NET.on?.75:1.2;if(race==6&&!NET.on)RC.heal=Math.max(RC.heal,1.08);if(w==8&&!NET.on)setTimeout(()=>toast('Monge solo: +60% de dano'),1500);helpFade();CY=p.f+Math.PI;CP=.3;wi=w;RC.as=RC.nr&&(w==0||w==1||w==4)?.06:0;cls=w>=6?w-4:Math.floor(w/3);stg=0;p.ax=0;pj.visible=false;gear();$('cls').style.display='none';toast(W[wi].n);if(typeof vrmClass=='function'&&VRMS.boot)vrmClass()}
 function pickC(c){selC=c;if(c==2)return start(6);if(c==3)return start(7);if(c==4)return start(8);if(c==5)return start(9);if(c==6)return start(10);if(c==7)return start(11);stg=1;csel=0;pickUI()}
 function pickB(b){if(selC==1&&b==1){stg=2;csel=0;pickUI();return}start(selC*3+b)}
 function pickA(a){an.type=a;an.max=[110,70,60][a];an.hp=an.max;AM2.color.setHex(AN[a][1]);AM2.map=a==1?TSTR:TFUR;anLook(a);start(4)}
@@ -745,7 +753,7 @@ function askRestart(){if(cls<0||NET.on)return;if(performance.now()-rq<2000){open
 $('cls').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-c],[data-b],[data-a],[data-r],#bk');if(!t)return;if(t.id=='bk')back();else if(t.dataset.r!=null)pickR(+t.dataset.r);else if(t.dataset.a!=null)pickA(+t.dataset.a);else if(t.dataset.b!=null)pickB(+t.dataset.b);else pickC(+t.dataset.c)});pickUI();
 
 addEventListener('contextmenu',e=>e.preventDefault());
-addEventListener('blur',()=>{tb=tO=tT=0;for(const k in K)K[k]=0});
+addEventListener('blur',()=>{tb=tO=tT=0;MBK[0]=MBK[1]='';for(const k in K)K[k]=0});
 addEventListener('error',e=>toast('Erro: '+e.message+' (linha '+e.lineno+')'));
 
 // ---- Paladino (martelo de duas mãos, horda, CC e suporte)

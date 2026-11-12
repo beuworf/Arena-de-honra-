@@ -111,6 +111,21 @@ em **Configurações**.
   - Arqueiro (Arco): o ○ (rajada) ficou um pouco mais lento, 0,34 s entre rajadas em vez de 0,28 s.
   - Paladino: o solo sagrado agora também deixa lentos os inimigos dentro dele.
   - Online: os inimigos preferem atacar quem luta corpo a corpo (Guerreiro, Lança, Paladino, Monge, Corrompido e Xamã em forma de lobo). O assassino de Adagas fica de fora dessa regra.
+- **Mouse por classe:** os dois botões do mouse funcionam como botões do controle (segurar também vale). Nas classes à distância o clique prioriza os projéteis; nas de corpo a corpo, o esquerdo faz o combo mais longo. No começo da partida aparece um aviso com o que cada botão faz.
+
+  | Build | Esquerdo | Direito |
+  |---|---|---|
+  | Espada e Escudo, Espada Longa, Monge | combo (golpe rápido) | golpe forte |
+  | Dois Machados | combo | arremessar machado |
+  | Arco | rajada de flechas | cone de flechas |
+  | Lança e Animal | combo da lança | golpe forte |
+  | Adagas | combo | arremessar adaga |
+  | Mago | magia principal (bola de fogo, gelo…) | magia de área |
+  | Paladino | combo | arremessar martelo |
+  | Necromante | zumbi | esqueleto |
+  | Corrompido | combo em círculo | raio dos olhos (segure) |
+  | Xamã | raio em cadeia (segure: canaliza; clique de novo: prende) | totem |
+  | Xamã lobo | combo | golpe forte |
 - **Online que funciona em qualquer rede:** o multiplayer deixou de usar conexão direta entre os aparelhos (WebRTC/PeerJS), que falhava em 4G/5G e em muitos roteadores. Agora as mensagens passam por um servidor público de retransmissão (broker MQTT por WebSocket), sem conta e sem servidor próprio. O jogo tenta quatro servidores em ordem (EMQX, Eclipse, HiveMQ e Mosquitto) e quem entra procura o lobby em todos. O lobby mostra o servidor em uso. Para usar outro, defina `window.ARENA_BROKERS` antes do script.
 - **Sexo do personagem:** todas as raças têm versão masculina e feminina, escolhida na tela de seleção (botões no topo, tecla G ou △ no controle) e no lobby do online. A versão feminina usa os mesmos ossos, com ombros e braços mais estreitos, postura mais ereta, rosto com cílios, sobrancelha fina e lábios, e cabelo próprio em cada raça: humana de cabelo longo, elfa com tiara, anã de tranças e sem barba, gnoma de marias-chiquinhas rosa, meio-orc de rabo de cavalo e presas menores, troll de tranças azul-esverdeadas, minotaura de chifres menores e tranças, goblin de rabo de cavalo roxo. Veja `docs/racas-femininas.png`.
 - **Ranking no online:** quando todos caem, aparece uma tabela para todos os jogadores com os abates de cada um (total e por tipo: comuns, arqueiros, conjuradores, grandes e chefes), o dano causado ao chefe, o nível alcançado e o tempo da partida. O host credita cada golpe a quem o deu; dano contínuo (queimadura, sangramento, veneno) conta para quem acertou por último. Veja `docs/ranking.png`.
