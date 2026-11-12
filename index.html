@@ -454,7 +454,7 @@ function upd(dt){{const dh=p.hp-p.lhp;if(dh>.001&&RC.heal>1)p.hp=Math.min(PMX,p.
     p.x+=ix*1.5*dt;p.z+=iz*1.5*dt;
   }else{
     sw.rotation.y=0;sw.rotation.x=0;sw.position.z=.1;sw2.rotation.set(0,0,0);sl.material.opacity=0;
-    const sp2=(1+XL.sp)*(wi==10&&p.lzOn?.35:1)*(wi==11?(p.zon&&!p.wf?0:p.wf?1.72:1):1)*(p.blk?2.4:boost>0?W[wi].sp+3:W[wi].sp)*(p.pb>0?1.3:1)*(wi==2&&p.ax?1.25:1)*RC.spd;if(il>.1){p.x+=ix*sp2*dt;p.z+=iz*sp2*dt;p.f=Math.atan2(ix,iz)}
+    const sp2=(1+XL.sp)*(wi==10&&p.lzOn?.35:1)*(wi==11?(p.zon&&!p.wf?0:p.wf?1.93:1):1)*(p.blk?2.4:boost>0?W[wi].sp+3:W[wi].sp)*(p.pb>0?1.3:1)*(wi==2&&p.ax?1.25:1)*RC.spd;if(il>.1){p.x+=ix*sp2*dt;p.z+=iz*sp2*dt;p.f=Math.atan2(ix,iz)}
     if(!p.blk){if(wi==11)sham();else if(wi==10)corr();else if(wi==9)necro();else if(wi==8)pugil();else if(wi==7)pala();else if(wi==6)mage();else if(wi>=3)arch();else if(p.bh>0)atk('H');else if(p.bl>0)atk('L')}
   }
   push(p,.5);bound(p);
@@ -487,7 +487,7 @@ function upd(dt){{const dh=p.hp-p.lhp;if(dh>.001&&RC.heal>1)p.hp=Math.min(PMX,p.
     if(NET.h&&(tg===p||tg.remote)){let bd=tg===p&&NET.gh?1e9:Math.hypot(e.x-tg.x,e.z-tg.z);for(const r of NET.rp)for(const k in r.mns||{}){const o=r.mns[k];if(o.cl&&o.hp>0){const dd=Math.hypot(e.x-o.x,e.z-o.z);if(dd<bd){bd=dd;tg=o}}}}
     const dx=tg.x-e.x,dz=tg.z-e.z,d=Math.hypot(dx,dz)||.01;
     e.x+=e.kx*dt;e.z+=e.kz*dt;const f=Math.pow(.02,dt);e.kx*=f;e.kz*=f;
-    if(e.stun>0||e.lf>0||e.kd>0||e.ice>0||(tg===p&&p.sh>0)){}else if(e.fear>0){const fx2=e.x-p.x,fz2=e.z-p.z,fd=Math.hypot(fx2,fz2)||1;e.x+=fx2/fd*5.5*dt;e.z+=fz2/fd*5.5*dt}else if(e.chw>0){e.chw-=dt;if(e.chw<=0){e.ch=.5;e.cx=dx/d;e.cz=dz/d;e.hitc=0}}else if(e.ch>0){e.ch-=dt;e.x+=e.cx*24*dt;e.z+=e.cz*24*dt;if(d<e.rr+.7&&!e.hitc){e.hitc=1;e.sw=.25;if(tg===p){if(p.inv<=0&&p.y<.8&&!(p.sh>0))foe(e,dx,dz,d)}else if(tg.remote)netHit(tg,e,1.2);else tg.hp-=e.dm*.8}}else if(e.wind>0){e.wind-=dt;if(e.wind<=0){e.cd=e.rng==1?3.3:e.rng?2.2:1.2;e.sw=.25;if(e.rng){if(!dead)fireE(e,tg)}else if(d<e.rr+.8&&!dead){if(tg===an)an.hp-=e.dm*.6;else if(tg.remote)netHit(tg,e,1);else if(tg!==p){tg.hp-=tg.mn?e.dm*.6:2;tg.fl=.1}else if(p.inv<=0&&p.y<.8&&!(p.sh>0))foe(e,dx,dz,d)}}}
+    if(e.stun>0||e.lf>0||e.kd>0||e.ice>0||(tg===p&&p.sh>0)){}else if(e.fear>0){const fx2=e.x-p.x,fz2=e.z-p.z,fd=Math.hypot(fx2,fz2)||1;e.x+=fx2/fd*5.5*dt;e.z+=fz2/fd*5.5*dt}else if(e.chw>0){e.chw-=dt;if(e.chw<=0){e.ch=.5;e.cx=dx/d;e.cz=dz/d;e.hitc=0}}else if(e.ch>0){e.ch-=dt;e.x+=e.cx*24*dt;e.z+=e.cz*24*dt;if(d<e.rr+.7&&!e.hitc){e.hitc=1;e.sw=.25;if(tg===p){if(p.inv<=0&&p.y<.8&&!(p.sh>0))foe(e,dx,dz,d)}else if(tg.remote)netHit(tg,e,1.2);else tg.hp-=tg.el!==undefined&&tg.mn?1:e.dm*.8}}else if(e.wind>0){e.wind-=dt;if(e.wind<=0){e.cd=e.rng==1?3.3:e.rng?2.2:1.2;e.sw=.25;if(e.rng){if(!dead)fireE(e,tg)}else if(d<e.rr+.8&&!dead){if(tg===an)an.hp-=e.dm*.6;else if(tg.remote)netHit(tg,e,1);else if(tg!==p){if(tg.el!==undefined&&tg.mn){tg.hp-=1;ring(tg.x,tg.z,1,0xffffff)}else tg.hp-=tg.mn?e.dm*.6:2;tg.fl=.1}else if(p.inv<=0&&p.y<.8&&!(p.sh>0))foe(e,dx,dz,d)}}}
     else if(e.rng){const s=(3.2+Math.min(kills,20)*.06)*(e.slow>0?.4:1)*e.sp,pr=e.rng==1?10:8;if(d<pr-3){e.x-=dx/d*s*dt;e.z-=dz/d*s*dt}else if(d>pr+2){e.x+=dx/d*s*dt;e.z+=dz/d*s*dt}if(d<18&&e.cd<=0)e.wind=.5}
     else if(d>e.rr){if(e.k=='b'&&e.cht<=0&&d>5&&d<16){e.chw=.6;e.cht=7}else{const s=(3.2+Math.min(kills,20)*.06)*(e.slow>0?.4:1)*e.sp;e.x+=dx/d*s*dt;e.z+=dz/d*s*dt}}
     else if(e.cd<=0)e.wind=e.boss?.7:.4;
@@ -553,7 +553,7 @@ const W=[
 {n:'Monge',sp:8.6,tk:1.1,dm:.75,par:1,dg:{d:.3,v:19,i:.45,c:.5},L:{d:.2,h:.4,r:2.3,m:.8,b:2,one:1},H:{d:.3,h:.4,r:3.2,m:.7,b:3,a:1},C:{LLL:{k:'T',d:.35,h:.3,r:3,m:1.4,b:38,one:1,toss:1,lg:.15},HHL:{k:'T',d:.35,h:.3,r:3.4,m:1.4,b:38,one:1,toss:1,lg:.15}}},
 {n:'Necromante',sp:7.4,tk:1.2,dm:1,par:0,dg:{d:.28,v:15,i:.4,c:.9},L:{d:.3,h:.4,r:2.4,m:1,b:3},H:{d:.3,h:.4,r:2.4,m:1,b:3},C:{}},
 {n:'Corrompido',sp:8.4,tk:.95,dm:.8,par:0,dg:{d:.28,v:17,i:.45,c:.55},L:{d:.26,h:.4,r:3.1,m:.9,b:4,a:1},H:{d:.26,h:.4,r:3.1,m:.9,b:4,a:1},C:{LLL:{k:'S',d:.45,h:.3,r:3.8,m:1.9,b:9,a:1}}},
-{n:'Xamã',sp:6.5,tk:1.05,dm:1,par:0,dg:{d:.28,v:16,i:.4,c:.6},L:{d:.2,h:.4,r:2.7,m:1.05,b:3},H:{d:.42,h:.5,r:3.1,m:2.3,b:10,a:1},C:{LLL:{k:'S',d:.4,h:.3,r:3.3,m:2,b:8,a:1},LLH:{k:'H',d:.5,h:.45,r:3.6,m:3.2,b:12,a:1,st:1}}}];
+{n:'Xamã',sp:5.8,tk:1.05,dm:1,par:0,dg:{d:.28,v:16,i:.4,c:.6},L:{d:.2,h:.4,r:2.7,m:1.05,b:3},H:{d:.42,h:.5,r:3.1,m:2.3,b:10,a:1},C:{LLL:{k:'S',d:.4,h:.3,r:3.3,m:2,b:8,a:1},LLH:{k:'H',d:.5,h:.45,r:3.6,m:3.2,b:12,a:1,st:1}}}];
 let wi=0;
 const IT=[{n:'Poção',i:'🧪',c:3},{n:'Bomba',i:'💣',c:2},{n:'Tônico',i:'⚡',c:2}];
 let bag=0,cur=0,hand=-1,boost=0;
@@ -740,7 +740,7 @@ const SPELL=[
  [()=>{const q=nearest(16);if(!q)return false;MD.e=q;MD.t=4;q.fl=.15;ring(q.x,q.z,1.8,0x7a4ac0)},
   ()=>{p.sh=4;ring(p.x,p.z,2,0x7a4ac0)},
   ()=>{let n=0;for(const e of E)if(Math.hypot(e.x-p.x,e.z-p.z)<4){dmg(e,1.5);n++}p.hp=Math.min(PMX,p.hp+Math.min(5,n)*4);ring(p.x,p.z,4,0x7a4ac0)}],
- [()=>{CL.forEach(c=>S.remove(c.g));CL.length=0;for(let i=0;i<3;i++){const g=pg.clone(true),an2=p.f+(i-1)*2.1+Math.PI;g.traverse(o=>{if(o.isMesh&&o.material&&o.material.transparent&&o.material.opacity<.05)o.visible=false});{const mk=new THREE.Mesh(BLG,new THREE.MeshBasicMaterial({color:ELC[i],transparent:true,opacity:.7,depthWrite:false}));mk.rotation.x=-Math.PI/2;mk.position.y=.07;mk.scale.setScalar(1.3);g.add(mk)}S.add(g);const c={g,x:p.x+Math.sin(an2)*2.2,z:p.z+Math.cos(an2)*2.2,hp:1,mn:1,el:i,t:14,cd:.4+i*.3,f:p.f,fl:0};CL.push(c);ring(c.x,c.z,1.2,ELC[i])}toast('Clones invocados: fogo, gelo e sombra')},
+ [()=>{CL.forEach(c=>S.remove(c.g));CL.length=0;for(let i=0;i<3;i++){const g=pg.clone(true),an2=p.f+(i-1)*2.1+Math.PI;g.traverse(o=>{if(o.isMesh&&o.material&&o.material.transparent&&o.material.opacity<.05)o.visible=false});{const mk=new THREE.Mesh(BLG,new THREE.MeshBasicMaterial({color:ELC[i],transparent:true,opacity:.7,depthWrite:false}));mk.rotation.x=-Math.PI/2;mk.position.y=.07;mk.scale.setScalar(1.3);g.add(mk)}S.add(g);const c={g,x:p.x+Math.sin(an2)*2.2,z:p.z+Math.cos(an2)*2.2,hp:2,mn:1,el:i,t:14,cd:.4+i*.3,f:p.f,fl:0};CL.push(c);ring(c.x,c.z,1.2,ELC[i])}toast('Clones invocados: fogo, gelo e sombra')},
   ()=>{for(const e of E)if(Math.hypot(e.x-p.x,e.z-p.z)<9){e.fear=4;e.wind=0}ring(p.x,p.z,9,0xc0a0ff)},
   ()=>{if(NET.on&&!al.dead){p.x=al.x+1.5;p.z=al.z}else{const q=nearest(30),a=q?Math.atan2(p.x-q.x,p.z-q.z):p.f+Math.PI;p.x+=Math.sin(a)*8;p.z+=Math.cos(a)*8;bound(p)}p.inv=.3;ring(p.x,p.z,2,0xc0a0ff)}]];
 function mage(){const k=p.bs>0?0:p.bh>0?1:p.bl>0?2:-1;if(k<0)return;p.bs=p.bh=p.bl=0;
@@ -1019,7 +1019,7 @@ $('cls').style.display='none';showScr('menu');
 const EPG=new THREE.BoxGeometry(.1,.1,.7),EPA=new THREE.MeshBasicMaterial({color:0xe8d8a0}),EPO=new THREE.SphereGeometry(.3,6,5),EPM=new THREE.MeshBasicMaterial({color:0xb05aff}),EP=[];
 function fireE(e,tg){const ar=e.rng==1,a=Math.atan2(tg.x-e.x,tg.z-e.z)+(ar?rnd(-.13,.13):rnd(-.05,.05)),m=new THREE.Mesh(ar?EPG:EPO,ar?EPA:EPM),v=ar?20:13;m.position.set(e.x,1.2,e.z);m.rotation.y=a;S.add(m);EP.push({m,vx:Math.sin(a)*v,vz:Math.cos(a)*v,t:2.4,e,tg});sfx('shot');if(NET.h)nemit('ev',{t:'fe',x:+e.x.toFixed(1),z:+e.z.toFixed(1),a:+a.toFixed(2),r:e.rng})}
 function epUpd(dt){for(let i=EP.length-1;i>=0;i--){const a=EP[i],m=a.m;a.t-=dt;m.position.x+=a.vx*dt;m.position.z+=a.vz*dt;let hit=0;if(a.vis){if(a.t<=0){S.remove(m);EP.splice(i,1)}continue}
-  if(a.tg!==p&&a.tg.hp>0&&Math.hypot(a.tg.x-m.position.x,a.tg.z-m.position.z)<1){if(a.tg.remote)netHit(a.tg,a.e,.6);else a.tg.hp-=a.e.dm*.6;hit=1}
+  if(a.tg!==p&&a.tg.hp>0&&Math.hypot(a.tg.x-m.position.x,a.tg.z-m.position.z)<1){if(a.tg.remote)netHit(a.tg,a.e,.6);else a.tg.hp-=a.tg.el!==undefined&&a.tg.mn?1:a.e.dm*.6;hit=1}
   else if(Math.hypot(p.x-m.position.x,p.z-m.position.z)<.9&&p.y<1.3&&p.inv<=0&&!(p.sh>0)){const dx=p.x-a.e.x,dz=p.z-a.e.z,d=Math.hypot(dx,dz)||1;foe(a.e,dx,dz,d);hit=1}
   if(!hit&&NET.h)for(const r of NET.rp)if(r.alive&&Math.hypot(r.x-m.position.x,r.z-m.position.z)<.9&&r.y<1.3){netHit(r,a.e,.8);hit=1;break}
   if(hit||a.t<=0){S.remove(m);EP.splice(i,1)}}}
@@ -1197,7 +1197,7 @@ function avUpd(r,dt){const g=r.av,R=g.R;if(!R)return;const Vx=r.vx??r.x,Vy=r.vy?
   R.rc=g.rc;armPose(R,{wi:g.w,att:!!a,sv,k,d,pr,n:r.ak?r.ak.n:0,blk:r.blk,m,ph,y:Vy,dg:r.dg},dt||.016);R.pSh.visible=!!r.shd}
 // invocações e animal dos outros jogadores (só visual; o dano chega pela rede)
 function rpMinions(r,pr,dt){r.mns=r.mns||{};const seen={};const list=(pr.mn||'').split(';').filter(Boolean);list.forEach((s2,i)=>{const [k,x,z]=s2.split(','),cl=k[0]=='c',key=cl?k:k+i;seen[key]=1;let o=r.mns[key];
-    if(!o){let g;if(cl){g=r.av.clone(true);const mk=new THREE.Mesh(BLG,new THREE.MeshBasicMaterial({color:ELC[+k[1]]||0xffffff,transparent:true,opacity:.7,depthWrite:false}));mk.rotation.x=-Math.PI/2;mk.position.y=.09;mk.scale.setScalar(1.3);g.add(mk);S.add(g);ring(+x,+z,1.2,ELC[+k[1]])}else if(k=='z'||k=='m'||k=='s')g=mkMin(k);else g=k=='t'?mkTot():k=='v'?mkVult():mkDog();o=r.mns[key]={g,x:+x,z:+z,k};if(cl)Object.assign(o,{cl:1,el:+k[1],hp:1,mn:1,fl:0})}
+    if(!o){let g;if(cl){g=r.av.clone(true);const mk=new THREE.Mesh(BLG,new THREE.MeshBasicMaterial({color:ELC[+k[1]]||0xffffff,transparent:true,opacity:.7,depthWrite:false}));mk.rotation.x=-Math.PI/2;mk.position.y=.09;mk.scale.setScalar(1.3);g.add(mk);S.add(g);ring(+x,+z,1.2,ELC[+k[1]])}else if(k=='z'||k=='m'||k=='s')g=mkMin(k);else g=k=='t'?mkTot():k=='v'?mkVult():mkDog();o=r.mns[key]={g,x:+x,z:+z,k};if(cl)Object.assign(o,{cl:1,el:+k[1],hp:2,mn:1,fl:0})}
     if(o.cl&&NET.h&&o.hp<=0&&!o.kd){o.kd=1;o.g.visible=false;nemit('ev',{t:'ck',to:r.peer,el:o.el});puff(o.x,1.1,o.z,14,ELC[o.el],5,5,.6,.15)}
     const kk=Math.min(1,10*dt),dx=+x-o.x,dz=+z-o.z;o.x+=dx*kk;o.z+=dz*kk;o.g.position.set(o.x,o.k=='v'?2.2+Math.sin(t*5)*.2:0,o.z);if(o.g.wL){const fl=Math.sin(t*9)*.55-.1;o.g.wL.rotation.z=-fl;o.g.wR.rotation.z=fl}if(Math.abs(dx)+Math.abs(dz)>.02)o.g.rotation.y=Math.atan2(dx,dz)});
   for(const key in r.mns)if(!seen[key]){const o=r.mns[key];if(o.cl&&!o.kd)puff(o.x,1.1,o.z,14,ELC[o.el],5,5,.6,.15);S.remove(o.g);delete r.mns[key]}
@@ -1635,7 +1635,9 @@ function zapFx(pts,w=.07){for(let i=0;i+5<pts.length;i+=3){let ax=pts[i],ay=pts[
 function zEmit(L2){if(NET.on&&NET.ph=='p'&&L2.length)nemit('ev',{t:'zp',l:L2.map(a=>a.map(v=>+v.toFixed(1)))})}
 function zChain(x,z,n,r0,first){const out=first?[first]:[];let cx=first?first.x:x,cz=first?first.z:z,r=first?5.5:r0;while(out.length<n){let q=null,b=r;for(const e of E){if(e.hp<=0||out.includes(e))continue;const d=Math.hypot(e.x-cx,e.z-cz);if(d<b){b=d;q=e}}if(!q)break;out.push(q);cx=q.x;cz=q.z;r=5.5}return out}
 function zapFrom(x,y,z,list,dm,L2){const pts=[x,y,z];list.forEach((e,i)=>{const a=dm*Math.pow(.85,i)*(1+(RC.mag||0));e.hp-=a;dmgNum(e,a,dm>1);e.fl=.1;pts.push(e.x,1.05*(e.sz||1),e.z);if(p.zl)p.zl.add(e)});zapFx(pts);L2.push(pts)}
-function zCast(m){const L2=[],q=ptarget(13),l=q?zChain(p.x,p.z,5,13,q):[];if(l.length){p.f=aim(l[0]);zapFrom(p.x+Math.sin(p.f)*.5,1.5,p.z+Math.cos(p.f)*.5,l,1.2*m,L2)}
+// alvo do raio: até o raio do totem em volta do xamã, ou qualquer inimigo dentro da área de um totem (mesmo longe)
+function zTarget(){const inT=e=>TOT.some(o=>Math.hypot(e.x-o.x,e.z-o.z)<TRD),m=mouseFoe(60);if(m&&m.hp>0&&(Math.hypot(m.x-p.x,m.z-p.z)<TRD||inT(m)))return m;let q=ptarget(TRD);if(q)return q;let b=1e9;for(const e of E){if(e.hp<=0||!inT(e))continue;const d=Math.hypot(e.x-p.x,e.z-p.z);if(d<b){b=d;q=e}}return q}
+function zCast(m){const L2=[],q=zTarget(),l=q?zChain(p.x,p.z,5,13,q):[];if(l.length){p.f=aim(l[0]);zapFrom(p.x+Math.sin(p.f)*.5,1.5,p.z+Math.cos(p.f)*.5,l,1.2*m,L2)}
   for(const o of TOT){const lt=zChain(o.x,o.z,3,TRD+2.5);if(lt.length)zapFrom(o.x,1.82,o.z,lt,.7*m,L2)}zEmit(L2);if(L2.length){p.rh=.25;sfx('shot');shake=Math.max(shake,.1)}return L2.length>0}
 function zPull(){p.zw=0;const rt=1.8+(p.zhL||0)*.5,a=.4*(1+(RC.mag||0)),L2=[];let n=0;for(const e of p.zl){if(e.hp<=0||!E.includes(e))continue;n++;e.stun=Math.max(e.stun>0?e.stun:0,rt);e.hp-=a;dmgNum(e,a);ring(e.x,e.z,1.1,0x7fe8ff);const pt=[e.x,1,e.z,p.x,1.4,p.z];zapFx(pt,.05);L2.push(pt)}
   p.zl.clear();zEmit(L2);CD.zp=Math.max(CD.zp||0,1.2);if(n){toast('Raio puxado: '+n+' preso'+(n>1?'s':'')+' ao chão!');shake=Math.max(shake,.25)}}
