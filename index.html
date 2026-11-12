@@ -422,14 +422,14 @@ function jump(){if(dead||NET.gh||p.stn>0)return;if(wi==11){if(p.wf){wolfOff();re
   if(p.y>0||p.att>0||p.dg>0)return;
   p.vy=wi==3?6.5:9.5;if(wi==3)boom(p.x,p.z,2.4,1,6)}
 function foe(e,dx,dz,d){const nx=dx/d,nz=dz/d;if(e.rng==1&&Math.random()<.2){ring(p.x,p.z,1.2,0xffffff);dmgNum({x:p.x,z:p.z,sz:1.1},0);return}
-  if(Math.random()<RC.ev+(wi==5?.15:0)+(wi==11&&p.wf?.25:0)+(wi==10?(p.ev||0)+(p.gi>0?.25:0):0)){toast('Esquivou!');ring(p.x,p.z,1.5,0xffffff);return}
+  if(Math.random()<RC.ev+sbOf()[2]+(wi==5?.15:0)+(wi==11&&p.wf?.25:0)+(wi==10?(p.ev||0)+(p.gi>0?.25:0):0)){toast('Esquivou!');ring(p.x,p.z,1.5,0xffffff);return}
   if(p.rh>0){e.hp-=e.dm;e.fl=.2;e.kx=-nx*3;e.kz=-nz*3;shake=.35;hs=.06;ring(p.x,p.z,3,0xffe27a);toast('Dano devolvido!');return}
   if(p.blk&&(-nx*Math.sin(p.f)-nz*Math.cos(p.f))>.2){
     if(p.pw>0&&wi==8){e.vul=5;e.fl=.25;hs=.1;shake=.3;p.inv=.3;ring(e.x,e.z,2,0x66ff88);toast('Marcado!');return}
     if(p.pw>0){e.stun=1.4;e.wind=0;e.cd=1.4;e.kx=-nx*9;e.kz=-nz*9;hs=.12;shake=.5;p.inv=.3;p.pb=2.5;toast('Parry!');puff(e.x,1.2,e.z,14,0xffe27a,7,5,.4,.11);return}
     e.kx=-nx*4;e.kz=-nz*4;hurt((W[wi].par?.2:.5)*e.dm,nx*.4,nz*.4);return}
   hurt(e.dm,nx,nz)}
-function hurt(n,nx,nz){if(NET.gh)return;if(p.shd>0){const ab=Math.min(p.shd,n);p.shd-=ab;n-=ab;if(n<=0)return}sfx('hurt');p.hp-=n*RC.res*W[wi].tk*(wi==10&&p.gi>0?.7:1)*(wi==9&&NM.s&&NM.s.alive&&Math.hypot(NM.s.x-p.x,NM.s.z-p.z)<4?.6:1);p.fl=.15;shake=.4;{const kb=wi==11&&p.wf?0:1.2;p.x+=nx*kb;p.z+=nz*kb};hud();
+function hurt(n,nx,nz){if(NET.gh)return;if(p.shd>0){const ab=Math.min(p.shd,n);p.shd-=ab;n-=ab;if(n<=0)return}sfx('hurt');p.hp-=n*sbOf()[1]*RC.res*W[wi].tk*(wi==10&&p.gi>0?.7:1)*(wi==9&&NM.s&&NM.s.alive&&Math.hypot(NM.s.x-p.x,NM.s.z-p.z)<4?.6:1);p.fl=.15;shake=.4;{const kb=wi==11&&p.wf?0:1.2;p.x+=nx*kb;p.z+=nz*kb};hud();
   if(p.hp<=0){if(NET.on)netDie();else{dead=true;$('ovt').textContent='Você caiu';recSave();$('over').style.display='flex'}}}
 function restart(){SEC.done=0;xReset();BX.forEach(f=>{if(Array.isArray(f.sp))f.sp.forEach(m=>S.remove(m));if(f.b)S.remove(f.b)});SF.forEach(f=>S.remove(f.m));SF.length=0;LZ.forEach(m=>m.visible=false);BX.forEach(f=>{S.remove(f.w);f.r&&f.r.isMesh&&S.remove(f.r)});BX.length=0;p.stn=0;E.forEach(e=>S.remove(e.g));E.length=0;
   Object.assign(p,{x:0,z:0,hp:100,att:0,dg:0,inv:0,dcd:0,bl:0,bh:0,ct:0,y:0,vy:0,blk:0,pl:0,ax:0});kills=0;dead=false;pj.visible=false;pst=100;an.alive=true;an.hp=an.max;an.mode=0;an.dash=0;an.en=100;PR.forEach(a=>S.remove(a.m));PR.length=0;CL.forEach(c=>S.remove(c.g));CL.length=0;MD.t=0;p.sh=0;p.kn=null;for(const k in CD)CD[k]=0;LV=1;LT=0;bigOn=0;bossOn=0;sp=0;bsp=0;pal(0);HG.forEach(h=>S.remove(h.m));HG.length=0;al.shT=0;p.rh=0;AQ.length=0;ob=0;mnClear();totClear();NET.gh=0;pg.visible=true;p.shd=0;p.zmb=0;p.mk=0;RC.spd=(RACES[race].m.spd||1);NET.em={};EP.forEach(a=>S.remove(a.m));EP.length=0;DR.forEach(d=>S.remove(d.m));DR.length=0;al.dead=false;al.zombie=0;al.mk=0;al.hp=al.max;al.rv=0;al.g.scale.y=1;al.g.visible=false;if(!NET.on){al.dead=true;al.x=al.z=9999;al.hp=0}IT[0].c=3;IT[1].c=2;IT[2].c=2;hand=-1;bag=0;bagUI();gear();$('over').style.display='none'}
@@ -504,6 +504,7 @@ function upd(dt){{const dh=p.hp-p.lhp;if(dh>.001&&RC.heal>1)p.hp=Math.min(PMX,p.
     e.m.color.setHex(e.fl>0?0xffffff:e.chw>0?0xff3030:e.ice>0?0xbfeaff:e.burn>0?0xff7a2a:e.fear>0?0xc0a0ff:e.stun>0?0x5ab4ff:e.wind>0?0xffd34d:e.vul>0?0x66e0a0:e.bleed>0?0xc04a3a:e.brk>0?0xa58fb8:e.cl);
     e.g.scale.setScalar(e.sz*(e.wind>0?1.15:1)*(.8+.2*Math.min(e.hp/e.mx,1)));if(e.kd>0)e.g.scale.y=.35*e.sz;e.lh=e.hp;
   }
+  if(!NET.on)sbTick();
   for(let i=E.length-1;i>=0;i--)if(E[i].hp<=0&&!NET.c){dieAnim(E[i]);if(E[i].axe){p.ax=0;p.hp=Math.min(PMX,p.hp+5);gear();toast('Machado recuperado')}const ee=E[i];E.splice(i,1);if(!ee.nk)xKill(ee);if(ee.zn)secFx({a:'zm',m:'💀 '+ee.zn+' derrotado!'});if(wi==10&&!ee.nk)soul(ee);puff(ee.x,1,ee.z,ee.boss?40:14,ee.cl,5,7,.9,.2*(ee.sz||1));puff(ee.x,1,ee.z,ee.boss?20:6,0xfff2b0,7,5,.35,.1);if(ee.nk)continue;kills++;if(NET.h)stKill(ee);p.hp=Math.min(PMX,p.hp+(ee.boss?30:ee.k=='b'?8:3)*(wi==10?(p.gi>0?.4:1.4):1));if(wi==1&&Math.random()<.2)p.hp=Math.min(PMX,p.hp+4);if(wi==2){p.hp=Math.min(PMX,p.hp+6);ring(p.x,p.z,1.3,0xc0392b)}dropLoot(ee);if(ee.boss){if(secKill(ee)){hud();continue}lvlUp();hud();break}hud()}
 }
 
@@ -634,6 +635,14 @@ const PJM=1.25;function projUpd(dt){for(let i=PR.length-1;i>=0;i--){const a=PR[i
     if(a.aoe){for(const o of E)if(o!==h&&o.hp>0&&Math.hypot(o.x-h.x,o.z-h.z)<a.aoe){dmg(o,a.dmg*PJM*.5);if(a.burn)o.burn=Math.max(o.burn>0?o.burn:0,a.burn*.6)}ring(h.x,h.z,a.aoe,0xff6a2a);puff(h.x,1,h.z,8,0xff7a2a,5,4,.45,.15);shake=Math.max(shake,.2)}
     if(a.pc>1){a.pc--;(a.hl=a.hl||[]).push(h)}else a.pc=0}
   if((h&&!(a.pc>0))||a.t<=0){S.remove(m);PR.splice(i,1)}}}
+// ---- Ajuste por build só no single player: [dano causado, dano recebido, evasão extra]. O online usa os valores base.
+// O dano causado é aplicado sobre toda a vida que o inimigo perde no quadro (golpes, projéteis, magias, invocações e dano contínuo).
+// valores achados pelo laboratório (bot jogando sozinho, vantagens de raça desligadas): fase média de cada build entre 2,0 e 2,9
+// ordem: Espada e Escudo, Espada Longa, Dois Machados, Arco, Lança e Animal, Adagas, Mago, Paladino, Monge, Necromante, Corrompido, Xamã
+const SB0=[[1.68,0.33,0],[1.98,0.69,0],[2.98,0.5,0],[1.72,0.84,0.11],[2.26,0.61,0.16],[2.25,0.88,0.15],[1.15,1,0],[1.25,0.7,0],[2.61,0.64,0.15],[4.1,0.46,0],[0.46,1.15,0],[1,1,0]];
+var SB=window.ARENA_SB||SB0;
+function sbOf(){return NET.on?[1,1,0]:SB[wi]||[1,1,0]}
+function sbTick(){const f=sbOf()[0];for(const e of E){if(e.dlh===undefined){e.dlh=e.hp;continue}const l=e.dlh-e.hp;if(l>0&&f!==1)e.hp-=l*(f-1);e.dlh=e.hp}}
 function boom(x,z,r,m,kb){for(const e of E){const dx=e.x-x,dz=e.z-z,d=Math.hypot(dx,dz)||.01;if(d<r){e.hp-=m;e.kx=dx/d*kb;e.kz=dz/d*kb;e.fl=.12}}shake=Math.max(shake,.2)}
 function leap(){const q=nearest(14);p.dir=q?Math.atan2(p.x-q.x,p.z-q.z):p.f+Math.PI;if(q)p.f=aim(q);p.dg=.25;p.dv=34;p.inv=.35;p.vy=6;CD.lp=2.5;p.bh=0}
 function stab(){const q=nearest(14),a=aim(q),D=q?Math.min(Math.hypot(q.x-p.x,q.z-p.z),9):6,sx=Math.sin(a),cz=Math.cos(a);
