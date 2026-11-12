@@ -561,20 +561,22 @@ function bagUI(){$('bag').style.display=bag?'block':'none';
   $('slots').innerHTML=IT.map((t,k)=>`<div class="sl${k==cur?' on':''}${k==hand?' hd':''}" data-k="${k}">${t.i}<b>${t.c}</b><small>${t.n}</small></div>`).join('');hud()}
 // ---- Nível do personagem na run: XP por abate, +3% de dano e +4 de vida máxima por nível e uma melhoria à escolha. Zera quando a partida acaba.
 // A escolha fica num painel pequeno no topo (não pausa): botão L1 / Q / toque passa de opção, segurar escolhe; também dá para tocar/clicar na opção ou usar Z X V.
-var XL={lv:1,xp:0,dm:0,hp:0,sp:0,cd:0,ev:0,rg:0,kh:0,pj:0,pend:0,opts:null,sel:0,kd:0};var PMX=100;
+var XL={sup:0,lv:1,xp:0,dm:0,hp:0,sp:0,cd:0,ev:0,rg:0,kh:0,pj:0,pend:0,opts:null,sel:0,kd:0};var PMX=100;
 const XUP=[['⚔️','Dano +8%',()=>XL.dm+=.08],['❤️','Vida máx. +12',()=>{XL.hp+=12;p.hp+=12}],['👟','Velocidade +6%',()=>XL.sp+=.06],['⏱️','Recarga −7%',()=>XL.cd+=.07],['🌀','Esquiva +4%',()=>XL.ev+=.04],['💚','Regeneração +0,6/s',()=>XL.rg+=.6],['🩸','Cura por abate +2',()=>XL.kh+=2],['🎯','Projéteis +12%',()=>XL.pj+=.12]];
 const XPK={n:2,r:2,c:2.5,k:1,b:8,B:40,K:60,Q:60},xpOf=e=>e.k[0]=='X'?25:XPK[e.k]||2,xNeed=()=>10+XL.lv*8;
 function xApply(){const b={...RBASE,...RACES[race].m},lv=(XL.lv-1)*.03;RC.phy=b.phy+XL.dm+lv;RC.mag=b.mag+XL.dm+lv;RC.ev=b.ev+XL.ev;RC.shot=b.shot+XL.pj;PMX=100+XL.hp+(XL.lv-1)*4;if(p.hp>PMX)p.hp=PMX}
-function xReset(){Object.assign(XL,{lv:1,xp:0,dm:0,hp:0,sp:0,cd:0,ev:0,rg:0,kh:0,pj:0,pend:0,opts:null,sel:0,kd:0});PMX=100;xUI()}
+function xReset(){Object.assign(XL,{sup:0,lv:1,xp:0,dm:0,hp:0,sp:0,cd:0,ev:0,rg:0,kh:0,pj:0,pend:0,opts:null,sel:0,kd:0});PMX=100;xUI()}
 function xGain(a){if(cls<0||scr!='play')return;XL.xp+=a;let up=0;while(XL.xp>=xNeed()){XL.xp-=xNeed();XL.lv++;XL.pend++;up=1}
   if(up){xApply();p.hp=Math.min(PMX,p.hp+10);toast('⬆ Nível '+XL.lv+'! Escolha uma melhoria');sfx('lvl');const o=NET.rx;NET.rx=1;ring(p.x,p.z,2.2,0xc9a6ff);NET.rx=o;puff(p.x,1,p.z,14,0xc9a6ff,3,4,.6,.14);if(!XL.opts)xOffer()}xUI()}
+// apoio no online: cura e escudo de verdade aplicados em aliados (e marcar aliado) viram pontos de Apoio e XP
+function xSup(v,r){if(!NET.on||!(v>0))return;const ef=r&&r.hp!=null?Math.min(v,Math.max(0,100-r.hp)+.5):v;if(ef<=0)return;XL.sup+=ef;xGain(ef*.25)}
 function xKill(ee){const a=xpOf(ee);if(XL.kh&&!NET.gh)p.hp=Math.min(PMX,p.hp+XL.kh*.5);if(!NET.on){xGain(a);return}xGain(a*.4);const w=ee.ld;if(!w||w===NET.mid)xGain(a*.6);else nemit('ev',{t:'xp',to:w,a:+(a*.6).toFixed(1)})}
 function xOffer(){const ix=[...XUP.keys()].sort(()=>Math.random()-.5).slice(0,3);XL.opts=ix;XL.sel=0;xUI()}
 function xPick(n){if(!XL.opts||!XUP[XL.opts[n]])return;const u=XUP[XL.opts[n]];u[2]();XL.pend--;XL.opts=null;XL.kd=0;xApply();toast(u[0]+' '+u[1]);if(XL.pend>0)xOffer();xUI()}
 function xDown(){if(XL.opts)XL.kd=performance.now()}
 function xUp(){if(!XL.opts||!XL.kd)return;const h=performance.now()-XL.kd;XL.kd=0;if(h<420){XL.sel=(XL.sel+1)%3;xUI()}}
 function xTick(){if(XL.opts&&XL.kd&&performance.now()-XL.kd>=420)xPick(XL.sel)}
-function xUI(){const n=xNeed();$('xi').style.width=Math.min(100,XL.xp/n*100)+'%';$('xl').textContent='Nv '+XL.lv;const u=$('xup');
+function xUI(){const n=xNeed();$('xi').style.width=Math.min(100,XL.xp/n*100)+'%';$('xl').textContent='Nv '+XL.lv+(NET.on&&XL.sup>=1?' · 💚 '+Math.round(XL.sup):'');const u=$('xup');
   if(!XL.opts||scr!='play'){u.style.display='none';return}const pc=matchMedia('(pointer:fine)').matches,keys='ZXV';
   u.innerHTML='<b>⬆ Nv '+XL.lv+(XL.pend>1?' (+'+(XL.pend-1)+')':'')+'</b>'+XL.opts.map((k,i)=>'<span class="xo'+(i==XL.sel?' on':'')+'" data-x="'+i+'">'+XUP[k][0]+' '+XUP[k][1]+(pc?' <small>'+keys[i]+'</small>':'')+'</span>').join('')+'<small>'+(pc?'Q: trocar · segure: escolher':'L1: trocar · segure: escolher')+'</small>';u.style.display='flex'}
 $('xup').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-x]');e.stopPropagation();e.preventDefault();if(t)xPick(+t.dataset.x)});
@@ -787,7 +789,7 @@ const hmH=add(new THREE.BoxGeometry(.1,.1,1.6),L(0x6b4a2b),0,0,1,sw),hmB=add(new
 halo.rotation.x=Math.PI/2;alS.visible=false;CD.mh=CD.pl=CD.rh=0;
 function holy(x,z){const m=new THREE.Mesh(RG,new THREE.MeshBasicMaterial({color:0xffe27a,transparent:true,opacity:.3,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.12,z);m.scale.setScalar(5);S.add(m);HG.push({x,z,r:5,t:7,tk:0,m})}
 // online: curas de apoio valem para todos os jogadores aliados no alcance (o aliado NPC só existe como espelho do mais próximo)
-function healAllies(x,z,r,a){if(!NET.on||NET.ph!='p')return 0;let n=0;for(const q of NET.rp)if(q.alive&&Math.hypot(q.x-x,q.z-z)<r){nemit('ev',{t:'heal',to:q.peer,a:+(a*(RC.ally||1)).toFixed(1)});n++}return n}
+function healAllies(x,z,r,a){if(!NET.on||NET.ph!='p')return 0;let n=0;for(const q of NET.rp)if(q.alive&&Math.hypot(q.x-x,q.z-z)<r){nemit('ev',{t:'heal',to:q.peer,a:+(a*(RC.ally||1)).toFixed(1)});xSup(a*(RC.ally||1),q);n++}return n}
 function holyUpd(dt){alS.visible=al.shT>0;if(al.shT>0)al.shT-=dt;
   for(let i=HG.length-1;i>=0;i--){const h=HG[i];h.t-=dt;h.tk-=dt;h.m.material.opacity=.22+.1*Math.sin(t*6);
     for(const e of E)if(Math.hypot(e.x-h.x,e.z-h.z)<h.r){e.burn=Math.max(e.burn>0?e.burn:0,.6);if(!(e.slow>.5))e.slow=1}
@@ -1106,11 +1108,11 @@ addEventListener('pagehide',()=>{if(NET.R&&NET.R.url)try{NET.R.leave()}catch(e){
 function stAdd(peer,e,d){if(!peer)return;const s=NET.st[peer]||(NET.st[peer]={k:{},bd:0});if(e.boss)s.bd+=d;e.ld=peer}
 function stKill(e){if(!NET.st)return;let who=e.ld;if(e.hq!==undefined&&e.hq-Math.max(e.hp,0)>.001){who=NET.mid;if(e.boss)(NET.st[who]||(NET.st[who]={k:{},bd:0})).bd+=e.hq-Math.max(e.hp,0)}if(!who)who=NET.mid;const s=NET.st[who]||(NET.st[who]={k:{},bd:0});const kk=e.k=='K'||e.k=='Q'?'B':e.k=='k'?'n':e.k[0]=='X'?'b':e.k;s.k[kk]=(s.k[kk]||0)+1}
 function stTick(){for(const e of E){if(e.hq===undefined){e.hq=e.hp;continue}const d=e.hq-e.hp;if(d>.001){if(d>=.12||!e.dot)e.dot=NET.mid;stAdd(e.dot,e,d)}e.hq=e.hp}}
-function rankData(){const nm={};try{NET.R.peers().forEach(q=>{nm[q.peer]=(q.presence&&q.presence.nm)||'Jogador';nm['lv'+q.peer]=q.isMe?XL.lv:(q.presence&&q.presence.xl)||1})}catch(e){}const rows=[];for(const id of NET.roster){const s=(NET.st&&NET.st[id])||{k:{},bd:0};rows.push({nm:nm[id]||'Jogador',lv:nm['lv'+id]||1,k:s.k,bd:+s.bd.toFixed(1)})}
+function rankData(){const nm={};try{NET.R.peers().forEach(q=>{nm[q.peer]=(q.presence&&q.presence.nm)||'Jogador';nm['lv'+q.peer]=q.isMe?XL.lv:(q.presence&&q.presence.xl)||1;nm['su'+q.peer]=q.isMe?Math.round(XL.sup):(q.presence&&q.presence.su)||0})}catch(e){}const rows=[];for(const id of NET.roster){const s=(NET.st&&NET.st[id])||{k:{},bd:0};rows.push({nm:nm[id]||'Jogador',lv:nm['lv'+id]||1,su:nm['su'+id]||0,k:s.k,bd:+s.bd.toFixed(1)})}
   return{lv:LV,kc:kills,t:Math.round((performance.now()-(NET.stT||performance.now()))/1000),rows}}
-function showRank(d){if(!d||!d.rows)return;const T=[['n','Comuns'],['r','Arqueiros'],['c','Conjuradores'],['b','Grandes'],['B','Chefes']],tot=r=>T.reduce((a,t)=>a+(r.k[t[0]]||0),0),rows=d.rows.slice().sort((a,b)=>tot(b)-tot(a)||b.bd-a.bd);
+function showRank(d){if(!d||!d.rows)return;const T=[['n','Comuns'],['r','Arqueiros'],['c','Conjuradores'],['b','Grandes'],['B','Chefes']],tot=r=>T.reduce((a,t)=>a+(r.k[t[0]]||0),0),rows=d.rows.slice().sort((a,b)=>tot(b)-tot(a)||b.bd-a.bd),mxs=Math.max(0,...d.rows.map(r=>r.su||0));
   $('rsum').textContent='Nível alcançado: '+d.lv+' · Abates do grupo: '+d.kc+' · Tempo: '+Math.floor(d.t/60)+':'+String(d.t%60).padStart(2,'0');
-  $('rtb').innerHTML='<table><tr><th>#</th><th>Jogador</th><th>Nv</th><th>Abates</th>'+T.map(t=>'<th>'+t[1]+'</th>').join('')+'<th>Dano no chefe</th></tr>'+rows.map((r,i)=>'<tr'+(i==0?' class="top"':'')+'><td>'+(['🥇','🥈','🥉'][i]||i+1)+'</td><td>'+esc(r.nm)+'</td><td>'+(r.lv||1)+'</td><td><b>'+tot(r)+'</b></td>'+T.map(t=>'<td>'+(r.k[t[0]]||0)+'</td>').join('')+'<td>'+Math.round(r.bd)+'</td></tr>').join('')+'</table>';
+  $('rtb').innerHTML='<table><tr><th>#</th><th>Jogador</th><th>Nv</th><th>Abates</th>'+T.map(t=>'<th>'+t[1]+'</th>').join('')+'<th>Dano no chefe</th><th>Apoio</th></tr>'+rows.map((r,i)=>'<tr'+(i==0?' class="top"':'')+'><td>'+(['🥇','🥈','🥉'][i]||i+1)+'</td><td>'+esc(r.nm)+'</td><td>'+(r.lv||1)+'</td><td><b>'+tot(r)+'</b></td>'+T.map(t=>'<td>'+(r.k[t[0]]||0)+'</td>').join('')+'<td>'+Math.round(r.bd)+'</td><td>'+(r.su||0)+(r.su>0&&r.su==mxs?' 💚':'')+'</td></tr>').join('')+'</table>';
   $('rank').style.display='flex'}
 $('rcl').addEventListener('pointerdown',e=>{e.stopPropagation();$('rank').style.display='none'});
 let netET=0;function netErr(err){if(performance.now()-netET>2000){netET=performance.now();toast('Erro online: '+err.message)}}
@@ -1242,8 +1244,8 @@ function netPost(dt){if(NET.ph!='p')return;
   if(NET.c){for(const e of E){if(!e.id||!e.b)continue;let st=null;for(const f of NSF)if(e[f]>(e.b[f]||0)+.02){(st=st||{})[f]=+e[f].toFixed(2);e.b[f]=e[f]}
       const dh=e.hs-e.hp,kb=(e.kx||e.kz)?[+e.kx.toFixed(1),+e.kz.toFixed(1)]:null;if(dh>.001||st||kb){if(dh>.001){e.sent=(e.sent||0)+dh;e.sentT=performance.now()}NET.pend.push([e.id,+dh.toFixed(2),st,kb]);e.hs=e.hp;e.kx=e.kz=0}}
     NET.dT+=dt;if(NET.dT>=.12&&NET.pend.length){NET.dT=0;nemit('dmg',{d:NET.pend.splice(0,40)})}}
-  if(NET.ally&&al.hp>NET.alHp0+.01)nemit('ev',{t:'heal',to:NET.ally.peer,a:+((al.hp-NET.alHp0)*RC.ally).toFixed(1)});
-  NET.pT+=dt;if(NET.pT>=.1){NET.pT=0;const o={x:+p.x.toFixed(1),z:+p.z.toFixed(1),y:+p.y.toFixed(1),f:+p.f.toFixed(2),hp:Math.max(0,Math.round(p.hp/PMX*100)),xl:XL.lv,d:NET.gh?1:0,sh:p.sh>0?1:0,at:NET.atk,ak:NET.ak||'',b:p.blk?1:0,g:p.dg>0?1:0,gi:wi==10&&p.gi>0?1:0,wf:wi==11&&p.wf?1:0,mk:p.mk?1:0,zm:p.zmb?1:0,
+  if(NET.ally&&al.hp>NET.alHp0+.01){const hv=(al.hp-NET.alHp0)*RC.ally;nemit('ev',{t:'heal',to:NET.ally.peer,a:+hv.toFixed(1)});xSup(hv,NET.ally)}
+  NET.pT+=dt;if(NET.pT>=.1){NET.pT=0;const o={x:+p.x.toFixed(1),z:+p.z.toFixed(1),y:+p.y.toFixed(1),f:+p.f.toFixed(2),hp:Math.max(0,Math.round(p.hp/PMX*100)),xl:XL.lv,su:Math.round(XL.sup),d:NET.gh?1:0,sh:p.sh>0?1:0,at:NET.atk,ak:NET.ak||'',b:p.blk?1:0,g:p.dg>0?1:0,gi:wi==10&&p.gi>0?1:0,wf:wi==11&&p.wf?1:0,mk:p.mk?1:0,zm:p.zmb?1:0,
     mn:MN.filter(m=>m.alive).concat(TM).slice(0,6).concat(CL.filter(c=>c.hp>0).map(c=>({k:'c'+c.el,x:c.x,z:c.z}))).concat(wi==11?TOT.map(o=>({k:'t',x:o.x,z:o.z})):[]).map(m=>(m.k||'z')+','+m.x.toFixed(1)+','+m.z.toFixed(1)).join(';'),an:wi==4&&an.alive&&!NET.gh?an.type+','+an.x.toFixed(1)+','+an.z.toFixed(1):''},k=JSON.stringify(o);if(k!==NET.lk){NET.lk=k;npres(o)}}}
 // -- host: snapshots e danos
 function nfl(e){let m=0;NSF.forEach((f,i)=>{if(e[f]>0)m|=1<<i});if(e.chw>0)m|=1<<13;if(e.ch>0)m|=1<<14;if(e.fl>0)m|=1<<15;return m}
@@ -1291,8 +1293,8 @@ function netDie(){if(NET.gh)return;NET.gh=1;p.hp=0;RC.spd=0;pg.visible=false;npr
 function netRevive(f=1){NET.gh=0;pg.visible=true;RC.spd=RACES[race].m.spd||1;p.inv=0;p.hp=PMX*f;npres({d:0,hp:Math.round(p.hp)})}
 function netLvUp(){p.zmb=0;p.mk=0;nemit('cmd',{t:'lv',lv:LV});netRevive();npres({zm:0});NET.em={}}
 function netLvl(lv){NET.lvClr=1;E.forEach(e=>{S.remove(e.g);e.m.dispose()});E.length=0;NET.em={};NET.lvClr=0;EP.forEach(a=>S.remove(a.m));EP.length=0;HG.forEach(h=>S.remove(h.m));HG.length=0;LV=lv;LT=0;bigOn=0;bossOn=0;pal(LV-1);p.zmb=0;p.mk=0;netRevive();sfx('lvl');toast('NÍVEL '+LV+'! Todos reviveram')}
-function netMark(){const a=NET.ally;if(!a)return toast('Sem aliado para marcar');const on=a.mk?0:1;a.mk=on;nemit('ev',{t:'mk',to:a.peer,on});toast(on?'Aliado marcado: voltará como zumbi se cair':'Marca removida')}
-function netPull(){let a=null,bd=-1;for(const r of NET.rp)if(r.alive){const d=Math.hypot(r.x-p.x,r.z-p.z);if(d>bd){bd=d;a=r}}if(!a)return toast('Sem aliados');if(bd<6)return toast('Aliado já está perto');CD.pl=6;nemit('ev',{t:'tp',to:a.peer,x:+(p.x-Math.sin(p.f)*2.2).toFixed(1),z:+(p.z-Math.cos(p.f)*2.2).toFixed(1),sh:Math.round(bd)});ring(p.x,p.z,3,0x8fd3ff);toast('Aliado trazido! Escudo +'+Math.round(bd))}
+function netMark(){const a=NET.ally;if(!a)return toast('Sem aliado para marcar');const on=a.mk?0:1;a.mk=on;nemit('ev',{t:'mk',to:a.peer,on});if(on&&performance.now()-(a.mkT||-1e9)>20000){a.mkT=performance.now();xSup(12)}toast(on?'Aliado marcado: voltará como zumbi se cair':'Marca removida')}
+function netPull(){let a=null,bd=-1;for(const r of NET.rp)if(r.alive){const d=Math.hypot(r.x-p.x,r.z-p.z);if(d>bd){bd=d;a=r}}if(!a)return toast('Sem aliados');if(bd<6)return toast('Aliado já está perto');CD.pl=6;nemit('ev',{t:'tp',to:a.peer,x:+(p.x-Math.sin(p.f)*2.2).toFixed(1),z:+(p.z-Math.cos(p.f)*2.2).toFixed(1),sh:Math.round(bd)});xSup(Math.min(30,Math.round(bd)));ring(p.x,p.z,3,0x8fd3ff);toast('Aliado trazido! Escudo +'+Math.round(bd))}
 function netBars(){let h='🏠 '+NET.code;for(const r of NET.rp)h+='<br>'+(r.alive?'':'💀 ')+esc(r.nm||'?')+' '+Math.round(r.hp)+'%';if(NET.gh)h+='<br>👻 espectador';$('tm').innerHTML=h}
 const pSh=add(new THREE.SphereGeometry(1.4,10,8),new THREE.MeshBasicMaterial({color:0x8fd3ff,transparent:true,opacity:.28,depthWrite:false}),0,1,0,pg);pSh.visible=false;
 let LV=1,LT=0,bsp=0,bigOn=0,bossOn=0;const TB=45,TBOSS=100;
@@ -1639,7 +1641,7 @@ function zPull(){p.zw=0;const rt=1.8+(p.zhL||0)*.5,a=.4*(1+(RC.mag||0)),L2=[];le
   p.zl.clear();zEmit(L2);CD.zp=Math.max(CD.zp||0,1.2);if(n){toast('Raio puxado: '+n+' preso'+(n>1?'s':'')+' ao chão!');shake=Math.max(shake,.25)}}
 function waterHeal(){CD.wh=7;const h=18*(RC.heal||1);p.hp=Math.min(PMX,p.hp+h);p.rh=.45;hud();const sp=[[p.x,p.z,7]].concat(TOT.map(o=>[o.x,o.z,TRD]));
   sp.forEach(([x,z,r])=>{ring(x,z,r,0x3fa8ff);ring(x,z,r*.5,0xaef0ff);puff(x,.3,z,18,0x3fa8ff,4,7,.8,.16)});
-  if(NET.on)for(const r of NET.rp)if(r.alive&&sp.some(([x,z,rr])=>Math.hypot(r.x-x,r.z-z)<rr)){nemit('ev',{t:'heal',to:r.peer,a:+(h*(RC.ally||1)).toFixed(1)});ring(r.x,r.z,1.4,0x3fa8ff)}toast('Cura das águas!')}
+  if(NET.on)for(const r of NET.rp)if(r.alive&&sp.some(([x,z,rr])=>Math.hypot(r.x-x,r.z-z)<rr)){nemit('ev',{t:'heal',to:r.peer,a:+(h*(RC.ally||1)).toFixed(1)});xSup(h*(RC.ally||1),r);ring(r.x,r.z,1.4,0x3fa8ff)}toast('Cura das águas!')}
 // lobo espiritual: coluna em duas partes (peito e quadril), pernas com joelho/jarrete, juba, cabeça com mandíbula e dentes, rabo em 3 segmentos, marcas e chamas espirituais
 const WFM={M:new THREE.MeshLambertMaterial({color:0x9fe2ff,emissive:0x1e6a9a}),M2:new THREE.MeshLambertMaterial({color:0x5aa6d8,emissive:0x123f6a}),F:new THREE.MeshLambertMaterial({color:0xd8f6ff,emissive:0x3a8ab8}),
   N:new THREE.MeshLambertMaterial({color:0x14324a}),T:new THREE.MeshLambertMaterial({color:0xf4fbff,emissive:0x405060}),D:new THREE.MeshBasicMaterial({color:0xeaffff}),
