@@ -1,6 +1,6 @@
 # Balanceamento — rodada 8 (single player, vantagens de raça desligadas)
 
-Meta: em média, toda build chega à fase 2 (fase média entre 2,0 e 2,9). Bot jogando sozinho, raça neutra, 64 partidas por build, até 10 min cada. Os ajustes valem só no single player; o online usa os valores base.
+Meta: em média, toda build chega à fase 2 (fase média entre 2,0 e 2,9). Bot jogando sozinho, raça neutra, 64 partidas por build, até 10 min cada. Os ajustes valem no single player e também no online (cada jogador usa o ajuste da própria build).
 
 | Build | Dano causado | Dano recebido | Evasão extra | Fase média | Abates | Tempo vivo |
 |---|---|---|---|---|---|---|
