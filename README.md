@@ -126,6 +126,20 @@ em **Configurações**.
   | Corrompido | combo em círculo | raio dos olhos (segure) |
   | Xamã | raio em cadeia (segure: canaliza; clique de novo: prende) | totem |
   | Xamã lobo | combo | golpe forte |
+- **Ajustes de equilíbrio (rodada 3):**
+  - Xamã: anda mais devagar na forma humana (o lobo continua rápido).
+  - Corrompido: na forma gigante, menos dano e menos cura ao eliminar; na forma normal, mais cura (abates e fragmentos de alma); explosões do salto e da explosão final mais fortes.
+  - Adagas: mais dano base e +15% de evasão passiva. Dois Machados: mais dano base.
+  - Lança e Animal: combos novos — ○○△ lança o inimigo para o alto, ○△ giro em área, △○ estocada que atordoa, △△ golpe pesado; nos combos o animal ataca junto.
+  - Mago: bola de fogo com mais dano base.
+  - Necromante: o abutre (pular no ar) tem recarga de 10 s e planeio curto; ele não fica mais quase sempre no ar.
+  - Primeiro chefe: devora aliados para se curar com menos frequência (a cada 14 s).
+- **Apoio no online:** as curas do Monge, do solo sagrado e das mãos erguidas do Paladino e o orbe do Monge curam todos os jogadores aliados no alcance (antes só o mais próximo). Quem recebe a cura vê um brilho verde. Os inimigos que miram o aliado do Necromante passam a atacar o jogador de verdade.
+- **Invocações do Necromante lutam sozinhas** quando não estão sob comando: procuram inimigos perto do necromante e usam combos — zumbi (garra, garra, pancada em área e salto com mordida que sangra), esqueleto mago (fogo, queimadura, explosão e chuva de ossos que deixa lento), escudeiro (dois cortes, pancada de escudo que atordoa e investida que derruba), cão (mordidas, arrancada que sangra e bote em quem está longe) e abutre (bicadas e mergulho em área).
+- **Segredo do online:** se o grupo matar o chefe da fase em menos de 40 s depois que ele aparece, surgem dois chefes secretos (veja `docs/chefes-secretos.png`, `docs/cerbero.png` e `docs/chefes-secretos-ataques.png`). A fase só avança quando os dois caem.
+  - **Esqueleto Rei:** espadão, coroa e capa. Golpe normal de espada e 3 especiais: *Lâmina do Rei* (cone na frente dele), *Exército dos mortos* (invoca 4 esqueletos) e *Prisão de ossos* (um círculo embaixo de cada jogador; quem não sair é preso pelos espinhos).
+  - **Cérbero de Ossos:** cada cabeça escolhe o próprio alvo e morde sozinha. Cada uma tem um especial: a de fogo solta um *sopro de fogo* em cone, a de sombra dá um *uivo* com onda de choque (pule ou esquive) e a de veneno cospe *ácido* que deixa uma poça no chão.
+  - Todos os ataques especiais mostram um aviso no chão antes de acertar.
 - **Online que funciona em qualquer rede:** o multiplayer deixou de usar conexão direta entre os aparelhos (WebRTC/PeerJS), que falhava em 4G/5G e em muitos roteadores. Agora as mensagens passam por um servidor público de retransmissão (broker MQTT por WebSocket), sem conta e sem servidor próprio. O jogo tenta quatro servidores em ordem (EMQX, Eclipse, HiveMQ e Mosquitto) e quem entra procura o lobby em todos. O lobby mostra o servidor em uso. Para usar outro, defina `window.ARENA_BROKERS` antes do script.
 - **Sexo do personagem:** todas as raças têm versão masculina e feminina, escolhida na tela de seleção (botões no topo, tecla G ou △ no controle) e no lobby do online. A versão feminina usa os mesmos ossos, com ombros e braços mais estreitos, postura mais ereta, rosto com cílios, sobrancelha fina e lábios, e cabelo próprio em cada raça: humana de cabelo longo, elfa com tiara, anã de tranças e sem barba, gnoma de marias-chiquinhas rosa, meio-orc de rabo de cavalo e presas menores, troll de tranças azul-esverdeadas, minotaura de chifres menores e tranças, goblin de rabo de cavalo roxo. Veja `docs/racas-femininas.png`.
 - **Ranking no online:** quando todos caem, aparece uma tabela para todos os jogadores com os abates de cada um (total e por tipo: comuns, arqueiros, conjuradores, grandes e chefes), o dano causado ao chefe, o nível alcançado e o tempo da partida. O host credita cada golpe a quem o deu; dano contínuo (queimadura, sangramento, veneno) conta para quem acertou por último. Veja `docs/ranking.png`.
