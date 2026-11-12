@@ -479,7 +479,7 @@ function upd(dt){{const dh=p.hp-p.lhp;if(dh>.001&&RC.heal>1)p.hp=Math.min(100,p.
     if(CL.length){let bd=Math.hypot(e.x-tg.x,e.z-tg.z);for(const c of CL)if(c.hp>0){const dd=Math.hypot(e.x-c.x,e.z-c.z);if(dd<bd){bd=dd;tg=c}}}
     if(wi==9){let bd=Math.hypot(e.x-tg.x,e.z-tg.z);for(const m of MN)if(m.alive){const dd=Math.hypot(e.x-m.x,e.z-m.z)*(m.k=='s'?.5:1);if(dd<bd){bd=dd;tg=m}}if(!al.dead){const dd=Math.hypot(e.x-al.x,e.z-al.z);if(dd<bd){bd=dd;tg=al}}}
     if(MD.t>0&&MD.e&&MD.e.hp>0){if(e===MD.e){let b=99;for(const o of E)if(o!==e){const dd=Math.hypot(o.x-e.x,o.z-e.z);if(dd<b){b=dd;tg=o}}}else if(Math.hypot(e.x-MD.e.x,e.z-MD.e.z)<9)tg=MD.e}
-    if(NET.h&&(tg===p||NET.gh)){let bd=NET.gh?1e9:Math.hypot(e.x-p.x,e.z-p.z),bt=NET.gh?null:p;for(const r of NET.rp)if(r.alive&&!r.sh){const dd=Math.hypot(e.x-r.x,e.z-r.z);if(dd<bd){bd=dd;bt=r}}if(bt)tg=bt}
+    if(NET.h&&(tg===p||NET.gh)){let bd=NET.gh?1e9:Math.hypot(e.x-p.x,e.z-p.z)*mlw(wi,p.wf),bt=NET.gh?null:p;for(const r of NET.rp)if(r.alive&&!r.sh){const dd=Math.hypot(e.x-r.x,e.z-r.z)*mlw(r.w,r.wf);if(dd<bd){bd=dd;bt=r}}if(bt)tg=bt}
     if(NET.h&&(tg===p||tg.remote)){let bd=tg===p&&NET.gh?1e9:Math.hypot(e.x-tg.x,e.z-tg.z);for(const r of NET.rp)for(const k in r.mns||{}){const o=r.mns[k];if(o.cl&&o.hp>0){const dd=Math.hypot(e.x-o.x,e.z-o.z);if(dd<bd){bd=dd;tg=o}}}}
     const dx=tg.x-e.x,dz=tg.z-e.z,d=Math.hypot(dx,dz)||.01;
     e.x+=e.kx*dt;e.z+=e.kz*dt;const f=Math.pow(.02,dt);e.kx*=f;e.kz*=f;
@@ -540,7 +540,7 @@ const W=[
 {n:'Paladino',sp:7,tk:.8,dm:.9,par:0,dg:{d:.3,v:15,i:.4,c:.7},L:{d:.45,h:.45,r:3.4,m:1.4,b:7,a:1},H:{d:.45,h:.45,r:3.4,m:1.4,b:7,a:1},C:{}},
 {n:'Monge',sp:8.6,tk:1.1,dm:.75,par:1,dg:{d:.3,v:19,i:.45,c:.5},L:{d:.2,h:.4,r:2.3,m:.8,b:2,one:1},H:{d:.3,h:.4,r:3.2,m:.7,b:3,a:1},C:{LLL:{k:'T',d:.35,h:.3,r:3,m:1.4,b:38,one:1,toss:1,lg:.15},HHL:{k:'T',d:.35,h:.3,r:3.4,m:1.4,b:38,one:1,toss:1,lg:.15}}},
 {n:'Necromante',sp:7.4,tk:1.2,dm:1,par:0,dg:{d:.28,v:15,i:.4,c:.9},L:{d:.3,h:.4,r:2.4,m:1,b:3},H:{d:.3,h:.4,r:2.4,m:1,b:3},C:{}},
-{n:'Corrompido',sp:8.4,tk:.95,dm:1,par:0,dg:{d:.28,v:17,i:.45,c:.55},L:{d:.26,h:.4,r:3.1,m:.9,b:4,a:1},H:{d:.26,h:.4,r:3.1,m:.9,b:4,a:1},C:{LLL:{k:'S',d:.45,h:.3,r:3.8,m:1.9,b:9,a:1}}},
+{n:'Corrompido',sp:8.4,tk:.95,dm:.8,par:0,dg:{d:.28,v:17,i:.45,c:.55},L:{d:.26,h:.4,r:3.1,m:.9,b:4,a:1},H:{d:.26,h:.4,r:3.1,m:.9,b:4,a:1},C:{LLL:{k:'S',d:.45,h:.3,r:3.8,m:1.9,b:9,a:1}}},
 {n:'Xamã',sp:7.4,tk:1.05,dm:1,par:0,dg:{d:.28,v:16,i:.4,c:.6},L:{d:.2,h:.4,r:2.7,m:1.05,b:3},H:{d:.42,h:.5,r:3.1,m:2.3,b:10,a:1},C:{LLL:{k:'S',d:.4,h:.3,r:3.3,m:2,b:8,a:1},LLH:{k:'H',d:.5,h:.45,r:3.6,m:3.2,b:12,a:1,st:1}}}];
 let wi=0;
 const IT=[{n:'Poção',i:'🧪',c:3},{n:'Bomba',i:'💣',c:2},{n:'Tônico',i:'⚡',c:2}];
@@ -593,10 +593,11 @@ function mouseFoe(r){const ctr=lookCenter();
   for(const e of E){if(e.hp<=0||Math.hypot(e.x-p.x,e.z-p.z)>r+4)continue;const s=e.sz||1;TV3.set(e.x,(e.y||0)+.9*s,e.z);if(ry.distanceToPoint(TV3)<.8*s+.3){const d=TV3.distanceTo(ry.origin);if(d<bd){bd=d;q=e}}}return q}
 function ptarget(r){const m=mouseFoe(r);if(m)return m;let q=null,bt=0,bd=r;for(const e of E){if(e.hp<=0)continue;const d=Math.hypot(e.x-p.x,e.z-p.z);if(d>=r)continue;const t=TIER(e);if(t>bt||(t==bt&&d<bd)){bt=t;bd=d;q=e}}return q}
 function shot(a,o){if(NET.on&&NET.ph=='p'){const G=[AG,SG,HMG,RBG,DKG],Mt=[AM,MF,MI,HMM,RBM,DKM];nemit('ev',{t:'sh',x:+(o.ox!==undefined?o.ox:p.x).toFixed(1),z:+(o.oz!==undefined?o.oz:p.z).toFixed(1),a:+a.toFixed(2),s:o.sp||30,l:+(o.t||.7).toFixed(2),g:Math.max(0,G.indexOf(o.g||AG)),m:Math.max(0,Mt.indexOf(o.m||AM)),h:o.hm?1:0,c:o.sc||1})}sfx('shot');const m=new THREE.Mesh(o.g||AG,o.m||AM);m.position.set(o.ox!==undefined?o.ox:p.x,1.2,o.oz!==undefined?o.oz:p.z);m.rotation.y=a;if(o.sc)m.scale.setScalar(o.sc);S.add(m);PR.push({...o,m,vx:Math.sin(a)*(o.sp||30),vz:Math.cos(a)*(o.sp||30),t:o.t||.7})}
-function projUpd(dt){for(let i=PR.length-1;i>=0;i--){const a=PR[i],m=a.m;a.t-=dt;if(a.tg&&a.tg.hp<=0)a.tg=null;if(a.tg){const tx=a.tg.x-m.position.x,tz=a.tg.z-m.position.z,td=Math.hypot(tx,tz)||1;a.vx=tx/td*(a.sp||30);a.vz=tz/td*(a.sp||30)}if(a.hm)m.rotation.x+=14*dt;m.position.x+=a.vx*dt;m.position.z+=a.vz*dt;
+// dano base dos projéteis do jogador (flechas, magias, martelo, lâminas): +25%
+const PJM=1.25;function projUpd(dt){for(let i=PR.length-1;i>=0;i--){const a=PR[i],m=a.m;a.t-=dt;if(a.tg&&a.tg.hp<=0)a.tg=null;if(a.tg){const tx=a.tg.x-m.position.x,tz=a.tg.z-m.position.z,td=Math.hypot(tx,tz)||1;a.vx=tx/td*(a.sp||30);a.vz=tz/td*(a.sp||30)}if(a.hm)m.rotation.x+=14*dt;m.position.x+=a.vx*dt;m.position.z+=a.vz*dt;
   const h=a.tg?(Math.hypot(a.tg.x-m.position.x,a.tg.z-m.position.z)<1.3?a.tg:null):E.find(e=>e.hp>0&&!(a.hl&&a.hl.includes(e))&&Math.hypot(e.x-m.position.x,e.z-m.position.z)<(a.hr||.9));
-  if(h){const mgc=!!a.g&&a.g!==RBG;h.hp-=a.dmg*(h.lf>0?1.5:1)*(1+RC.shot)*(1+(mgc?RC.mag:RC.phy))+RC.mg0;h.fl=.1;if(a.weak&&a.slow&&(h.slow>0||h.weak>0)&&!h.boss){h.ice=3;ring(h.x,h.z,1.5,0xbfeaff)}if(a.slow)h.slow=a.slow;if(a.burn)h.burn=a.burn;if(a.weak)h.weak=a.weak;if(a.kn){h.bleed=6;p.kn=h;p.knT=5}if(a.hm)holy(h.x,h.z);if(a.psn)h.psn=5;if(a.bn)h.burn=Math.max(h.burn>0?h.burn:0,3);if(a.dk)darkBoom(h.x,h.z);
-    if(a.aoe){for(const o of E)if(o!==h&&o.hp>0&&Math.hypot(o.x-h.x,o.z-h.z)<a.aoe){dmg(o,a.dmg*.5);if(a.burn)o.burn=Math.max(o.burn>0?o.burn:0,a.burn*.6)}ring(h.x,h.z,a.aoe,0xff6a2a);puff(h.x,1,h.z,8,0xff7a2a,5,4,.45,.15);shake=Math.max(shake,.2)}
+  if(h){const mgc=!!a.g&&a.g!==RBG;h.hp-=a.dmg*PJM*(h.lf>0?1.5:1)*(1+RC.shot)*(1+(mgc?RC.mag:RC.phy))+RC.mg0;h.fl=.1;if(a.weak&&a.slow&&(h.slow>0||h.weak>0)&&!h.boss){h.ice=3;ring(h.x,h.z,1.5,0xbfeaff)}if(a.slow)h.slow=a.slow;if(a.burn)h.burn=a.burn;if(a.weak)h.weak=a.weak;if(a.kn){h.bleed=6;p.kn=h;p.knT=5}if(a.hm)holy(h.x,h.z);if(a.psn)h.psn=5;if(a.bn)h.burn=Math.max(h.burn>0?h.burn:0,3);if(a.dk)darkBoom(h.x,h.z);
+    if(a.aoe){for(const o of E)if(o!==h&&o.hp>0&&Math.hypot(o.x-h.x,o.z-h.z)<a.aoe){dmg(o,a.dmg*PJM*.5);if(a.burn)o.burn=Math.max(o.burn>0?o.burn:0,a.burn*.6)}ring(h.x,h.z,a.aoe,0xff6a2a);puff(h.x,1,h.z,8,0xff7a2a,5,4,.45,.15);shake=Math.max(shake,.2)}
     if(a.pc>1){a.pc--;(a.hl=a.hl||[]).push(h)}else a.pc=0}
   if((h&&!(a.pc>0))||a.t<=0){S.remove(m);PR.splice(i,1)}}}
 function boom(x,z,r,m,kb){for(const e of E){const dx=e.x-x,dz=e.z-z,d=Math.hypot(dx,dz)||.01;if(d<r){e.hp-=m;e.kx=dx/d*kb;e.kz=dz/d*kb;e.fl=.12}}shake=Math.max(shake,.2)}
@@ -755,7 +756,7 @@ halo.rotation.x=Math.PI/2;alS.visible=false;CD.mh=CD.pl=CD.rh=0;
 function holy(x,z){const m=new THREE.Mesh(RG,new THREE.MeshBasicMaterial({color:0xffe27a,transparent:true,opacity:.3,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,.12,z);m.scale.setScalar(5);S.add(m);HG.push({x,z,r:5,t:7,tk:0,m})}
 function holyUpd(dt){alS.visible=al.shT>0;if(al.shT>0)al.shT-=dt;
   for(let i=HG.length-1;i>=0;i--){const h=HG[i];h.t-=dt;h.tk-=dt;h.m.material.opacity=.22+.1*Math.sin(t*6);
-    for(const e of E)if(Math.hypot(e.x-h.x,e.z-h.z)<h.r)e.burn=Math.max(e.burn>0?e.burn:0,.6);
+    for(const e of E)if(Math.hypot(e.x-h.x,e.z-h.z)<h.r){e.burn=Math.max(e.burn>0?e.burn:0,.6);if(!(e.slow>.5))e.slow=1}
     if(h.tk<=0){h.tk=1;if(Math.hypot(p.x-h.x,p.z-h.z)<h.r)p.hp=Math.min(100,p.hp+1);if(Math.hypot(al.x-h.x,al.z-h.z)<h.r)al.hp=Math.min(al.max,al.hp+al.max*.01)}
     if(h.t<=0){S.remove(h.m);h.m.material.dispose();HG.splice(i,1)}}}
 function strongest(r){let q=null,b=-1;for(const e of E)if(e.hp>b&&Math.hypot(e.x-p.x,e.z-p.z)<r){b=e.hp;q=e}return q}
@@ -769,7 +770,7 @@ function pala(){const air=p.y>.2;
   else if(p.bh>0){p.bh=0;if(air){if(CD.pl<=0)pull()}else if(CD.rh<=0)raise()}}
 // ---- Arco em combo (3+3+3) e Monge
 const AQ=[];let ob=0,orbT=0;
-function volley(){const q=ptarget(22);if(!q)return toast('Sem alvo');p.bl=0;const n=p.act>0?(p.ac%3)+1:1;p.ac=n;p.act=1.1;p.f=aim(q);CD.sh=.28;for(let i=0;i<3;i++)AQ.push({t:i*.07,q,last:n==3&&i==2})}
+function volley(){const q=ptarget(22);if(!q)return toast('Sem alvo');p.bl=0;const n=p.act>0?(p.ac%3)+1:1;p.ac=n;p.act=1.1;p.f=aim(q);CD.sh=.34;for(let i=0;i<3;i++)AQ.push({t:i*.07,q,last:n==3&&i==2})}
 function aqUpd(dt){for(let i=AQ.length-1;i>=0;i--){const a=AQ[i];a.t-=dt;if(a.t<=0){AQ.splice(i,1);if(a.q.hp>0)shot(aim(a.q),{dmg:a.last?.9:.55,tg:a.q,sp:34,t:.8,psn:a.last&&Math.random()<.4?1:0})}}}
 const glv=[faL,faR].map(f=>add(new THREE.SphereGeometry(.13,6,5),L(0xc03030),0,-.4,0,f)),band=add(new THREE.TorusGeometry(.22,.03,4,8),L(0xc03030),0,.1,0,hd);band.rotation.x=Math.PI/2;
 // Monge: faixas de pano nos antebraços, colar de contas, faixa na cintura com pontas e ombro descoberto
@@ -1168,6 +1169,8 @@ function nRt(c){return c.off==null?0:performance.now()-c.off-c.D}
 function nbPush(o,st,v){const hb=o.hb||(o.hb=[]),l=hb[hb.length-1];if(l&&st<=l[0])return;if(l&&Math.hypot(v[0]-l[1],v[1]-l[2])>9)hb.length=0;hb.push([st,...v]);if(hb.length>24)hb.shift()}
 function nbAt(o,rt,an){const hb=o.hb;if(!hb||!hb.length)return null;let i=0;while(i<hb.length&&hb[i][0]<=rt)i++;if(i==0)return hb[0];if(i==hb.length){const b=hb[i-1],a=hb[i-2];if(!a||b[0]-a[0]>260)return b;const k=Math.min(rt-b[0],120)/Math.max(1,b[0]-a[0]),r=[rt];for(let j=1;j<b.length;j++){let dv=b[j]-a[j];if(j==an)dv=Math.atan2(Math.sin(dv),Math.cos(dv));r.push(b[j]+dv*k)}return r}
   const a=hb[i-1],b=hb[i],k=(rt-a[0])/Math.max(1,b[0]-a[0]),r=[rt];for(let j=1;j<a.length;j++){let dv=b[j]-a[j];if(j==an)dv=Math.atan2(Math.sin(dv),Math.cos(dv));r.push(a[j]+dv*k)}if(i>2)hb.splice(0,i-2);return r}
+// online: inimigos preferem quem luta corpo a corpo (a distância deles conta como 55%); o assassino de adagas (5) fica de fora
+function mlw(w,wf){return [0,1,2,4,7,8,10].includes(w)||(w==11&&wf)?.55:1}
 function netTick(dt){const R=NET.R;if(!R)return;const ps=R.peers();
   const hp_=ps.find(q=>!q.isMe&&q.presence&&q.presence.h==1);
   if(NET.c){if(hp_){NET.hostT=0;const hr=hp_.presence;if(NET.ph=='l'&&hr.ph=='p'&&NET.me.rd&&hr.ro&&hr.ro.includes(meP()))netStart(hr.ro);else if(NET.ph=='p'&&hr.ph=='l'&&performance.now()-(NET.stT||0)>3500)netToLobby('Voltando ao lobby')}else{NET.hostT+=dt;if(NET.hostT>3.5)return netLeave('O host saiu da partida')}}
@@ -1178,7 +1181,7 @@ function netTick(dt){const R=NET.R;if(!R)return;const ps=R.peers();
     r.tx=pr.x||0;r.tz=pr.z||0;const k=Math.min(1,12*dt);r.x+=(r.tx-r.x)*k;r.z+=(r.tz-r.z)*k;r.y=pr.y||0;r.f=pr.f||0;
     // jogo usa a posição mais nova (r.x/r.z); o boneco é desenhado com a interpolada (r.vx...), sem trancos
     if(pr!==r.lp){r.lp=pr;nbPush(r,nClk(r,pr._t,pr._r),[r.tx,r.tz,r.y,r.f])}{const sm=nbAt(r,nRt(r),4);if(sm){r.vx=sm[1];r.vz=sm[2];r.vy=sm[3];r.vf=sm[4]}}r.hp=pr.hp==null?100:pr.hp;r.alive=!pr.d;r.sh=pr.sh?1:0;r.mk=pr.mk?1:0;r.zmb=pr.zm?1:0;r.nm=pr.nm;
-    if(pr.at!==r.at){r.at=pr.at;const sa=(pr.ak||'L,1,.3,.4').split(',');r.ak={k:sa[0],n:+sa[1],dur:Math.max(.1,+sa[2]||.3),ht:+sa[3]||.4};r.atT=r.ak.dur}r.blk=pr.b;r.dg=pr.g;r.gi=pr.gi;r.shd=0;rpMinions(r,pr,dt);avUpd(r,dt);wolfRemote(r,pr)}
+    if(pr.at!==r.at){r.at=pr.at;const sa=(pr.ak||'L,1,.3,.4').split(',');r.ak={k:sa[0],n:+sa[1],dur:Math.max(.1,+sa[2]||.3),ht:+sa[3]||.4};r.atT=r.ak.dur}r.blk=pr.b;r.dg=pr.g;r.w=pr.w|0;r.wf=pr.wf?1:0;r.gi=pr.gi;r.shd=0;rpMinions(r,pr,dt);avUpd(r,dt);wolfRemote(r,pr)}
   for(const r of NET.rp.slice())if(!seen[r.peer]){rpDrop(r);NET.rp.splice(NET.rp.indexOf(r),1);delete NET.rpm[r.peer]}
   // aliado principal = jogador vivo mais próximo
   {let a=null,bd=1e9;for(const r of NET.rp)if(r.alive){const d=Math.hypot(r.x-p.x,r.z-p.z);if(d<bd){bd=d;a=r}}NET.ally=a;al.g.visible=false;
@@ -1461,7 +1464,8 @@ function xamUpd(dt){for(let i=ZF.length-1;i>=0;i--){const z=ZF[i];z.t-=dt;if(z.t
     else{p.zon=0;p.zhL=p.zc?p.zh:0;CD.zp=p.zc?1.6:1;p.zc=0;p.zw=1.1}}
   p.zw-=dt;
   if(p.wf&&p.dg>0&&p.wdh){for(const e of E){if(e.hp<=0||p.wdh.has(e)||Math.hypot(e.x-p.x,e.z-p.z)>2)continue;p.wdh.add(e);const a=1.4*(1+(RC.phy||0));e.hp-=a;dmgNum(e,a,1);hitFx(e,Math.sin(p.f),Math.cos(p.f),2);e.kd=Math.max(e.kd>0?e.kd:0,1.5);e.fl=.12;shake=Math.max(shake,.25)}}else if(p.dg<=0)p.wdh=null}
-function wolfVis(dt,il){if(!WFG){WFG=mkWolf();S.add(WFG)}const on=wi==11&&p.wf&&!NET.gh;WFG.visible=on;if(on){pg.visible=false;WFG.position.set(p.x,p.y,p.z);WFG.rotation.y=p.f;wolfAnim(WFG,p.y<.1?Math.min(1,il):0,p.att>0?1-p.att/p.dur:0,dt);p.wv=1}else if(p.wv){p.wv=0;pg.visible=!NET.gh}}
+function wShove(x,z,f,dt){const fx=Math.sin(f),fz=Math.cos(f);for(const e of E){if(e.boss||e.hp<=0)continue;const dx=e.x-x,dz=e.z-z,d=Math.hypot(dx,dz);if(d>1.5||d<.001)continue;const sd=dx*fz-dz*fx>=0?1:-1,k=(1.5-d)*9*dt;e.x+=fz*sd*k+dx/d*k*.4;e.z+=-fx*sd*k+dz/d*k*.4}}
+function wolfVis(dt,il){if(!NET.c){if(wi==11&&p.wf&&!NET.gh)wShove(p.x,p.z,p.f,dt);if(NET.h)for(const r of NET.rp)if(r.wf&&r.alive)wShove(r.x,r.z,r.f,dt)}if(!WFG){WFG=mkWolf();S.add(WFG)}const on=wi==11&&p.wf&&!NET.gh;WFG.visible=on;if(on){pg.visible=false;WFG.position.set(p.x,p.y,p.z);WFG.rotation.y=p.f;wolfAnim(WFG,p.y<.1?Math.min(1,il):0,p.att>0?1-p.att/p.dur:0,dt);p.wv=1}else if(p.wv){p.wv=0;pg.visible=!NET.gh}}
 function wolfRemote(r,pr){if(pr.wf&&r.alive){if(!r.wG){r.wG=mkWolf();S.add(r.wG);puff(r.vx??r.x,1,r.vz??r.z,18,0x8fdcff,5,4,.6,.18)}r.av.visible=false;r.wG.visible=true;r.wG.position.set(r.vx??r.x,r.vy??r.y,r.vz??r.z);r.wG.rotation.y=r.vf??r.f;wolfAnim(r.wG,r.m||0,r.atT>0&&r.ak?1-r.atT/r.ak.dur:0)}
   else if(r.wG){S.remove(r.wG);r.wG=null;r.av.visible=true}}
 // ---- Animação e efeitos (curvas de golpe, pose, rastro da arma, partículas)
