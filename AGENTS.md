@@ -34,7 +34,7 @@ Este projeto é o **Arena de Honra**, um action RPG de horda feito em um único
 ## Como testar
 
 1. Sirva a pasta (`python3 -m http.server`) e abra no navegador.
-2. Single Player → escolha raça, classe e build → ande, ataque, use a
-   mochila (Q), pause (Esc), morra e confira o recorde.
+2. Single Player → escolha raça, classe e build → ande, ataque, suba de
+   nível e escolha uma melhoria (Q), pause (Esc), morra e confira o recorde.
 3. Para multiplayer, abra duas abas: Host numa, código de 4 dígitos na outra.
 4. Veja se o console do navegador ficou sem erros.
