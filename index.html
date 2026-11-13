@@ -502,7 +502,7 @@ function mkE(k,sx,sz){const K=EK[k],m=L(K.cl),g=new THREE.Group();m.map=ESK;
   if(g.cb)e.cq=g.cb;return e}
 let NID=0;
 function spawnAnchor(){const c=[];if(!NET.gh)c.push(p);for(const r of NET.rp)if(r.alive)c.push(r);return c.length?c[Math.floor(Math.random()*c.length)]:p}
-function spawn(k='n',nr){const an0=spawnAnchor(),a=rnd(0,PI2),r=rnd(20,32),e=mkE(k,an0.x+Math.cos(a)*r,an0.z+Math.sin(a)*r);e.id=++NID;e.hp*=1+.25*(NET.n-1);e.mx=e.hp;if(k=='B'){sfx('boss');e.bT=LT}bound(e);E.push(e);if(!nr&&!NET.c&&(k=='n'||k=='r'||k=='c')){const c=zRoll();for(let i=0;i<c;i++)zSpawn()}return e}
+function spawn(k='n',nr){const an0=spawnAnchor(),a=rnd(0,PI2),r=rnd(20,32),e=mkE(k,an0.x+Math.cos(a)*r,an0.z+Math.sin(a)*r);e.id=++NID;e.hp*=1+.25*(NET.n-1);e.mx=e.hp;if(k=='B')sfx('boss');if(k=='B'||k=='H'||k=='I')e.bT=LT;bound(e);E.push(e);if(!nr&&!NET.c&&(k=='n'||k=='r'||k=='c')){const c=zRoll();for(let i=0;i<c;i++)zSpawn()}return e}
 
 // ---- Combate
 function atk(k){let q=null,bd=7;
@@ -1541,7 +1541,7 @@ function dnUpd(dt){if(!NET.on){if(p.shd>0){p.shdT-=dt;if(p.shdT<=0)p.shd=0}pSh.v
   DV.set(n.x,n.y,n.z).project(C);n.d.style.left=((DV.x+1)/2*w)+'px';n.d.style.top=((1-DV.y)/2*h)+'px';n.d.style.opacity=DV.z>1?0:Math.min(1,n.t*3)}}
 // ---- Animação dos inimigos: passo pela velocidade real, braços opostos às pernas, inclinação,
 // antecipação (inclina para trás) e investida no golpe, reação ao apanhar, tontura, voo e queda ao morrer
-// ---- Chefes secretos (online): se o grupo matar o chefe muito rápido, surgem o Esqueleto Rei e o Cérbero de Ossos.
+// ---- Chefes secretos (solo e online): se matar qualquer chefe de fase em menos de 40 s, surgem o Esqueleto Rei e o Cérbero de Ossos.
 // O host decide os ataques especiais e avisa todos ('sx'); cada jogador vê o aviso no chão e calcula o próprio acerto.
 var SEC={done:0};const SECT=40,SCK=new THREE.CircleGeometry(1,28,-Math.PI/2-.62,1.24),SCF=new THREE.CircleGeometry(1,24,-Math.PI/2-.45,.9),SPKG=new THREE.ConeGeometry(.16,1.1,5),ACG=new THREE.SphereGeometry(.28,8,6);
 function skelDeco(g,aR,big){const dk=L(0x2a1a2a),gl=new THREE.MeshBasicMaterial({color:big?0xb05aff:0x7fe8ff});
@@ -1614,7 +1614,7 @@ function secUpd(f,dt){if(f.k[0]=='z')return zUpd(f,dt);f.t+=dt;const sc=f.sc||1,
   return true}
 function secStart(ee){SEC.done=1;secFx({a:'ss'});const ks=['K','Q'];ks.forEach((k,i)=>{const o=spawn(k);o.x=ee.x+(i?4:-4);o.z=ee.z+2;bound(o)})}
 // devolve true quando a fase NÃO deve avançar (o segredo começou ou ainda há um chefe secreto vivo)
-function secKill(ee){if(ee.k=='H'){secFx({a:'zm',m:'🐎 O Cavaleiro Esqueleto caiu!'});return false}if(ee.k=='I'){secFx({a:'zm',m:'👑 O Rei Esqueleto Infernal caiu! Vitória!'});return false}if(ee.k=='B'){if(NET.on&&!SEC.done&&LT-(ee.bT??LT)<SECT){secStart(ee);return true}return false}
+function secKill(ee){if(ee.k=='B'||ee.k=='H'||ee.k=='I'){const tk=Math.max(0,LT-(ee.bT??LT));if(!SEC.done&&tk<SECT){secStart(ee);return true}const ts=' ('+Math.round(tk)+'s)';secFx({a:'zm',m:ee.k=='H'?'🐎 O Cavaleiro Esqueleto caiu!'+ts:ee.k=='I'?'👑 O Rei Esqueleto Infernal caiu! Vitória!'+ts:'⏱ Chefe derrotado em '+Math.round(tk)+'s'});return false}
   if(E.some(o=>(o.k=='K'||o.k=='Q')&&o.hp>0&&o!==ee))return true;secFx({a:'sd'});return false}
 function kingAI(e,dt,T){e.ab=(e.ab===undefined?3:e.ab)-dt;if(e.ab>0||e.wind>0||e.sw>0)return;const [tg,d]=secNear(T,e.x,e.z);if(!tg){e.ab=1;return}
   const nk=E.filter(o=>o.k=='k'&&o.hp>0).length,r=Math.random();
