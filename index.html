@@ -792,7 +792,7 @@ function atk(k,bo){if(wi==1&&k=='H'&&!bo&&p.y<=.2&&!(CD.stg>0)){const q=stgTgt()
   let mv='W'+wi+':'+(air?'A':'')+k+(seq0?'>'+p.seq:'');
   if(air)c=k=='H'?{d:.45,h:9,r:3.8,m:3,b:12,a:1}:{d:.26,h:.4,r:2.8,m:1,b:5,a:1};
   else{const sc=w.C[p.seq]||w.C[p.seq.slice(-2)];if(sc){c={...sc};p.k=sc.k;mv='W'+wi+':C:'+p.seq;p.seq=''}}
-  cmbAction(mv,bo||((air?'A':'')+k));if(k=='L'&&RFX.includes(wi)&&!seq0&&!(p.rfc>0)){p.rfw=NET.c?.34:.22;p.rfc=.9}
+  cmbAction(mv,bo||((air?'A':'')+k));if(k=='L'&&RFX.includes(wi)&&!(p.ct>0)&&!(p.rfc>0)){p.rfw=NET.c?.34:.22;p.rfc=.9}
   c.m*=w.dm*(wi==2&&p.ax?.6:1)*(wi==4&&!an.alive?1.8:1);if(wi==10&&p.gi>0){c.m*=1.2;c.r*=1.7}if(p.big){c={d:.4,h:.3,r:3.4,m:2.6,b:9,a:1};p.big=0}if(wi==5){p.hc=(p.ct>0?p.hc|0:0)+1;if(p.hc>4)p.hc=1;if(p.hc==4){c.m*=1.5;c.d=.4;c.h=.3}}if(wi==7){p.hc=(p.ct>0?p.hc|0:0)+1;if(p.hc>4)p.hc=1;if(p.hc==4){c={d:.8,h:.5,r:5.2,m:2.5,b:12,a:1,st:2.2};p.k='G';p.hc=0}}
   if(wi==2&&p.k=='H'&&!air&&!p.ax){let tg=null,bd2=14;for(const e of E){if(e.hp<=0)continue;const dx=e.x-p.x,dz=e.z-p.z,d=Math.hypot(dx,dz);if(d<bd2&&(d<2||(dx*Math.sin(p.f)+dz*Math.cos(p.f))/d>.3)){bd2=d;tg=e}}
     if(tg){c={k:'H',d:.35,h:9,r:0,m:0,b:0};p.ax=1;pjT=tg;pjCmv=cmbAction('AXETHROW','H');pj.visible=true;pj.position.set(p.x,1.2,p.z);gear()}}
@@ -828,8 +828,8 @@ function shieldBash(){if(CD.sb>0){toast('Escudada em recarga: '+Math.ceil(CD.sb)
   const a=aim(q),d=Math.hypot(q.x-p.x,q.z-p.z);p.f=p.dir=a;p.dg=.2;p.dv=Math.max(0,d-1.1)/.2;p.inv=.35;p.dcd=.4;p.ga='bash';sfx('dash');
   setTimeout(()=>{if(q.hp<=0)return;const cmv=cmbAction('SHBASH','S'),dm=1.6*W[wi].dm,mul=cmbMul();dmgE(q,dm,12,p.x,p.z,cmv);q.stun=Math.max(q.stun>0?q.stun:0,q.boss?0:2);q.wind=0;dmgNum(q,dm*mul,1);hitFx(q,Math.sin(a),Math.cos(a),2);ring(q.x,q.z,1.6,0xd4dbe2);puff(q.x,1.2,q.z,12,0xffffff,5,3,.35,.1);shake=Math.max(shake,.45);hs=.07;sfx('hit');toast('Escudada! Atordoado')},190)}
 // ---- Reflexo: Guardião, Disciplinado, Caçador Selvagem e Monge não têm ataque à distância. Se o golpe 1 (combo)
-// começa até 0,22 s antes de um projétil acertar, o projétil volta para quem atirou. Só o primeiro golpe de uma sequência
-// abre a janela, no máximo uma vez a cada 0,9 s (apertar sem parar não deixa imune) (flecha, magia, shuriken,
+// começa até 0,22 s antes de um projétil acertar, o projétil volta para quem atirou. Só um golpe dado fora de um combo
+// (depois de uma pausa) abre a janela, no máximo uma vez a cada 0,9 s: apertar sem parar não reflete (flecha, magia, shuriken,
 // bola de fogo de chefe, machado/martelo arremessado). No cooperativo o convidado decide o próprio reflexo.
 const RFX=[0,1,4,8];
 function rfOn(){return RFX.includes(wi)&&p.rfw>0&&!dead&&!NET.gh}
