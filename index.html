@@ -1108,7 +1108,7 @@ var XL={sup:0,lv:1,xp:0,dp:0,dq:0,hp:0,sp:0,cd:0,ev:0,rg:0,kh:0,pj:0,rp:0,rm:0,r
 // ---- Crítico: algumas classes têm chance de acerto crítico físico e/ou mágico; o crítico multiplica o dano (base 150%).
 // [chance física, chance mágica, dano crítico] por build; as melhorias de nível aumentam (chance total até 60%).
 const CRB=[[0,0,1.5],[.15,0,1.6],[.1,0,1.5],[.1,0,1.5],[.06,0,1.5],[.2,0,1.75],[0,.1,1.5],[0,0,1.5],[.1,0,1.5],[0,.06,1.5],[.08,.06,1.5],[0,.08,1.5],[.04,0,1.5],[.12,0,1.6]];
-const crCh=m=>{const b=CRB[wi]||CRB[0],c=m?b[1]:b[0];return c>0?Math.min(.6,c+(m?XL.qc:XL.pc)):0},crMul=m=>(CRB[wi]||CRB[0])[2]+(m?XL.qd:XL.pd);
+const crCh=m=>{const b=CRB[wi]||CRB[0],c=(m?b[1]:b[0])+(RC.bear?.1:0);return c>0?Math.min(.6,c+(m?XL.qc:XL.pc)):0},crMul=m=>(CRB[wi]||CRB[0])[2]+(m?XL.qd:XL.pd);
 // sorteia o crítico de um acerto: devolve o multiplicador e marca CRT.on para o número de dano sair destacado
 var CRT={on:0};function crit(m){if(NET.gh){CRT.on=0;return 1}CRT.on=Math.random()<crCh(m)?1:0;if(CRT.on)achOnCrit();return CRT.on?crMul(m):1}
 const XPCR=[1,2,3,4,5,8,10,13],XMCR=[6,9,10,11];
@@ -1503,7 +1503,7 @@ var DIFS=(()=>{try{const v=localStorage.getItem('arena_dif');return v==='0'||v==
 function difS(){return NET.on?1:DIFS}function achOff(){return difS()==0}
 function sbOf(){const b=SB[wi]||[1,1,0];const x=SBS[wi]||[1,1],q=DIFK[difS()];SBC[0]=b[0]*x[0]*q[0];SBC[1]=b[1]*x[1]*q[1];SBC[2]=b[2];return SBC}
 function sbTick(){const f=sbOf()[0];for(const e of E){if(e.dlh===undefined){e.dlh=e.hp;continue}const l=e.dlh-e.hp;if(l>0&&e.k=='j')thorn(e,l);if(l>0&&f!==1)e.hp-=l*(f-1);e.dlh=e.hp;e.lh=e.hp}}
-function boom(x,z,r,m,kb,cmv,scmb){const mul=cmv?cmbMul():1;let any=0;sfx('boom');for(const e of E){if(e.hp<=0)continue;const dx=e.x-x,dz=e.z-z,d=Math.hypot(dx,dz)||.01;if(d<r){LHE=e;e.hp-=m*mul;e.kx=dx/d*kb;e.kz=dz/d*kb;eHit(e,m>=2?.46:.36,.12);any=1}}if(any&&cmv)cmbHit(cmv,scmb);shake=Math.max(shake,.2)}
+function boom(x,z,r,m,kb,cmv,scmb){const bc=RC.bear&&cmv&&!scmb?crit(0):1,bcr=bc>1;let c1=null;const mul=(cmv?cmbMul():1)*bc;let any=0;sfx('boom');for(const e of E){if(e.hp<=0)continue;const dx=e.x-x,dz=e.z-z,d=Math.hypot(dx,dz)||.01;if(d<r){LHE=e;c1=c1||e;e.hp-=m*mul;e.kx=dx/d*kb;e.kz=dz/d*kb;eHit(e,m>=2?.46:.36,.12);any=1}}if(any&&cmv)cmbHit(cmv,scmb);if(bcr&&c1)critFx(c1,0,0,.4);shake=Math.max(shake,.2)}
 function leap(){const q=nearest(14);p.dir=q?Math.atan2(p.x-q.x,p.z-q.z):p.f+Math.PI;if(q)p.f=aim(q);p.dg=.25;p.dv=34;p.inv=.35;p.vy=6;CD.lp=2.5;p.bh=0}
 function stab(){const q=nearest(14),a=aim(q),D=q?Math.min(Math.hypot(q.x-p.x,q.z-p.z),9):6,sx=Math.sin(a),cz=Math.cos(a),cmv=cmbAction('STAB','S'),mul=cmbMul();let any=0;
   for(const e of E){if(e.hp<=0)continue;const rx=e.x-p.x,rz=e.z-p.z,pr=rx*sx+rz*cz;if(pr>-1&&pr<D+1&&Math.abs(rx*cz-rz*sx)<2){e.bleed=6;e.hp-=.8*mul;eHit(e,.34,.1);any=1}}
@@ -1696,7 +1696,7 @@ const MK=[];{const cl=L(0xcdbb94),sa=L(0x8a2a1a),bd=L(0x5a3418);glv.forEach(m=>{
 const OBm=new THREE.Mesh(new THREE.SphereGeometry(.55,8,6),new THREE.MeshBasicMaterial({color:0x66ff88,transparent:true,opacity:.6}));OBm.visible=false;S.add(OBm);
 function orbUpd(dt){if(wi==8&&p.blk)ob+=dt;else ob=0;const on=ob>.5;OBm.visible=on;
   if(on){OBm.position.set(p.x+Math.sin(p.f)*1.6,1.1+Math.sin(t*6)*.1,p.z+Math.cos(p.f)*1.6);if(!NET.on){p.hp=Math.min(PMX,p.hp+8*dt)}else{NET.obT=(NET.obT||0)-dt;if(NET.obT<=0){NET.obT=.25;if(healAllies(OBm.position.x,OBm.position.z,2.8,5)){if(!orbT){orbT=1;toast('Aliado curado!')}}else orbT=0}}}else orbT=0}
-function dmgE(e,a,kb,fx,fz,cmv,scmb){const dx=e.x-fx,dz=e.z-fz,d=Math.hypot(dx,dz)||.01,mul=cmv?cmbMul():1,am=a*mul;e.hp-=am;dmgNum(e,am);if(cmv)cmbHit(cmv,scmb);puff(e.x,1.1*(e.sz||1),e.z,3,0xffffff,4,3,.3,.09);e.kx=dx/d*kb;e.kz=dz/d*kb;eHit(e,a>=2?.44:.34,.12)}
+function dmgE(e,a,kb,fx,fz,cmv,scmb){const bc=RC.bear&&cmv&&!scmb?crit(0):1,dx=e.x-fx,dz=e.z-fz,d=Math.hypot(dx,dz)||.01,mul=(cmv?cmbMul():1)*bc,am=a*mul;e.hp-=am;dmgNum(e,am,bc>1);if(bc>1)critFx(e,dx/d,dz/d,.36);if(cmv)cmbHit(cmv,scmb);puff(e.x,1.1*(e.sz||1),e.z,3,0xffffff,4,3,.3,.09);e.kx=dx/d*kb;e.kz=dz/d*kb;eHit(e,a>=2?.44:.34,.12)}
 const RBG=new THREE.SphereGeometry(.4,6,5),RBM=new THREE.MeshBasicMaterial({color:0xff2a2a}),DKG=new THREE.SphereGeometry(.5,7,6),DKM=new THREE.MeshBasicMaterial({color:0x5a1a8a});
 CD.pk=CD.pr=CD.pb=CD.dk=0;
 function pugil(){const air=p.y>.2;
@@ -1801,14 +1801,14 @@ function allyUpd(dt){return;al.cd-=dt;
     else if(Math.hypot(p.x-al.x,p.z-al.z)>4)mvTo(al,p.x,p.z,6,dt)}
   alZ.visible=!!al.zombie;alM.visible=!!al.mk&&!al.zombie;al.g.position.set(al.x,0,al.z)}
 function mnClear(){MN.forEach(m=>S.remove(m.g));MN.length=0;NM.z=NM.m=NM.s=null;TM.forEach(m=>S.remove(m.g));TM.length=0;hn.z=hn.m=hn.s=0;p.glide=0;p.vg=0}
-// ---- Raio do Urso-trovão: cada ataque do jogador que acerta tem 10% de chance de chamar um raio do céu no inimigo atingido
-// (no máximo um a cada 0,5 s). Dano crítico igual ao golpe mais forte da classe: o maior multiplicador dos combos da arma
+// ---- Raio do Urso-trovão: todo acerto crítico do jogador (golpes, disparos, magias e habilidades) chama um raio do céu no inimigo atingido
+// (no máximo um a cada 0,5 s). Dano igual ao golpe mais forte da classe: o maior multiplicador dos combos da arma
 // ou, nas classes de magia/disparo/invocação, o da habilidade mais forte (BLZ); cresce com os bônus de dano do nível.
 const BLZ={3:3,5:2.5,6:3,7:2.5,8:2.5,9:2.5,10:2.5,12:2.5,13:2.25};
 function bearDm(){const w=W[wi];let m=0;for(const c of[w.L,w.H].concat(Object.values(w.C||{})))if(c)m=Math.max(m,(c.m||0)*w.dm);return Math.max(m,BLZ[wi]||0)*(1+Math.max(RC.phy||0,RC.mag||0))}
-function bearRoll(){if(t-(p.bzT||-9)<.5||Math.random()>=.1)return;let e=LHE&&LHE.hp>0&&Math.hypot(LHE.x-p.x,LHE.z-p.z)<25?LHE:nearest(10);if(!e)return;p.bzT=t;bearBolt(e)}
+function bearCrit(e){if(NET.gh||dead||!e||t-(p.bzT||-9)<.5)return;if(!(e.hp>0)){let q=null,bd=4;for(const o of E){if(o.hp<=0||o===e)continue;const d=Math.hypot(o.x-e.x,o.z-e.z);if(d<bd){bd=d;q=o}}e=q}if(!e)return;p.bzT=t;bearBolt(e)}
 function bearBolt(e){const a=bearDm(),y=1.1*(e.sz||1),r=()=>rnd(-.6,.6),pts=[e.x+r(),14,e.z+r(),e.x+r(),9,e.z+r(),e.x+r()*.6,5,e.z+r()*.6,e.x,y,e.z];
-  e.hp-=a;achOnHit(a*sbOf()[0]);CRT.on=1;dmgNum(e,a,1);critFx(e,0,0,.42);eHit(e,.5,.15);if(!e.boss)e.stun=Math.max(e.stun>0?e.stun:0,.35);
+  e.hp-=a;achOnHit(a*sbOf()[0]);CRT.on=1;dmgNum(e,a,1);critFx.bz=1;critFx(e,0,0,.42);critFx.bz=0;eHit(e,.5,.15);if(!e.boss)e.stun=Math.max(e.stun>0?e.stun:0,.35);
   zapFx(pts,.16);zEmit([pts]);ring(e.x,e.z,1.8,0x8fe8ff);puff(e.x,.3,e.z,14,0xbff4ff,6,5,.45,.14);shake=Math.max(shake,.32);if(FXV)fxBurst('spark_05.png',e.x,y,e.z,0x9fe8ff,.6,1.6,.3,0,1,0,8,.9)}
 // ---- Raças
 const RACES=[
@@ -1821,8 +1821,8 @@ const RACES=[
  {n:'Minotauro',e:'🐂',skin:0x9a6b4a,d:'Curas nos aliados +12% (no solo: curas em você +8%)',m:{ally:1.12}},
  {n:'Goblin',e:'👺',skin:0x7fb35a,d:'5% de chance de evadir de ataques',m:{ev:.05}},
  // raça secreta (prêmio do Difícil): homem-urso da tempestade; os golpes às vezes chamam um raio do céu (ver "Raio do Urso-trovão")
- {n:'Urso-trovão',e:'🐻',skin:0x9a6a40,d:'Raça secreta: cada ataque tem 10% de chance de chamar um raio do céu no inimigo, com dano crítico igual ao golpe mais forte da sua classe',m:{bear:1},sec:1}];
-const BRM={mz:L(0xb48a5e),nz:L(0x1c1612),mo:L(0x3a0f0f),cl:new THREE.MeshLambertMaterial({color:0x2a3346,emissive:0x0a1a3a}),ey:new THREE.MeshBasicMaterial({color:0x9ff0ff}),rn:new THREE.MeshBasicMaterial({color:0x6fe0ff})};
+ {n:'Urso-trovão',e:'🐻',skin:0xe6ccb8,d:'Raça secreta: todo acerto crítico (ataques e habilidades) chama um raio do céu no inimigo atingido, com dano igual ao golpe mais forte da sua classe',m:{bear:1},sec:1}];
+const BRM={st:L(0x1c2230),cd:L(0x3a3028),cl:new THREE.MeshLambertMaterial({color:0x2a3346,emissive:0x0a1a3a}),ey:new THREE.MeshBasicMaterial({color:0x9ff0ff}),rn:new THREE.MeshBasicMaterial({color:0x6fe0ff})};
 const RN=RACES.length,BEAR=8,bearOk=()=>{try{return !!localStorage.getItem('arena_premio_dif')}catch(e){return false}};
 var sex=0;let race=0,RC={};const RBASE={heal:1,ally:1,spd:1,res:1,mag:0,mg0:0,phy:0,shot:0,as:0,ev:0,nr:0,bear:0};
 const RV={ear:[],ear2:[],tusk:[],horn:[],beard:[],nose:[]};
@@ -1844,7 +1844,7 @@ const RACE_ANIM=[
  {cadence:0.96,strideBob:1.12,shoulderRoll:.090,armSwing:1.25,leanMul:1.15,crouchBias:0.12,breathAmp:1.20},
  {cadence:0.86,strideBob:1.28,shoulderRoll:.095,armSwing:1.18,leanMul:1.25,crouchBias:0.00,breathAmp:1.40},
  {cadence:1.34,strideBob:1.10,shoulderRoll:.065,armSwing:1.15,leanMul:1.10,crouchBias:0.38,breathAmp:1.10},
- {cadence:0.82,strideBob:1.32,shoulderRoll:.105,armSwing:1.22,leanMul:1.3,crouchBias:0.06,breathAmp:1.5}
+ {cadence:0.96,strideBob:1.1,shoulderRoll:.06,armSwing:1.1,leanMul:1.1,crouchBias:0.03,breathAmp:1.15}
 ];
 function raceAnimProf(r,sx){
   const b=RACE_ANIM[r]||RACE_ANIM[0];
@@ -2011,8 +2011,8 @@ function eCanAct(e){
   return !(e&&(e.ht>0||e.stun>0||e.lf>0||e.kd>0||e.ice>0));
 }
 /* ANIM_PURE_END */
-const RBD=(m=>m.concat(m.map(r=>[r[0]*.93,r[1]*.975,r[2]*.84,r[3],r[4]*.9,r[5]*.86,r[6]*1.02,r[7],r[8]*.35])))([[1,1,1,1,1,1,1,1,0],[.95,1.07,.9,1.05,.9,1,1.08,.95,0],[1.12,.8,1.32,.95,1.2,1.2,.78,1.12,.05],[.92,.62,.95,.88,.95,.95,.8,1.38,0],[1.12,1.02,1.32,1,1.15,1.25,.95,.95,.2],[.98,1.14,.9,1.05,.9,1.15,1.1,1,.3],[1.18,1.12,1.38,1.05,1.25,1.25,1,1.12,.12],[.85,.55,.95,.88,.95,1,.75,1.45,.08],[1.24,1.13,1.52,1.04,1.4,1.58,.9,1.26,.24]]),RXB=RBD.map(r=>[r[0],r[1]]),RXH=RBD.map(r=>r[7]),RO={dy:0,sx:.55,sy:1.1},
-  RXE=[0x6a4a2a,0x3fae5a,0x3a6aa0,0x3a8ad8,0xc03020,0xe0c030,0x2a1a0a,0xf0d020,0x6fd8ff],RXC=[0x3a2a1e,0xeadca8,0x8a4a1e,0xf2f2f2,0x1a1a1a,0xd8662a,0x3a2216,0x2a3a1a,0xc9c6cc];
+const RBD=(m=>m.concat(m.map(r=>[r[0]*.93,r[1]*.975,r[2]*.84,r[3],r[4]*.9,r[5]*.86,r[6]*1.02,r[7],r[8]*.35])))([[1,1,1,1,1,1,1,1,0],[.95,1.07,.9,1.05,.9,1,1.08,.95,0],[1.12,.8,1.32,.95,1.2,1.2,.78,1.12,.05],[.92,.62,.95,.88,.95,.95,.8,1.38,0],[1.12,1.02,1.32,1,1.15,1.25,.95,.95,.2],[.98,1.14,.9,1.05,.9,1.15,1.1,1,.3],[1.18,1.12,1.38,1.05,1.25,1.25,1,1.12,.12],[.85,.55,.95,.88,.95,1,.75,1.45,.08],[1.06,1.05,1.12,1.02,1.08,1.12,1,1,.04]]),RXB=RBD.map(r=>[r[0],r[1]]),RXH=RBD.map(r=>r[7]),RO={dy:0,sx:.55,sy:1.1},
+  RXE=[0x6a4a2a,0x3fae5a,0x3a6aa0,0x3a8ad8,0xc03020,0xe0c030,0x2a1a0a,0xf0d020,0x6fd8ff],RXC=[0x3a2a1e,0xeadca8,0x8a4a1e,0xf2f2f2,0x1a1a1a,0xd8662a,0x3a2216,0x2a3a1a,0xeeeef4];
 const IRM=L(0x6a4a2a),WHM=L(0xf6f2ea),BNM=L(0xf2ead0),GDM=L(0xd8b04a),DKM2=L(0x151515),RCG=[];
 {const C=(a,b,h,n=6)=>new THREE.CylinderGeometry(a,b,h,n),Co=(r,h,n=5)=>new THREE.ConeGeometry(r,h,n),B=(x,y,z)=>new THREE.BoxGeometry(x,y,z),Sp=r=>new THREE.SphereGeometry(r,7,5),
   P=(g,m,x,y,z,rx=0,ry=0,rz=0,q)=>{const o=add(g,m,x,y,z,q);o.rotation.set(rx,ry,rz);return o};
@@ -2025,11 +2025,11 @@ const IRM=L(0x6a4a2a),WHM=L(0xf6f2ea),BNM=L(0xf2ead0),GDM=L(0xd8b04a),DKM2=L(0x1
   g=G(4);for(const sx of[-1,1]){add(Co(.03,.12,4),BNM,sx*.075,-.11,.17,g);P(Co(.04,.14,4),SK,sx*.215,.06,-.02,0,0,-sx*1.3,g)}add(B(.1,.05,.05),SK,0,-.02,.215,g);add(B(.05,.12,.34),HR,0,.21,-.02,g);
   g=G(5);P(Co(.05,.2,5),SK,0,-.04,.27,1.75,0,0,g);for(const sx of[-1,1]){P(Co(.045,.15,4),BNM,sx*.08,-.1,.17,.25,0,0,g);P(Co(.05,.3,4),SK,sx*.25,-.02,0,0,0,-sx*1.95,g)}for(let k=0;k<6;k++)P(Co(.05,.2,4),HR,Math.cos(k)*.1,.22,Math.sin(k*1.7)*.08-.04,Math.sin(k)*.6,0,Math.cos(k*2)*.6,g);
   g=G(6);for(const sx of[-1,1]){P(Co(.06,.4,6),BNM,sx*.22,.2,0,0,0,-sx*1.05,g);P(Co(.055,.15,4),SK,sx*.25,.05,-.03,0,0,-sx*1.55,g);add(B(.022,.022,.01),DKM2,sx*.04,-.06,.276,g)}add(B(.2,.15,.14),SK,0,-.07,.2,g);P(new THREE.TorusGeometry(.04,.009,4,10),GDM,0,-.13,.272,0,0,0,g);add(B(.3,.22,.1),HR,0,.05,-.16,g);
-  g=G(7);for(const sx of[-1,1])P(Co(.08,.42,4),SK,sx*.26,.05,0,0,0,-sx*1.35,g);P(Co(.04,.18,4),SK,0,-.01,.27,Math.PI/2,0,0,g);for(let k=0;k<4;k++)P(Co(.012,.045,3),BNM,(k-1.5)*.03,-.11,.198,Math.PI,0,0,g);for(let k=0;k<3;k++)P(Co(.02,.16,3),HR,(k-1)*.06,.22,-.03,0,0,(k-1)*-.5,g);const PI=Math.PI;g=G(8);add(Sp(.24),SK,0,.04,0,g).scale.set(1.08,1,1.05);add(Sp(.11),BRM.mz,0,-.05,.22,g).scale.set(1,.75,1.3);add(Sp(.05),BRM.nz,0,-.01,.355,g).scale.set(1.2,.8,1);for(const sx of[-1,1]){add(Sp(.08),SK,sx*.17,.24,-.02,g).scale.set(1,1,.5);add(Sp(.022),BRM.ey,sx*.09,.06,.225,g);P(Co(.02,.07,4),BNM,sx*.05,-.1,.31,PI,0,0,g)}for(let k=0;k<5;k++)P(Co(.07,.26,4),SK,(k-2)*.08,.2-Math.abs(k-2)*.03,-.2,-2.1,0,(k-2)*.25,g);}
+  g=G(7);for(const sx of[-1,1])P(Co(.08,.42,4),SK,sx*.26,.05,0,0,0,-sx*1.35,g);P(Co(.04,.18,4),SK,0,-.01,.27,Math.PI/2,0,0,g);for(let k=0;k<4;k++)P(Co(.012,.045,3),BNM,(k-1.5)*.03,-.11,.198,Math.PI,0,0,g);for(let k=0;k<3;k++)P(Co(.02,.16,3),HR,(k-1)*.06,.22,-.03,0,0,(k-1)*-.5,g);const PI=Math.PI;g=G(8);P(B(.3,.06,.07),HR,0,.15,.165,-.3,0,0,g);add(B(.36,.5,.09),HR,0,-.2,-.14,g);add(B(.26,.24,.1),HR,0,-.2,.13,g);P(Co(.11,.2,6),HR,0,-.4,.14,PI,0,0,g);for(const sx of[-1,1])add(Sp(.025),BRM.ey,sx*.2,-.05,.02,g);}
 hd.children.forEach(o=>{const q=o.geometry&&o.geometry.parameters;if(o.isMesh&&(o.material===eyeM||(q&&o.geometry.type=='BoxGeometry'&&((o.material===HR&&q.width==.2)||q.width==.065))))o.visible=false});
 const HCAPS=hd.children.filter(o=>o.geometry&&o.geometry.parameters&&o.geometry.parameters.radius==.215);
 // ---- Versão feminina de cada raça: mesmos ossos, corpo mais estreito, cabelo e traços próprios
-const RCF=[],RXCF=[0x5a3a1e,0xf2e6b8,0xb5532a,0xf07ab0,0x1a1a1a,0x2a9a8a,0x3a2216,0x7a2a9a,0xc9c6cc],FB=add(new THREE.SphereGeometry(.2,12,8),body.material,0,.14,.08,body);FB.scale.set(.95,.42,.52);FB.visible=false;
+const RCF=[],RXCF=[0x5a3a1e,0xf2e6b8,0xb5532a,0xf07ab0,0x1a1a1a,0x2a9a8a,0x3a2216,0x7a2a9a,0xeeeef4],FB=add(new THREE.SphereGeometry(.2,12,8),body.material,0,.14,.08,body);FB.scale.set(.95,.42,.52);FB.visible=false;
 {const C=(a,b,h,n=6)=>new THREE.CylinderGeometry(a,b,h,n),Co=(r,h,n=5)=>new THREE.ConeGeometry(r,h,n),B=(x,y,z)=>new THREE.BoxGeometry(x,y,z),Sp=r=>new THREE.SphereGeometry(r,7,5),PI=Math.PI,
   P=(g,m,x,y,z,rx=0,ry=0,rz=0,q)=>{const o=add(g,m,x,y,z,q);o.rotation.set(rx,ry,rz);return o},G=i=>{const g=new THREE.Group();g.visible=false;hd.add(g);RCF[i]=g;return g};let g;
   g=G(0);P(B(.3,.06,.07),HR,0,.15,.165,-.3,0,0,g);add(B(.36,.55,.09),HR,0,-.2,-.14,g);for(const sx of[-1,1])add(B(.07,.38,.08),HR,sx*.19,-.14,.04,g);
@@ -2039,12 +2039,12 @@ const RCF=[],RXCF=[0x5a3a1e,0xf2e6b8,0xb5532a,0xf07ab0,0x1a1a1a,0x2a9a8a,0x3a221
   g=G(4);for(const sx of[-1,1]){add(Co(.02,.075,4),BNM,sx*.075,-.115,.18,g);P(Co(.04,.14,4),SK,sx*.215,.06,-.02,0,0,-sx*1.3,g)}add(B(.09,.045,.045),SK,0,-.02,.21,g);add(Sp(.08),HR,0,.2,-.17,g);P(C(.06,.025,.55),HR,0,-.02,-.3,.55,0,0,g);
   g=G(5);P(Co(.04,.14,5),SK,0,-.04,.25,1.75,0,0,g);for(const sx of[-1,1]){P(Co(.028,.1,4),BNM,sx*.08,-.105,.175,.25,0,0,g);P(Co(.05,.3,4),SK,sx*.25,-.02,0,0,0,-sx*1.95,g);P(C(.035,.025,.55),HR,sx*.12,-.2,-.16,.2,0,0,g)}P(C(.04,.03,.6),HR,0,-.22,-.2,.25,0,0,g);for(let k=0;k<3;k++)P(Co(.05,.2,4),HR,(k-1)*.07,.25,-.04,0,0,(k-1)*-.4,g);
   g=G(6);for(const sx of[-1,1]){P(Co(.045,.28,6),BNM,sx*.2,.2,0,0,0,-sx*1.05,g);P(Co(.055,.15,4),SK,sx*.25,.05,-.03,0,0,-sx*1.55,g);add(B(.02,.02,.01),DKM2,sx*.035,-.06,.262,g);add(C(.04,.03,.42),HR,sx*.2,-.26,.05,g);add(Sp(.04),GDM,sx*.2,-.46,.05,g)}add(B(.17,.13,.13),SK,0,-.07,.195,g);add(B(.26,.08,.1),HR,0,.18,.1,g);
-  g=G(7);for(const sx of[-1,1])P(Co(.08,.42,4),SK,sx*.26,.05,0,0,0,-sx*1.35,g);P(Co(.032,.13,4),SK,0,-.01,.25,PI/2,0,0,g);for(let k=0;k<2;k++)P(Co(.011,.04,3),BNM,(k-.5)*.04,-.11,.198,PI,0,0,g);add(Sp(.07),HR,0,.24,-.04,g);P(Co(.07,.34,5),HR,0,.42,-.1,-.5,0,0,g);g=G(8);add(Sp(.24),SK,0,.04,0,g).scale.set(1.08,1,1.05);add(Sp(.11),BRM.mz,0,-.05,.22,g).scale.set(1,.75,1.3);add(Sp(.05),BRM.nz,0,-.01,.355,g).scale.set(1.2,.8,1);for(const sx of[-1,1]){add(Sp(.08),SK,sx*.17,.24,-.02,g).scale.set(1,1,.5);add(Sp(.022),BRM.ey,sx*.09,.06,.225,g);P(Co(.02,.07,4),BNM,sx*.05,-.1,.31,PI,0,0,g)}for(let k=0;k<5;k++)P(Co(.07,.26,4),SK,(k-2)*.08,.2-Math.abs(k-2)*.03,-.2,-2.1,0,(k-2)*.25,g);}
+  g=G(7);for(const sx of[-1,1])P(Co(.08,.42,4),SK,sx*.26,.05,0,0,0,-sx*1.35,g);P(Co(.032,.13,4),SK,0,-.01,.25,PI/2,0,0,g);for(let k=0;k<2;k++)P(Co(.011,.04,3),BNM,(k-.5)*.04,-.11,.198,PI,0,0,g);add(Sp(.07),HR,0,.24,-.04,g);P(Co(.07,.34,5),HR,0,.42,-.1,-.5,0,0,g);g=G(8);P(B(.3,.06,.07),HR,0,.15,.165,-.3,0,0,g);add(B(.36,.5,.09),HR,0,-.2,-.14,g);add(B(.26,.24,.1),HR,0,-.2,.13,g);P(Co(.11,.2,6),HR,0,-.4,.14,PI,0,0,g);for(const sx of[-1,1])add(Sp(.025),BRM.ey,sx*.2,-.05,.02,g);}
 function setSex(v){sex=v?1:0;try{saveSet()}catch(e){}setRace(race);if(cls<0&&scr=='play')pickUI()}
 function sxUI(){$('sxr').innerHTML='<span class="btn'+(sex?'':' on')+'" data-sx="0">♂ Masculino</span><span class="btn'+(sex?' on':'')+'" data-sx="1">♀ Feminino</span><span style="font-size:12px;opacity:.75">tecla G ou △ para trocar</span>'}
 function setRace(i){if(!RACES[i]||RACES[i].sec&&!bearOk()&&!(NET.on&&NET.ph=='p'))i=0;race=i;RC={...RBASE,...RACES[i].m};SK.color.setHex(RACES[i].skin);raceVis(i);
   for(const k in RV)RV[k].forEach(m=>m.visible=false);RCG.forEach((g,j)=>g.visible=!sex&&j==i);RCF.forEach((g,j)=>g.visible=!!sex&&j==i);FB.visible=!!sex;IRM.color.setHex(RXE[i]);HR.color.setHex((sex?RXCF:RXC)[i]);paintFace(i);{const r=RBD[i+RN*sex],tx=r[2],ty=r[3],tz=r[4],a=r[5],lg=r[6],h=r[7];body.scale.set(tx,ty,tz);body.rotation.x=r[8];hd.scale.set(h/tx,h/ty,h/tz);for(const u of[uaL,uaR]){u.scale.setScalar(a);u.ho.scale.set(1/tx,1/ty,1/tz)}for(const l of[legL,legR]){l.scale.set(Math.min(1.2,tx*.92),lg,Math.min(1.2,tz*.92));l.position.y=.95*lg}
-    RO.dy=.95*(lg-1);RO.sx=.43*tx+.12*a;RO.sy=BY+RO.dy+.27*ty-.45*a;sw.position.set(RO.sx,RO.sy,.1);sw2.position.set(-RO.sx,RO.sy,.1)}HCAPS.forEach(o=>o.visible=sex?i!=6&&i!=BEAR:i!=2&&i!=6&&i!=BEAR);heroSync()}
+    RO.dy=.95*(lg-1);RO.sx=.43*tx+.12*a;RO.sy=BY+RO.dy+.27*ty-.45*a;sw.position.set(RO.sx,RO.sy,.1);sw2.position.set(-RO.sx,RO.sy,.1)}HCAPS.forEach(o=>o.visible=sex?i!=6:i!=2&&i!=6);heroSync()}
 setRace(0);
 // ---- Som e configurações
 let QL=-1,QLR=1,ELOD=1,NATV=1,HUDS=1,ACHN=0,ATKV=0,SENS=1,VRV=1,CJV=1,FXV=1,CAMV=1,SHV=matchMedia('(pointer:coarse)').matches?0:1,OLV=1,GRV=1,PS1V=0,RES=320,VOL=.6,MUSV=.6,SFXV=1,MUTE=false,listen=null,AC=null;const KB={},GM2={},lastS={},RESO=[240,320,480,720],GN={0:'✕',1:'○',2:'□',3:'△',4:'L1',5:'R1',6:'L2',7:'R2'};
@@ -2420,7 +2420,6 @@ function cmbUI(pop){
 }
 function cmbTick(dt){if(CMB_MSGT>0){CMB_MSGT-=dt;if(CMB_MSGT<=0){CMB_MSGT=0;CMB_MSG='';cmbUI()}}}
 function cmbHit(cmv,silent){
- if(RC.bear&&cmv&&!silent&&!NET.gh&&!dead)bearRoll();
  if(NET.gh||!cmv||silent)return{ok:false,silent:true};
  const res=cmbStep(CMB_S,cmv);
  if(res.ok){CMB_MSG='';CMB_MSGT=0;cmbUI(1)}
@@ -3918,7 +3917,7 @@ function trailUpd(dt){const on=FXV&&p.att>0&&!dead&&[0,1,2,4,5,7,10,13].includes
 const PN=220,PIM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),PN),PA=[],PO3=new THREE.Object3D(),PCc=new THREE.Color();PIM.frustumCulled=false;PIM.setColorAt(0,PCc);PIM.count=0;S.add(PIM);
 function puff(x,y,z,n,c,sp,up,life,sz,g=1,bx=0,bz=0){if(!FXV)return;for(let i=0;i<n;i++){if(PA.length>=PN)PA.shift();const a=rnd(0,PI2),v=rnd(.3,1)*sp;PA.push({x,y,z,vx:Math.cos(a)*v+bx,vz:Math.sin(a)*v+bz,vy:rnd(.3,1)*up,t:life*rnd(.6,1),T:life,s:sz*rnd(.6,1.25),c,g})}}
 function hitFx(e,nx,nz,m){const y=1.1*(e.sz||1);puff(e.x,y,e.z,4+Math.round(2*m),0xfff2b0,5,4,.32,.09,1,nx*4,nz*4);puff(e.x,y,e.z,2+Math.round(m),e.cl,3,3,.5,.13,1,nx*2.5,nz*2.5)}
-function critFx(e,nx=0,nz=0,sh=.32){shake=Math.max(shake,sh);const now=performance.now();if(now-(critFx.st||0)>90){critFx.st=now;sfx('crit')}if(!FXV)return;const s=e.sz||1,y=1.25*s;puff(e.x,y,e.z,12,0xffb830,8.5,7.2,.52,.18,1,nx*3.5,nz*3.5);puff(e.x,y+.1*s,e.z,8,0xfff8c4,10.5,6,.38,.13,.45,nx*4.2,nz*4.2);puff(e.x,y+.15*s,e.z,7,0xff4a18,5.2,8.2,.62,.15,.28);fxBurst('star_08.png',e.x,y,e.z,0xffd34d,.65*s,1.8*s,.32,0,.4,0,4,.92);if(now-(critFx.rt||0)>45){critFx.rt=now;ring(e.x,e.z,1.25*s,0xffd34d)}}
+function critFx(e,nx=0,nz=0,sh=.32){if(RC.bear&&!critFx.bz)bearCrit(e);shake=Math.max(shake,sh);const now=performance.now();if(now-(critFx.st||0)>90){critFx.st=now;sfx('crit')}if(!FXV)return;const s=e.sz||1,y=1.25*s;puff(e.x,y,e.z,12,0xffb830,8.5,7.2,.52,.18,1,nx*3.5,nz*3.5);puff(e.x,y+.1*s,e.z,8,0xfff8c4,10.5,6,.38,.13,.45,nx*4.2,nz*4.2);puff(e.x,y+.15*s,e.z,7,0xff4a18,5.2,8.2,.62,.15,.28);fxBurst('star_08.png',e.x,y,e.z,0xffd34d,.65*s,1.8*s,.32,0,.4,0,4,.92);if(now-(critFx.rt||0)>45){critFx.rt=now;ring(e.x,e.z,1.25*s,0xffd34d)}}
 function partUpd(dt){let n=0;for(let i=PA.length-1;i>=0;i--){const q=PA[i];q.t-=dt;if(q.t<=0){PA.splice(i,1);continue}q.vy-=18*q.g*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.z+=q.vz*dt;if(q.y<.05){q.y=.05;q.vy*=-.3;q.vx*=.6;q.vz*=.6}}
   for(const q of PA){PO3.position.set(q.x,q.y,q.z);PO3.scale.setScalar(q.s*Math.min(1,q.t/q.T*2));PO3.rotation.set(q.x*3,q.z*3,0);PO3.updateMatrix();PIM.setMatrixAt(n,PO3.matrix);PIM.setColorAt(n,PCc.setHex(q.c));n++}
   PIM.count=n;PIM.instanceMatrix.needsUpdate=true;PIM.instanceColor.needsUpdate=true}
@@ -4054,7 +4053,7 @@ function outfit(v,c){const U=v.scene.userData;(U.kit||[]).forEach(o=>{o.parent&&
 var HERO={g:{},p:{},t:0};
 const HUM=new THREE.Color(0xf0c8a0),HKS={Head:.68,Hips:1.2},
   HHAIR=[[['Hair_SimpleParted'],['Hair_Long']],[['Hair_Long'],['Hair_Long']],[['Hair_Buzzed','Hair_Beard'],['Hair_Buns']],[['Hair_SimpleParted','Hair_Beard'],['Hair_Buns']],
-    [['Hair_Buzzed'],['Hair_Long']],[['Hair_Buzzed'],['Hair_BuzzedFemale']],[['Hair_Beard'],['Hair_Long']],[[],['Hair_Buns']],[[],[]]],
+    [['Hair_Buzzed'],['Hair_Long']],[['Hair_Buzzed'],['Hair_BuzzedFemale']],[['Hair_Beard'],['Hair_Long']],[[],['Hair_Buns']],[['Hair_Long','Hair_Beard'],['Hair_Long']]],
   // roupa por classe: peças, cor do tecido, quanto tinge; kits antigos (índices de OUT[c].k) que continuam por cima
   HR5=['R_Body','R_Arms','R_Pauldrons','R_Legs','R_Feet'],HRH=['R_Body','R_Arms','R_Legs','R_Feet','R_Hood'],HP4=['P_Body','P_Arms','P_Legs','P_Feet'],HPB=['P_Body','P_Arms','P_Legs','R_Feet'],
   HOUT=[[HR5,0x3b6fd4,1],[HRH,0x3f8f4a,1],[HP4,0x7a4ac0,1],[HR5,0xe8dcc0,1],[HPB,0xe07b1a,1],[HRH,0x4a3a6a,1],[HR5,0x8a1f6a,1],[HPB,0x2a9f9a,1]],HOUTN=[HP4,0xffffff,0],
@@ -4094,44 +4093,34 @@ function heroAcc(v,i){if(v.acc[i])return v.acc[i];const g=new THREE.Group(),Y=ne
   if(i==6){const t=new THREE.Mesh(new THREE.TorusGeometry(.018,.004,4,12),GDM);t.position.set(0,.03,.128);g.add(t)}
   if(i==BEAR)bearAcc(v,g,S);
   g.userData.racc=1;return g}
-// ---- Urso-trovão: cabeça de urso por cima da cabeça do herói (focinho, nariz, presas, orelhas redondas, olhos de tempestade),
-// juba no pescoço e nos ombros, garras e marcas de raio azuis nos antebraços; o pelo usa a cor da pele (tingida) e a roupa é a da classe
-function bearAcc(v,g,S){const Sp=(r,m,x,y,z,sx=1,sy=1,sz=1,p=g)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,10,8),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);p.add(o);return o},
+// ---- Urso-trovão: humano com sangue do Valrei — garras nas mãos e nos pés, cabelo e barba brancos com contas azuis,
+// pedras de runa azuis no peito e marcas de raio nos antebraços; usa a roupa da classe por cima
+function bearAcc(v,g,S){const Sp=(r,m,x,y,z,sx=1,sy=1,sz=1,p=g)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,8,6),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);p.add(o);return o},
     Co=(r,h,m,x,y,z,rx,ry,rz,p=g,n=5)=>{const o=new THREE.Mesh(new THREE.ConeGeometry(r,h,n),m);o.position.set(x,y,z);o.rotation.set(rx,ry,rz);p.add(o);return o},
     Bx=(w,h,d,m,x,y,z,rx,ry,rz,p=g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.rotation.set(rx,ry,rz);p.add(o);return o};
-  Sp(.13,S,0,.075,.015,1.12,1,1.15);                                  // crânio peludo (cobre a cabeça do herói)
-  Sp(.064,BRM.mz,0,.03,.15,.95,.72,1.6);                               // focinho comprido
-  Sp(.03,BRM.nz,0,.058,.252,1.3,.8,.9);                                // nariz
-  Sp(.05,BRM.mo,0,-.005,.175,.85,.28,1.25);                            // boca rosnando
-  for(const s of[-1,1]){Sp(.04,S,s*.098,.175,-.035,1,1,.55);Sp(.022,BRM.nz,s*.098,.175,-.02,1,1,.3);   // orelhas redondas
-    Bx(.075,.026,.05,S,s*.05,.125,.125,.15,0,s*.38);                   // sobrancelha brava
-    Sp(.013,BRM.ey,s*.052,.103,.135,1.4,.7,.6).rotation.z=s*.3;        // olhos de tempestade
-    Co(.011,.05,BNM,s*.032,.0,.215,Math.PI,0,0);Co(.009,.04,BNM,s*.026,-.022,.205,0,0,0);   // presas de cima e de baixo
-    Co(.05,.15,S,s*.125,.02,.04,0,0,-s*1.9)}                           // bochechas peludas
-  for(let k=0;k<5;k++)Co(.045,.17,S,(k-2)*.05,.14-Math.abs(k-2)*.02,-.11,-2.1,0,(k-2)*.25);   // pelo da nuca
+  for(const s of[-1,1]){Sp(.012,BRM.ey,s*.085,.02,-.03);Sp(.01,BRM.ey,s*.08,-.03,-.05)}   // contas azuis no cabelo
   // peças no corpo: cada grupo é girado para o eixo do osso (nos braços o osso aponta no X), então "y" é sempre ao longo do osso
   const Y=new THREE.Vector3(0,1,0),bd=v.bearB=[],at=(bn,f)=>{const b=v.B[bn];if(!b)return;const q=new THREE.Group();q.userData.racc=1;
-    const c=b.children.find(o=>o.isBone&&o.position.length()>.001);if(c)q.quaternion.setFromUnitVectors(Y,c.position.clone().normalize());b.add(q);bd.push(q);f(q)};
-  // juba: anel de tufos em volta do pescoço
-  at('Neck',q=>{for(let k=0;k<12;k++){const a=k/12*Math.PI*2,c=Math.cos(a),sn=Math.sin(a);Co(.07,.2,S,c*.1,-.04,sn*.09,sn*.9,0,-c*1.15,q,4)}});
-  // corcova de urso nas costas, com tufos
-  at('UpperChest',q=>{Sp(.16,S,0,.06,.09,1.55,1.05,1.05,q);for(let k=0;k<6;k++)Co(.06,.2,S,(k-2.5)*.07,.16-Math.abs(k-2.5)*.02,.15,-.9,0,(k-2.5)*.3,q,4)});
+    const kids=b.children.filter(o=>o.isBone&&o.position.length()>.001),c=kids.find(o=>/Middle/.test(o.name))||kids[0];if(c)q.quaternion.setFromUnitVectors(Y,c.position.clone().normalize());b.add(q);bd.push(q);f(q,c?c.position.length():.1)};
+  at('UpperChest',q=>{for(const s of[-1,1]){const r=Bx(.035,.06,.014,BRM.st,s*.07,.02,-.13,0,0,s*.2,q);Bx(.006,.032,.016,BRM.rn,0,0,0,0,0,0,r);Bx(.004,.05,.004,BRM.cd,s*.035,.07,-.11,0,0,-s*.5,q)}});   // pedras de runa no peito
   for(const sd of['Left','Right']){
-    at(sd+'Hand',q=>{Sp(.045,S,0,.045,0,1.25,1.05,1.45,q);for(let k=0;k<4;k++)Co(.012,.08,BRM.cl,(k-1.5)*.024,.11,.025,.55,0,0,q,4)});   // pata e garras
-    at(sd+'LowerArm',q=>{Sp(.05,S,0,.16,0,1.35,1.9,1.35,q);for(let k=0;k<4;k++)Co(.035,.11,S,Math.cos(k*1.7)*.05,.2,Math.sin(k*1.7)*.05,Math.sin(k*1.7)*1.4,0,-Math.cos(k*1.7)*1.4,q,4);   // antebraço peludo
-      for(let k=0;k<3;k++)Bx(.008,.045,.008,BRM.rn,.032,.05+k*.04,.012,0,0,k%2?.6:-.6,q)});                                // marcas de raio
-    at(sd+'UpperArm',q=>{for(let k=0;k<5;k++)Co(.05,.16,S,Math.cos(k*1.3)*.055,.02+k*.025,Math.sin(k*1.3)*.055,Math.sin(k*1.3)*1.2,0,-Math.cos(k*1.3)*1.2,q,4)})}}
+    at(sd+'Hand',(q,l)=>{for(let k=0;k<4;k++)Co(.009,.065,BRM.cl,(k-1.5)*.02,l+.07,.012,.35,0,0,q,4)});                               // garras das mãos
+    {const t=v.B[sd+'Toes'],f=v.B[sd+'Foot'];if(t&&f){v.scene.updateMatrixWorld(true);const pf=f.getWorldPosition(new THREE.Vector3()),pt=t.getWorldPosition(new THREE.Vector3()),fw=pt.clone().sub(pf);fw.y=0;fw.normalize();
+      // garras dos pés: no osso dos dedos, apontando para frente na horizontal (y = frente, z = cima)
+      const iq=t.getWorldQuaternion(new THREE.Quaternion()).invert(),Yl=fw.applyQuaternion(iq).normalize(),Zl=new THREE.Vector3(0,1,0).applyQuaternion(iq).normalize(),Xl=new THREE.Vector3().crossVectors(Yl,Zl).normalize();Zl.crossVectors(Xl,Yl);
+      const q=new THREE.Group();q.userData.racc=1;q.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(Xl,Yl,Zl));t.add(q);bd.push(q);for(let k=0;k<3;k++)Co(.016,.09,BRM.cl,(k-1)*.04,.13,.02,-.45,0,0,q,4)}}
+    at(sd+'LowerArm',q=>{for(let k=0;k<3;k++)Bx(.008,.045,.008,BRM.rn,.032,.05+k*.04,.012,0,0,k%2?.6:-.6,q)})}}
 function heroRace(v){if(!v||!v.hero)return;const i=race,r=RBD[i+RN*sex]||RBD[0],tx=r[2],ty=r[3],tz=r[4],a=r[5],lg=r[6],hh=r[7],B=v.B,
     hx=1+(tx-1)*.6,hz=1+(tz-1)*.6,k=(Math.min(1.2,tx*.92)+lg)/2,S=(n,x,y,z)=>{if(B[n])B[n].scale.set(x,y,z)};
   // proporções: quadril/tronco largos, cabeça, braços e pernas (o tamanho geral já vem da escala do grupo do jogador)
   S('Hips',hx,1,hz);S('Spine',tx/hx,ty,tz/hz);S('Neck',hh/tx,hh/ty,hh/tz);
   for(const sd of['Left','Right']){S(sd+'Shoulder',a/tx,a/ty,a/tz);S(sd+'UpperLeg',k/hx,lg,k/hz);S(sd+'Foot',1,k/lg,1)}
   v.dy=-((v.hipY-v.ftY)*(1-lg)+v.ftY*(1-k))*v.k;v.lean=r[8];v.lg=lg;
-  const c=new THREE.Color(RACES[i].skin),f=i>=4?1.25:1;v.tint.value.set(c.r/HUM.r*f,c.g/HUM.g*f,c.b/HUM.b*f);v.skm.color.setRGB(.667*v.tint.value.x,.463*v.tint.value.y,.318*v.tint.value.z);
+  const c=new THREE.Color(RACES[i].skin),f=i>=4&&i!=BEAR?1.25:1;v.tint.value.set(c.r/HUM.r*f,c.g/HUM.g*f,c.b/HUM.b*f);v.skm.color.setRGB(.667*v.tint.value.x,.463*v.tint.value.y,.318*v.tint.value.z);
   (v.hm||[]).forEach(m=>m.color.setHex((sex?RXCF:RXC)[i]));v.acc.forEach(g=>g&&(g.visible=false));heroAcc(v,i).visible=true;if(v.bearB)v.bearB.forEach(g=>g.visible=i==BEAR);heroHair(v)}
 function heroHair(v){const hs=HHAIR[race][sex?1:0],hood=v.parts.R_Hood&&v.parts.R_Hood[0].visible;for(const n in v.hair)v.hair[n].visible=hs.includes(n)&&(!hood||n=='Hair_Beard')}
 // roupa da classe (c<0: menu, roupa de camponês sem tingir)
-function heroCloth(v,c){if(!v||!v.hero)return;const [ps,col,amt]=HOUT[c]||HOUTN;for(const k in v.parts)v.parts[k].forEach(o=>o.visible=ps.includes(k)&&!(k=='R_Hood'&&race==BEAR));
+function heroCloth(v,c){if(!v||!v.hero)return;const [ps,col,amt]=HOUT[c]||HOUTN;for(const k in v.parts)v.parts[k].forEach(o=>o.visible=ps.includes(k));
   for(const k of['RoupaR','RoupaP']){const m=v.mats[k];if(m){m.userData.u.uCls.value.setHex(col);m.userData.u.uAmt.value=amt}}heroHair(v)}
 // ---- Animações (Universal Animation Library 1 e 2, Quaternius, CC0), já convertidas para o esqueleto dos heróis
 function heroClips(v,D){const mx=new THREE.AnimationMixer(v.scene),A={},h0=v.B.Hips.position.clone(),
