@@ -1821,7 +1821,7 @@ const RACES=[
  {n:'Minotauro',e:'🐂',skin:0x9a6b4a,d:'Curas nos aliados +12% (no solo: curas em você +8%)',m:{ally:1.12}},
  {n:'Goblin',e:'👺',skin:0x7fb35a,d:'5% de chance de evadir de ataques',m:{ev:.05}},
  // raça secreta (prêmio do Difícil): homem-urso da tempestade; os golpes às vezes chamam um raio do céu (ver "Raio do Urso-trovão")
- {n:'Urso-trovão',e:'🐻',skin:0xe6ccb8,d:'Raça secreta: todo acerto crítico (ataques e habilidades) chama um raio do céu no inimigo atingido, com dano igual ao golpe mais forte da sua classe',m:{bear:1},sec:1}];
+ {n:'Urso-trovão',e:'🐻',skin:0xfbe2d4,d:'Raça secreta: todo acerto crítico (ataques e habilidades) chama um raio do céu no inimigo atingido, com dano igual ao golpe mais forte da sua classe',m:{bear:1},sec:1}];
 const BRM={st:L(0x1c2230),cd:L(0x3a3028),cl:new THREE.MeshLambertMaterial({color:0x2a3346,emissive:0x0a1a3a}),ey:new THREE.MeshBasicMaterial({color:0x9ff0ff}),rn:new THREE.MeshBasicMaterial({color:0x6fe0ff})};
 const RN=RACES.length,BEAR=8,bearOk=()=>{try{return !!localStorage.getItem('arena_premio_dif')}catch(e){return false}};
 var sex=0;let race=0,RC={};const RBASE={heal:1,ally:1,spd:1,res:1,mag:0,mg0:0,phy:0,shot:0,as:0,ev:0,nr:0,bear:0};
@@ -2011,7 +2011,7 @@ function eCanAct(e){
   return !(e&&(e.ht>0||e.stun>0||e.lf>0||e.kd>0||e.ice>0));
 }
 /* ANIM_PURE_END */
-const RBD=(m=>m.concat(m.map(r=>[r[0]*.93,r[1]*.975,r[2]*.84,r[3],r[4]*.9,r[5]*.86,r[6]*1.02,r[7],r[8]*.35])))([[1,1,1,1,1,1,1,1,0],[.95,1.07,.9,1.05,.9,1,1.08,.95,0],[1.12,.8,1.32,.95,1.2,1.2,.78,1.12,.05],[.92,.62,.95,.88,.95,.95,.8,1.38,0],[1.12,1.02,1.32,1,1.15,1.25,.95,.95,.2],[.98,1.14,.9,1.05,.9,1.15,1.1,1,.3],[1.18,1.12,1.38,1.05,1.25,1.25,1,1.12,.12],[.85,.55,.95,.88,.95,1,.75,1.45,.08],[1.06,1.05,1.12,1.02,1.08,1.12,1,1,.04]]),RXB=RBD.map(r=>[r[0],r[1]]),RXH=RBD.map(r=>r[7]),RO={dy:0,sx:.55,sy:1.1},
+const RBD=(m=>m.concat(m.map(r=>[r[0]*.93,r[1]*.975,r[2]*.84,r[3],r[4]*.9,r[5]*.86,r[6]*1.02,r[7],r[8]*.35])))([[1,1,1,1,1,1,1,1,0],[.95,1.07,.9,1.05,.9,1,1.08,.95,0],[1.12,.8,1.32,.95,1.2,1.2,.78,1.12,.05],[.92,.62,.95,.88,.95,.95,.8,1.38,0],[1.12,1.02,1.32,1,1.15,1.25,.95,.95,.2],[.98,1.14,.9,1.05,.9,1.15,1.1,1,.3],[1.18,1.12,1.38,1.05,1.25,1.25,1,1.12,.12],[.85,.55,.95,.88,.95,1,.75,1.45,.08],[1.03,1.05,1.07,1.02,1.04,1.07,1.03,.98,.02]]),RXB=RBD.map(r=>[r[0],r[1]]),RXH=RBD.map(r=>r[7]),RO={dy:0,sx:.55,sy:1.1},
   RXE=[0x6a4a2a,0x3fae5a,0x3a6aa0,0x3a8ad8,0xc03020,0xe0c030,0x2a1a0a,0xf0d020,0x6fd8ff],RXC=[0x3a2a1e,0xeadca8,0x8a4a1e,0xf2f2f2,0x1a1a1a,0xd8662a,0x3a2216,0x2a3a1a,0xeeeef4];
 const IRM=L(0x6a4a2a),WHM=L(0xf6f2ea),BNM=L(0xf2ead0),GDM=L(0xd8b04a),DKM2=L(0x151515),RCG=[];
 {const C=(a,b,h,n=6)=>new THREE.CylinderGeometry(a,b,h,n),Co=(r,h,n=5)=>new THREE.ConeGeometry(r,h,n),B=(x,y,z)=>new THREE.BoxGeometry(x,y,z),Sp=r=>new THREE.SphereGeometry(r,7,5),
@@ -4104,7 +4104,10 @@ function bearAcc(v,g,S){const Sp=(r,m,x,y,z,sx=1,sy=1,sz=1,p=g)=>{const o=new TH
     const kids=b.children.filter(o=>o.isBone&&o.position.length()>.001),c=kids.find(o=>/Middle/.test(o.name))||kids[0];if(c)q.quaternion.setFromUnitVectors(Y,c.position.clone().normalize());b.add(q);bd.push(q);f(q,c?c.position.length():.1)};
   at('UpperChest',q=>{for(const s of[-1,1]){const r=Bx(.035,.06,.014,BRM.st,s*.07,.02,-.13,0,0,s*.2,q);Bx(.006,.032,.016,BRM.rn,0,0,0,0,0,0,r);Bx(.004,.05,.004,BRM.cd,s*.035,.07,-.11,0,0,-s*.5,q)}});   // pedras de runa no peito
   for(const sd of['Left','Right']){
-    at(sd+'Hand',(q,l)=>{for(let k=0;k<4;k++)Co(.009,.065,BRM.cl,(k-1.5)*.02,l+.07,.012,.35,0,0,q,4)});                               // garras das mãos
+    // garras das mãos: uma em cada dedo (falange do meio), apontando como o dedo; com a mão fechada saem da frente do punho
+    for(const fg of['Index','Middle','Ring','Little']){const b=v.B[sd+fg+'Intermediate'];if(!b||!b.parent)continue;v.scene.updateMatrixWorld(true);
+      const d=b.getWorldPosition(new THREE.Vector3()).sub(b.parent.getWorldPosition(new THREE.Vector3())).applyQuaternion(b.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize();
+      const q=new THREE.Group();q.userData.racc=1;q.quaternion.setFromUnitVectors(Y,d);b.add(q);bd.push(q);Co(.009,.065,BRM.cl,0,.055,0,0,0,0,q,4)}
     {const t=v.B[sd+'Toes'],f=v.B[sd+'Foot'];if(t&&f){v.scene.updateMatrixWorld(true);const pf=f.getWorldPosition(new THREE.Vector3()),pt=t.getWorldPosition(new THREE.Vector3()),fw=pt.clone().sub(pf);fw.y=0;fw.normalize();
       // garras dos pés: no osso dos dedos, apontando para frente na horizontal (y = frente, z = cima)
       const iq=t.getWorldQuaternion(new THREE.Quaternion()).invert(),Yl=fw.applyQuaternion(iq).normalize(),Zl=new THREE.Vector3(0,1,0).applyQuaternion(iq).normalize(),Xl=new THREE.Vector3().crossVectors(Yl,Zl).normalize();Zl.crossVectors(Xl,Yl);
